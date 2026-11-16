@@ -1,10 +1,4 @@
-import { Inter, JetBrains_Mono, Onest, Vazirmatn } from "next/font/google"
-
-const vazir = Vazirmatn({
-  subsets: ["arabic", "latin"],
-  variable: "--font-vazir",
-  display: "swap",
-})
+import { Inter, JetBrains_Mono, Onest } from "next/font/google"
 
 const onest = Onest({
   subsets: ["latin"],
@@ -25,4 +19,4 @@ const jetbrains = JetBrains_Mono({
   display: "swap",
 })
 
-export const fontVariables = `${vazir.variable} ${onest.variable} ${inter.variable} ${jetbrains.variable}`
+export const fontVariables = `${onest.variable} ${inter.variable} ${jetbrains.variable}`

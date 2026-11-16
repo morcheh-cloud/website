@@ -93,17 +93,11 @@
   --radius: 0.625rem;
 }
 
-/* One family per script: Vazirmatn for Persian, Onest for English. The
-   panel slices keep the panel's own Inter (.ui-font). */
-html:lang(fa) {
-  --font-body: var(--font-vazir), system-ui, sans-serif;
-  --font-display: var(--font-vazir), system-ui, sans-serif;
-}
-html:lang(en) {
-  --font-body: var(--font-onest), var(--font-vazir), system-ui, sans-serif;
-  --font-display: var(--font-onest), var(--font-vazir), system-ui, sans-serif;
-}
+/* Onest for the site; the panel slices keep the panel's own Inter
+   (.ui-font). */
 html {
+  --font-body: var(--font-onest), system-ui, sans-serif;
+  --font-display: var(--font-onest), system-ui, sans-serif;
   --font-code: var(--font-jetbrains), ui-monospace, Menlo, monospace;
 }
 
@@ -127,9 +121,6 @@ html {
     @apply bg-void text-foreground antialiased;
     font-size: 1.0625rem;
     line-height: 1.7;
-  }
-  html:lang(fa) body {
-    line-height: 1.95;
   }
   ::selection {
     background: color-mix(in oklab, var(--glow) 40%, transparent);
@@ -157,12 +148,6 @@ html {
     font-weight: 380;
     text-wrap: balance;
   }
-  html:lang(fa) .t-mega {
-    font-size: clamp(2.5rem, 1rem + 6.2vw, 6.5rem);
-    font-weight: 300;
-    letter-spacing: 0;
-    line-height: 1.3;
-  }
   .t-title {
     font-family: var(--font-display);
     font-size: clamp(2.1rem, 1.2rem + 3.2vw, 4rem);
@@ -171,22 +156,12 @@ html {
     font-weight: 420;
     text-wrap: balance;
   }
-  html:lang(fa) .t-title {
-    font-weight: 400;
-    letter-spacing: 0;
-    line-height: 1.45;
-  }
   .t-statement {
     font-family: var(--font-display);
     font-size: clamp(1.75rem, 1rem + 2.7vw, 3.4rem);
     line-height: 1.18;
     letter-spacing: -0.03em;
     font-weight: 420;
-  }
-  html:lang(fa) .t-statement {
-    font-weight: 400;
-    letter-spacing: 0;
-    line-height: 1.7;
   }
   .t-heading {
     font-family: var(--font-display);
@@ -195,21 +170,13 @@ html {
     letter-spacing: -0.01em;
     font-weight: 560;
   }
-  html:lang(fa) .t-heading {
-    font-weight: 650;
-    letter-spacing: 0;
-    line-height: 1.6;
-  }
   .t-lead {
     font-size: clamp(1.0625rem, 0.98rem + 0.4vw, 1.25rem);
     line-height: 1.6;
     text-wrap: pretty;
   }
-  html:lang(fa) .t-lead {
-    line-height: 1.95;
-  }
 
-  /* Product UI slices are English on both languages, set like the panel. */
+  /* Product UI slices, set like the panel. */
   .ui-font {
     font-family: var(--font-inter), system-ui, sans-serif;
     line-height: 1.5;
@@ -315,28 +282,7 @@ html {
   }
 }
 
-/* The guides are English on both languages: inside them the Persian page
-   gets the English type back (family, weights, tracking, leading). */
 @layer components {
-  .docs-en {
-    --font-body: var(--font-onest), var(--font-vazir), system-ui, sans-serif;
-    --font-display: var(--font-onest), var(--font-vazir), system-ui, sans-serif;
-    font-family: var(--font-body);
-    line-height: 1.7;
-  }
-  html:lang(fa) .docs-en .t-title {
-    font-weight: 420;
-    letter-spacing: -0.035em;
-    line-height: 1.04;
-  }
-  html:lang(fa) .docs-en .t-heading {
-    font-weight: 560;
-    letter-spacing: -0.01em;
-    line-height: 1.35;
-  }
-  html:lang(fa) .docs-en .t-lead {
-    line-height: 1.6;
-  }
   /* A section someone jumped to glows once. */
   .docs-flash {
     animation: docs-flash 1.6s ease-out;

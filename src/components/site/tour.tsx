@@ -24,7 +24,7 @@ import {
   useState,
 } from "react"
 
-import type { Dictionary } from "@/i18n/en"
+import type { Dictionary } from "@/copy"
 import { cn } from "@/lib/utils"
 
 import { AntShape } from "./logo"
@@ -35,8 +35,7 @@ const DURATION = 7000
 
 type AreaId = keyof typeof vignettes
 
-// The window is a faithful copy of the panel's shell, so it is English and
-// left to right on both languages, like the panel itself.
+// The window is a faithful copy of the panel's shell.
 const sidebar: { label: string; icon: LucideIcon; area?: AreaId }[] = [
   { label: "Home", icon: House },
   { label: "Servers", icon: Server, area: "servers" },
@@ -75,7 +74,7 @@ function Ant({ className }: { className?: string }) {
       viewBox="-4 -2.4 8 4.8"
       aria-hidden="true"
       className={cn(
-        "pointer-events-none absolute end-0 top-1/2 h-3 w-5 translate-x-1/2 -translate-y-1/2 rtl:-translate-x-1/2 rtl:-scale-x-100",
+        "pointer-events-none absolute end-0 top-1/2 h-3 w-5 translate-x-1/2 -translate-y-1/2",
         className,
       )}
     >
@@ -143,11 +142,8 @@ export function Tour({ t, children }: { t: Dictionary; children: ReactNode }) {
   }
 
   const onKeyDown = (event: KeyboardEvent) => {
-    const rtl = getComputedStyle(event.currentTarget).direction === "rtl"
-    const forward = rtl ? "ArrowLeft" : "ArrowRight"
-    const back = rtl ? "ArrowRight" : "ArrowLeft"
-    if (event.key === forward) select(active + 1, true)
-    else if (event.key === back) select(active - 1, true)
+    if (event.key === "ArrowRight") select(active + 1, true)
+    else if (event.key === "ArrowLeft") select(active - 1, true)
     else if (event.key === "Home") select(0, true)
     else if (event.key === "End") select(areas.length - 1, true)
     else return
@@ -182,8 +178,6 @@ export function Tour({ t, children }: { t: Dictionary; children: ReactNode }) {
             <div className="h-full rounded-t-[1.4rem] border border-white/12 border-b-0 bg-white/[0.05] p-1.5 pb-0 shadow-[0_-30px_80px_-30px_rgb(62_99_221/0.55)] backdrop-blur-sm sm:p-2.5 sm:pb-0">
               <div
                 aria-hidden="true"
-                dir="ltr"
-                lang="en"
                 className="ui-font flex h-[44rem] overflow-hidden rounded-t-2xl border border-line border-b-0 bg-surface text-start"
               >
                 <aside className="hidden w-52 shrink-0 flex-col gap-0.5 border-line border-e bg-[#0a0c16] p-3 md:flex">

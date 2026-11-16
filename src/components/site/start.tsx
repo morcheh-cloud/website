@@ -1,5 +1,4 @@
-import { type Locale, numberOf } from "@/i18n/config"
-import type { Dictionary } from "@/i18n/en"
+import type { Dictionary } from "@/copy"
 
 import { CopyButton } from "./copy-button"
 import { MoreLink } from "./more-link"
@@ -30,7 +29,7 @@ const output = [
 
 // A real sequence, so the steps are numbered; the terminal beside them is
 // the first step, done.
-export function Start({ lang, t }: { lang: Locale; t: Dictionary }) {
+export function Start({ t }: { t: Dictionary }) {
   return (
     <section
       id="start"
@@ -46,7 +45,7 @@ export function Start({ lang, t }: { lang: Locale; t: Dictionary }) {
             {t.start.steps.map((step, index) => (
               <li key={step.title} className="flex gap-5">
                 <span className="grid size-9 shrink-0 place-items-center rounded-full border border-line font-medium text-lumen text-sm tabular-nums">
-                  {numberOf(lang, index + 1)}
+                  {(index + 1).toLocaleString("en-US")}
                 </span>
                 <div>
                   <h3 className="t-heading">{step.title}</h3>
@@ -57,24 +56,15 @@ export function Start({ lang, t }: { lang: Locale; t: Dictionary }) {
               </li>
             ))}
           </ol>
-          <MoreLink href={`/${lang}/install`} className="mt-12 ms-14">
+          <MoreLink href={`/install`} className="mt-12 ms-14">
             {t.home.startMore}
           </MoreLink>
         </div>
 
-        <figure
-          dir="ltr"
-          className="self-center overflow-hidden rounded-[1.4rem] border border-white/10 bg-white/[0.03] p-1.5 lg:p-2"
-        >
+        <figure className="self-center overflow-hidden rounded-[1.4rem] border border-white/10 bg-white/[0.03] p-1.5 lg:p-2">
           <div className="overflow-hidden rounded-2xl border border-line bg-surface">
             <figcaption className="flex items-center justify-between gap-3 border-line border-b py-2 ps-5 pe-2">
-              <span
-                lang={lang}
-                dir={lang === "fa" ? "rtl" : "ltr"}
-                className="text-dust text-xs"
-              >
-                {t.start.codeLabel}
-              </span>
+              <span className="text-dust text-xs">{t.start.codeLabel}</span>
               <CopyButton
                 text={commands.join("\n")}
                 copy={t.start.copy}

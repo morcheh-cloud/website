@@ -1,36 +1,26 @@
 import Link from "next/link"
-import { notFound } from "next/navigation"
 
 import { MoreLink } from "@/components/site/more-link"
 import { PageHero } from "@/components/site/page-hero"
 import { SitePage } from "@/components/site/site-page"
 import { vignettes } from "@/components/site/vignettes"
+import { copy } from "@/copy"
 import { guideFor } from "@/docs/guides"
 import { docHref } from "@/docs/href"
-import { hasLocale } from "@/i18n/config"
-import { getDictionary } from "@/i18n/dictionaries"
 import { pageMeta } from "@/lib/meta"
 import { cn } from "@/lib/utils"
 
-export async function generateMetadata({
-  params,
-}: PageProps<"/[lang]/product">) {
-  const { lang } = await params
-  if (!hasLocale(lang)) return {}
-  const t = getDictionary(lang)
-  return pageMeta(lang, "/product", t.pages.product, t.product.description)
+export function generateMetadata() {
+  const t = copy
+  return pageMeta("/product", t.pages.product, t.product.description)
 }
 
-export default async function Product({
-  params,
-}: PageProps<"/[lang]/product">) {
-  const { lang } = await params
-  if (!hasLocale(lang)) notFound()
-  const t = getDictionary(lang)
+export default function Product() {
+  const t = copy
   const p = t.product
 
   return (
-    <SitePage lang={lang} t={t}>
+    <SitePage t={t}>
       <PageHero title={p.title} lead={p.lead}>
         <nav aria-label={t.pages.product} className="mt-10">
           <ul className="flex flex-wrap gap-2">
@@ -87,9 +77,7 @@ export default async function Product({
                     return (
                       <Link
                         key={slug}
-                        href={docHref(lang, slug)}
-                        lang="en"
-                        dir="ltr"
+                        href={docHref(slug)}
                         className="inline-flex h-9 items-center gap-2 rounded-full border border-line bg-surface px-3.5 text-lumen/85 text-sm transition-colors hover:border-glow/50 hover:text-lumen"
                       >
                         <g.icon
@@ -106,8 +94,6 @@ export default async function Product({
               <div className="rounded-[1.75rem] border border-line bg-raised/40 p-2 sm:p-3">
                 <div
                   aria-hidden="true"
-                  dir="ltr"
-                  lang="en"
                   className="ui-font @container rounded-[1.25rem] border border-line bg-void p-3 text-start sm:p-5"
                 >
                   {Vignette && <Vignette />}
@@ -135,7 +121,7 @@ export default async function Product({
             return (
               <li key={item.guide} className="bg-void">
                 <Link
-                  href={docHref(lang, item.guide)}
+                  href={docHref(item.guide)}
                   className="group flex h-full flex-col gap-3 p-6 transition-colors hover:bg-surface sm:p-7"
                 >
                   {Icon && (
@@ -152,7 +138,7 @@ export default async function Product({
             )
           })}
         </ul>
-        <MoreLink href={docHref(lang)} className="mt-12">
+        <MoreLink href={docHref()} className="mt-12">
           {t.home.docs.button}
         </MoreLink>
       </section>

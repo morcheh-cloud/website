@@ -5,15 +5,13 @@ import {
   ScrollText,
   Undo2,
 } from "lucide-react"
-import { notFound } from "next/navigation"
 
 import { MoreLink } from "@/components/site/more-link"
 import { PageHero } from "@/components/site/page-hero"
 import { Security } from "@/components/site/security"
 import { SitePage } from "@/components/site/site-page"
+import { copy } from "@/copy"
 import { docHref } from "@/docs/href"
-import { hasLocale } from "@/i18n/config"
-import { getDictionary } from "@/i18n/dictionaries"
 import { pageMeta } from "@/lib/meta"
 
 const icons: Record<string, LucideIcon> = {
@@ -23,31 +21,18 @@ const icons: Record<string, LucideIcon> = {
   undo: Undo2,
 }
 
-export async function generateMetadata({
-  params,
-}: PageProps<"/[lang]/security">) {
-  const { lang } = await params
-  if (!hasLocale(lang)) return {}
-  const t = getDictionary(lang)
-  return pageMeta(
-    lang,
-    "/security",
-    t.pages.security,
-    t.securityPage.description,
-  )
+export function generateMetadata() {
+  const t = copy
+  return pageMeta("/security", t.pages.security, t.securityPage.description)
 }
 
-export default async function SecurityPage({
-  params,
-}: PageProps<"/[lang]/security">) {
-  const { lang } = await params
-  if (!hasLocale(lang)) notFound()
-  const t = getDictionary(lang)
+export default function SecurityPage() {
+  const t = copy
   const s = t.securityPage
   const levels = s.levels.items
 
   return (
-    <SitePage lang={lang} t={t}>
+    <SitePage t={t}>
       <PageHero title={s.title} lead={s.lead} />
 
       <Security t={t} heading={false} />
@@ -118,7 +103,7 @@ export default async function SecurityPage({
                   </li>
                 ))}
               </ul>
-              <MoreLink href={docHref(lang, topic.guide)} className="mt-8">
+              <MoreLink href={docHref(topic.guide)} className="mt-8">
                 {s.readGuide}
               </MoreLink>
             </section>

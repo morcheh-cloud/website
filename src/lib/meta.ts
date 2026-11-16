@@ -1,12 +1,9 @@
 import type { Metadata } from "next"
 
-import type { Locale } from "@/i18n/config"
 import { site } from "@/site"
 
-// Metadata for an inner page: "Title | Morche", with links to the page in
-// both languages.
+// Metadata for an inner page: "Title | Morche".
 export function pageMeta(
-  lang: Locale,
   path: string,
   title: string,
   description: string,
@@ -15,21 +12,14 @@ export function pageMeta(
   return {
     title: full,
     description,
-    alternates: {
-      canonical: `/${lang}${path}`,
-      languages: {
-        fa: `/fa${path}`,
-        en: `/en${path}`,
-        "x-default": `/fa${path}`,
-      },
-    },
+    alternates: { canonical: path },
     openGraph: {
       title: full,
       description,
       siteName: site.name,
-      locale: lang === "fa" ? "fa_IR" : "en_US",
+      locale: "en_US",
       type: "website",
-      url: `/${lang}${path}`,
+      url: path,
     },
   }
 }

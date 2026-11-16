@@ -1,4 +1,5 @@
 import {
+  Code,
   Eye,
   KeyRound,
   type LucideIcon,
@@ -8,7 +9,7 @@ import {
   Users,
 } from "lucide-react"
 
-import type { Dictionary } from "@/i18n/en"
+import type { Dictionary } from "@/copy"
 import { cn } from "@/lib/utils"
 
 import { MoreLink } from "./more-link"
@@ -20,6 +21,7 @@ const icons: Record<string, LucideIcon> = {
   users: Users,
   eye: Eye,
   undo: Undo2,
+  code: Code,
 }
 
 // One joined slab, cells split by hairlines; faint indigo light pools in a
@@ -60,7 +62,7 @@ export function Security({
                 className={cn(
                   "relative bg-void p-7 sm:p-9",
                   index === 0 &&
-                    "bg-[radial-gradient(90%_80%_at_0%_0%,color-mix(in_oklab,var(--indigo)_16%,transparent),transparent_70%)] rtl:bg-[radial-gradient(90%_80%_at_100%_0%,color-mix(in_oklab,var(--indigo)_16%,transparent),transparent_70%)]",
+                    "bg-[radial-gradient(90%_80%_at_0%_0%,color-mix(in_oklab,var(--indigo)_16%,transparent),transparent_70%)]",
                   index === 4 &&
                     "bg-[radial-gradient(80%_80%_at_50%_100%,color-mix(in_oklab,var(--indigo)_14%,transparent),transparent_70%)]",
                 )}

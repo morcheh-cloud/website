@@ -4,7 +4,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
-import type { Dictionary } from "@/i18n/en"
+import type { Dictionary } from "@/copy"
 
 export function Faq({ t }: { t: Dictionary }) {
   return (

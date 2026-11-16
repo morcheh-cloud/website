@@ -12,17 +12,16 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
-import type { Locale } from "@/i18n/config"
 import { cn } from "@/lib/utils"
-import { demoHref } from "@/site"
+import { site } from "@/site"
 
-import { LangSwitch } from "./lang-switch"
+import { GithubMark } from "./github-mark"
 import { Logo } from "./logo"
 import { type HeaderCopy, navLinks } from "./nav"
 
 // A floating pill. It sits inside the top frame and keeps its place as the
 // page scrolls, gaining a backdrop once it leaves the frame's light.
-export function Header({ lang, t }: { lang: Locale; t: HeaderCopy }) {
+export function Header({ t }: { t: HeaderCopy }) {
   const [scrolled, setScrolled] = useState(false)
   const pathname = usePathname() ?? ""
 
@@ -33,8 +32,7 @@ export function Header({ lang, t }: { lang: Locale; t: HeaderCopy }) {
     return () => window.removeEventListener("scroll", update)
   }, [])
 
-  const links = navLinks(lang, t)
-  const other: Locale = lang === "fa" ? "en" : "fa"
+  const links = navLinks(t)
   const isCurrent = (href: string) =>
     !href.includes("#") &&
     (pathname === href || pathname.startsWith(`${href}/`))
@@ -49,7 +47,7 @@ export function Header({ lang, t }: { lang: Locale; t: HeaderCopy }) {
             : "border-white/[0.08] bg-white/[0.04] backdrop-blur-md",
         )}
       >
-        <Link href={`/${lang}`} aria-label={t.nav.home} className="rounded-lg">
+        <Link href={"/"} aria-label={t.nav.home} className="rounded-lg">
           <Logo name={t.brand} />
         </Link>
 
@@ -76,18 +74,20 @@ export function Header({ lang, t }: { lang: Locale; t: HeaderCopy }) {
         </nav>
 
         <div className="ms-auto flex items-center gap-1.5 lg:ms-0">
-          <LangSwitch
-            to={other}
-            text={t.nav.switchTo}
-            label={t.nav.switchLabel}
-            className="border-transparent"
-          />
           <a
-            href={demoHref(t.subject)}
+            href={site.github.org}
+            aria-label={t.nav.github}
+            title={t.nav.github}
+            className="inline-flex size-10 items-center justify-center rounded-full text-lumen/70 transition-colors hover:bg-white/10 hover:text-lumen"
+          >
+            <GithubMark />
+          </a>
+          <Link
+            href="/install"
             className="hidden h-10 items-center rounded-full bg-lumen px-5 font-medium text-[0.9375rem] text-void transition-colors hover:bg-white sm:inline-flex"
           >
-            {t.nav.demo}
-          </a>
+            {t.nav.install}
+          </Link>
 
           <Sheet>
             <SheetTrigger
@@ -97,7 +97,7 @@ export function Header({ lang, t }: { lang: Locale; t: HeaderCopy }) {
               <Menu className="size-5" />
             </SheetTrigger>
             <SheetContent
-              side={lang === "fa" ? "left" : "right"}
+              side="right"
               closeLabel={t.nav.close}
               className="w-[min(88vw,22rem)] border-line bg-surface p-0"
             >
@@ -121,11 +121,23 @@ export function Header({ lang, t }: { lang: Locale; t: HeaderCopy }) {
                     }
                   />
                 ))}
+                <SheetClose
+                  nativeButton={false}
+                  render={
+                    <Link
+                      href="/install"
+                      className="mt-6 flex h-12 items-center justify-center rounded-full bg-lumen font-medium text-void"
+                    >
+                      {t.nav.install}
+                    </Link>
+                  }
+                />
                 <a
-                  href={demoHref(t.subject)}
-                  className="mt-6 flex h-12 items-center justify-center rounded-full bg-lumen font-medium text-void"
+                  href={site.github.org}
+                  className="mt-2 flex h-12 items-center justify-center gap-2.5 rounded-full border border-line font-medium text-lumen hover:bg-raised"
                 >
-                  {t.nav.demo}
+                  <GithubMark className="size-[1.125rem]" />
+                  {t.nav.github}
                 </a>
               </nav>
             </SheetContent>

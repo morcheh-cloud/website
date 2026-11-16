@@ -15,7 +15,7 @@ import {
   siUbuntu,
 } from "simple-icons"
 
-import type { Dictionary } from "@/i18n/en"
+import type { Dictionary } from "@/copy"
 
 // Brands without a Simple Icons glyph get a plain outline icon instead.
 const tools: { name: string; icon: SimpleIcon | LucideIcon }[] = [
@@ -63,10 +63,7 @@ export function Works({ t }: { t: Dictionary }) {
         <h2 id="works-title" className="text-dust text-sm">
           {t.works.title}
         </h2>
-        <ul
-          dir="ltr"
-          className="mt-7 flex flex-wrap justify-center gap-x-7 gap-y-4 sm:gap-x-9"
-        >
+        <ul className="mt-7 flex flex-wrap justify-center gap-x-7 gap-y-4 sm:gap-x-9">
           {tools.map((tool) => (
             <li
               key={tool.name}

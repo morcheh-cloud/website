@@ -1,8 +1,8 @@
-export const en = {
+export const copy = {
   meta: {
-    title: "Morche: a private cloud on your own servers",
+    title: "Morche: an open-source private cloud on your own servers",
     description:
-      "Morche is a private cloud that installs on your organization's servers and runs your team's whole infrastructure from one panel: servers, databases, storage, DNS, backups and access.",
+      "Morche is an open-source private cloud that runs on your own servers with Docker and runs your team's whole infrastructure from one panel: servers, databases, storage, DNS, backups and access.",
   },
   brand: "Morche",
   nav: {
@@ -12,18 +12,18 @@ export const en = {
     security: "Security",
     start: "Get started",
     faq: "Questions",
-    demo: "Request a demo",
+    install: "Install",
+    github: "Morche on GitHub",
     menu: "Open menu",
     close: "Close menu",
     home: "Morche home",
-    switchTo: "فارسی",
-    switchLabel: "نسخه‌ی فارسی",
   },
   hero: {
     title: "Your own cloud, on your own servers.",
     lead: "Morche installs on your organization's servers and runs everything your team manages from one panel: servers, databases, storage, DNS, backups and access.",
-    primary: "Request a demo",
-    secondary: "See it in action",
+    badge: "Open source · self-hosted with Docker",
+    primary: "Install Morche",
+    secondary: "View on GitHub",
   },
   tour: {
     label: "A tour of the panel",
@@ -186,9 +186,9 @@ export const en = {
         body: "Every password reveal is logged, and terminal sessions can be recorded.",
       },
       {
-        icon: "undo",
-        title: "No locking yourself out",
-        body: "A firewall change that cuts off your access undoes itself.",
+        icon: "code",
+        title: "Open source",
+        body: "Read every line that touches your servers, on GitHub. No black box, no licence server.",
       },
     ],
   },
@@ -197,7 +197,7 @@ export const en = {
     steps: [
       {
         title: "Install it on one server",
-        body: "Morche ships as Docker Compose: PostgreSQL, Redis, the backend and the panel.",
+        body: "One script and Docker Compose: PostgreSQL, Redis, the backend and the panel, from public images.",
       },
       {
         title: "Add your servers",
@@ -232,25 +232,29 @@ export const en = {
         a: "Yes. Each workspace has its own servers, storage and people, and access can be set for a whole workspace or for a single server.",
       },
       {
+        q: "Is it really free and open source?",
+        a: "Yes. The backend, the panel and the Docker setup are all public on GitHub. Install it, read the code, open an issue or send a pull request.",
+      },
+      {
         q: "Does it work on a phone?",
         a: "Yes. On a phone the panel behaves like a native app, terminal and file manager included.",
       },
       {
         q: "How do we get started?",
-        a: "Request a demo. We'll walk through it with your team and set it up on your own servers.",
+        a: "Clone the morche repository on any Linux server with Docker and run ./install.sh. It takes about ten minutes, and the install guide covers HTTPS, updates and backups.",
       },
     ],
   },
   cta: {
     title: "Bring your servers home.",
-    body: "Tell us about your infrastructure and we'll show you Morche running on it.",
-    button: "Request a demo",
-    or: "or write to",
-    subject: "Morche demo request",
+    body: "Free and open source. One script on any Linux server with Docker, and it's yours.",
+    button: "Install Morche",
+    github: "Star it on GitHub",
+    or: "Questions? Write to",
   },
   footer: {
-    tagline: "A private cloud for organizations.",
-    rights: "All rights reserved.",
+    tagline: "An open-source private cloud for organizations.",
+    built: "Open source, built in the open.",
   },
   pages: {
     product: "Product",
@@ -262,8 +266,11 @@ export const en = {
   footerCols: {
     product: "Product",
     resources: "Resources",
+    source: "Open source",
     contact: "Contact",
     gettingStarted: "Getting started",
+    issues: "Report an issue",
+    repos: { morche: "Docker setup", backend: "Backend", frontend: "Panel" },
   },
   home: {
     featuresMore: "See everything Morche does",
@@ -497,7 +504,7 @@ export const en = {
     description:
       "Install Morche on your own Linux server with Docker: requirements, the installer, the first admin, HTTPS, updates and backups.",
     title: "Running on your server in ten minutes.",
-    lead: "One script on any Linux server with Docker. You keep everything: the data, the keys and the updates.",
+    lead: "One script on any Linux server with Docker, from public images built from the open-source code. You keep everything: the data, the keys and the updates.",
     needsTitle: "What you need",
     needs: [
       "A Linux server with Docker 24 or newer and the compose plugin",
@@ -568,7 +575,10 @@ export const en = {
     ],
     copy: "Copy",
     copied: "Copied",
-    help: "Stuck? Write to us and we'll help you set it up.",
+    help: "Stuck? Open",
+    helpOr: "or write to",
+    readme: "Full guide in the repository",
+    issue: "an issue on GitHub",
   },
   docs: {
     title: "Documentation",
@@ -589,8 +599,6 @@ export const en = {
     allGuides: "All guides",
     previous: "Previous",
     next: "Next",
-    englishOnly:
-      "The guides are in English for now. A Persian version is on the way.",
     copyLink: "Copy link to this section",
     groups: {
       Basics: "Basics",
@@ -607,4 +615,4 @@ export const en = {
   },
 }
 
-export type Dictionary = typeof en
+export type Dictionary = typeof copy

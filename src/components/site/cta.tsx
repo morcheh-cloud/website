@@ -1,5 +1,9 @@
-import type { Dictionary } from "@/i18n/en"
-import { demoHref, site } from "@/site"
+import Link from "next/link"
+import type { Dictionary } from "@/copy"
+
+import { site } from "@/site"
+
+import { GithubMark } from "./github-mark"
 
 import { AntShape } from "./logo"
 
@@ -27,17 +31,25 @@ export function Cta({ t }: { t: Dictionary }) {
           {t.cta.body}
         </p>
         <div className="mt-11 flex flex-col items-center gap-5">
-          <a
-            href={demoHref(t.cta.subject)}
-            className="inline-flex h-13 items-center rounded-full bg-lumen px-8 font-medium text-[1.0625rem] text-void transition-colors hover:bg-white"
-          >
-            {t.cta.button}
-          </a>
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <Link
+              href="/install"
+              className="inline-flex h-13 items-center rounded-full bg-lumen px-8 font-medium text-[1.0625rem] text-void transition-colors hover:bg-white"
+            >
+              {t.cta.button}
+            </Link>
+            <a
+              href={site.github.morche}
+              className="inline-flex h-13 items-center gap-2.5 rounded-full border border-white/15 bg-white/[0.04] px-7 font-medium text-[1.0625rem] text-lumen transition-colors hover:border-white/30 hover:bg-white/[0.08]"
+            >
+              <GithubMark className="size-[1.125rem]" />
+              {t.cta.github}
+            </a>
+          </div>
           <p className="text-lumen/60 text-sm">
             {t.cta.or}{" "}
             <a
               href={`mailto:${site.email}`}
-              dir="ltr"
               className="text-lumen underline decoration-lumen/30 underline-offset-4 transition-colors hover:decoration-lumen"
             >
               {site.email}
@@ -48,7 +60,7 @@ export function Cta({ t }: { t: Dictionary }) {
         <svg
           viewBox="0 -8 1200 16"
           preserveAspectRatio="xMidYMid meet"
-          className="absolute inset-x-0 bottom-6 h-auto w-full overflow-visible sm:bottom-9 rtl:-scale-x-100"
+          className="absolute inset-x-0 bottom-6 h-auto w-full overflow-visible sm:bottom-9"
           aria-hidden="true"
         >
           <g className="motion-reduce:hidden">

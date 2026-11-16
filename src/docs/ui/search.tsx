@@ -2,7 +2,7 @@
 
 import { Dialog } from "@base-ui/react/dialog"
 import { BookOpen, CornerDownLeft, Hash, Search, X } from "lucide-react"
-import { useParams, useRouter } from "next/navigation"
+import { useRouter } from "next/navigation"
 import {
   createContext,
   type ReactNode,
@@ -103,7 +103,6 @@ function SearchPanel({
   onDone: () => void
 }) {
   const router = useRouter()
-  const { lang } = useParams<{ lang: string }>()
   const [index, setIndex] = useState<IndexedGuide[] | null>(null)
   const [failed, setFailed] = useState(false)
   const [query, setQuery] = useState("")
@@ -119,11 +118,7 @@ function SearchPanel({
 
   function go(hit: Hit) {
     onDone()
-    const href = docHref(
-      lang ?? "en",
-      hit.slug,
-      hit.kind === "section" ? hit.id : undefined,
-    )
+    const href = docHref(hit.slug, hit.kind === "section" ? hit.id : undefined)
     router.push(href)
   }
 
@@ -145,7 +140,7 @@ function SearchPanel({
   }
 
   return (
-    <div dir="ltr" lang="en" className="docs-en flex min-h-0 flex-1 flex-col">
+    <div className="flex min-h-0 flex-1 flex-col">
       <div className="flex items-center gap-3 border-line border-b px-4 pt-[max(0.5rem,env(safe-area-inset-top))] sm:px-5 sm:pt-0">
         <Search aria-hidden="true" className="size-5 shrink-0 text-dust" />
         <input
@@ -315,10 +310,7 @@ export function SearchButton({
     >
       <Search aria-hidden="true" className="size-5 shrink-0" />
       <span className="min-w-0 flex-1 truncate">{copy.search}</span>
-      <kbd
-        dir="ltr"
-        className="hidden rounded-md border border-white/15 px-2 py-0.5 font-mono text-xs sm:block"
-      >
+      <kbd className="hidden rounded-md border border-white/15 px-2 py-0.5 font-mono text-xs sm:block">
         {mac ? "⌘K" : "Ctrl K"}
       </kbd>
     </button>

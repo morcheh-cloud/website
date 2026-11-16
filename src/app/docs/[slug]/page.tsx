@@ -1,14 +1,9 @@
-import {
-  ArrowLeft,
-  ArrowRight,
-  ChevronDown,
-  Clock,
-  Languages,
-} from "lucide-react"
+import { ArrowLeft, ArrowRight, ChevronDown, Clock } from "lucide-react"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 
 import { SitePage } from "@/components/site/site-page"
+import { copy } from "@/copy"
 import { content } from "@/docs/content"
 import { guideGroups } from "@/docs/groups"
 import { guideFor, guides } from "@/docs/guides"
@@ -17,8 +12,6 @@ import { indexFor } from "@/docs/search-index"
 import { SearchButton } from "@/docs/ui/search"
 import { SectionAnchor } from "@/docs/ui/section-anchor"
 import { HashFlash, Toc } from "@/docs/ui/toc"
-import { hasLocale } from "@/i18n/config"
-import { getDictionary } from "@/i18n/dictionaries"
 import { pageMeta } from "@/lib/meta"
 import { cn } from "@/lib/utils"
 
@@ -28,26 +21,20 @@ export function generateStaticParams() {
   return guides.map((g) => ({ slug: g.slug }))
 }
 
-export async function generateMetadata({
-  params,
-}: PageProps<"/[lang]/docs/[slug]">) {
-  const { lang, slug } = await params
+export async function generateMetadata({ params }: PageProps<"/docs/[slug]">) {
+  const { slug } = await params
   const guide = guideFor(slug)
-  if (!hasLocale(lang) || !guide) return {}
-  return pageMeta(lang, `/docs/${slug}`, guide.title, guide.summary)
+  if (!guide) return {}
+  return pageMeta(`/docs/${slug}`, guide.title, guide.summary)
 }
 
-// A guide. Its words are English on both languages, so the article (and
-// the guides list around it) is an English, left-to-right island; only the
-// site's frame follows the visitor's language.
-export default async function Guide({
-  params,
-}: PageProps<"/[lang]/docs/[slug]">) {
-  const { lang, slug } = await params
+// A guide: the guides list, the article and its table of contents.
+export default async function Guide({ params }: PageProps<"/docs/[slug]">) {
+  const { slug } = await params
   const guide = guideFor(slug)
-  if (!hasLocale(lang) || !guide) notFound()
-  const t = getDictionary(lang)
-  const d = getDictionary("en").docs
+  if (!guide) notFound()
+  const t = copy
+  const d = t.docs
   const sections = content[slug] ?? []
   const indexed = indexFor(slug)
   const at = guides.indexOf(guide)
@@ -57,23 +44,10 @@ export default async function Guide({
   const Icon = guide.icon
 
   return (
-    <SitePage lang={lang} t={t}>
+    <SitePage t={t}>
       <HashFlash />
       <div className="px-5 pt-28 sm:px-8 sm:pt-36">
-        {lang === "fa" && (
-          <p className="mx-auto mb-6 flex max-w-[88rem] items-center gap-3 rounded-2xl border border-line bg-surface px-5 py-3 text-dust text-sm">
-            <Languages
-              aria-hidden="true"
-              className="size-4 shrink-0 text-honey"
-            />
-            {t.docs.englishOnly}
-          </p>
-        )}
-        <div
-          dir="ltr"
-          lang="en"
-          className="docs-en mx-auto grid max-w-[88rem] gap-10 lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-14 xl:grid-cols-[15rem_minmax(0,1fr)_13rem]"
-        >
+        <div className="mx-auto grid max-w-[88rem] gap-10 lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-14 xl:grid-cols-[15rem_minmax(0,1fr)_13rem]">
           <aside className="hidden lg:block">
             <div className="sticky top-28 flex max-h-[calc(100dvh-8rem)] flex-col gap-6">
               <SearchButton className="w-full justify-start" />
@@ -90,7 +64,7 @@ export default async function Guide({
                       {group.items.map((g) => (
                         <li key={g.slug}>
                           <Link
-                            href={docHref(lang, g.slug)}
+                            href={docHref(g.slug)}
                             aria-current={g.slug === slug ? "page" : undefined}
                             className={cn(
                               "block rounded-lg px-3 py-1.5 text-sm leading-snug transition-colors",
@@ -113,7 +87,7 @@ export default async function Guide({
           <article className="min-w-0">
             <header className="frame-lit relative overflow-hidden rounded-[1.75rem] px-6 py-9 sm:rounded-[2.25rem] sm:px-10 sm:py-12">
               <nav aria-label="Breadcrumb" className="text-lumen/60 text-sm">
-                <Link href={docHref(lang)} className="hover:text-lumen">
+                <Link href={docHref()} className="hover:text-lumen">
                   Docs
                 </Link>
                 <span aria-hidden="true" className="mx-2">
@@ -148,7 +122,7 @@ export default async function Guide({
 
             <div className="mt-6 flex flex-wrap items-center gap-3 lg:hidden">
               <Link
-                href={docHref(lang)}
+                href={docHref()}
                 className="inline-flex h-11 items-center gap-2 rounded-full border border-line px-4 text-dust hover:text-lumen"
               >
                 <ArrowLeft aria-hidden="true" className="size-4" />
@@ -212,7 +186,7 @@ export default async function Guide({
             >
               {prev ? (
                 <PagerLink
-                  href={docHref(lang, prev.slug)}
+                  href={docHref(prev.slug)}
                   label={d.previous}
                   title={prev.title}
                   back
@@ -222,7 +196,7 @@ export default async function Guide({
               )}
               {next && (
                 <PagerLink
-                  href={docHref(lang, next.slug)}
+                  href={docHref(next.slug)}
                   label={d.next}
                   title={next.title}
                 />

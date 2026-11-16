@@ -25,7 +25,7 @@ export function MoreLink({
       {children}
       <ArrowRight
         aria-hidden="true"
-        className="size-4 transition-transform group-hover:translate-x-0.5 rtl:rotate-180 rtl:group-hover:-translate-x-0.5"
+        className="size-4 transition-transform group-hover:translate-x-0.5"
       />
     </Link>
   )

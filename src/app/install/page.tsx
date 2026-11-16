@@ -5,13 +5,12 @@ import {
   RefreshCw,
   ShieldCheck,
 } from "lucide-react"
-import { notFound } from "next/navigation"
 
 import { CopyButton } from "@/components/site/copy-button"
+import { GithubMark } from "@/components/site/github-mark"
 import { PageHero } from "@/components/site/page-hero"
 import { SitePage } from "@/components/site/site-page"
-import { hasLocale, numberOf } from "@/i18n/config"
-import { getDictionary } from "@/i18n/dictionaries"
+import { copy } from "@/copy"
 import { pageMeta } from "@/lib/meta"
 import { cn } from "@/lib/utils"
 import { site } from "@/site"
@@ -37,10 +36,7 @@ function Code({
       <div className="flex items-center justify-end border-line border-b px-2 py-1.5">
         <CopyButton text={text} copy={copy} copied={copied} />
       </div>
-      <pre
-        dir="ltr"
-        className="overflow-x-auto px-5 py-4 text-start font-mono text-[0.8438rem] text-lumen leading-6"
-      >
+      <pre className="overflow-x-auto px-5 py-4 text-start font-mono text-[0.8438rem] text-lumen leading-6">
         <code>
           {text.split("\n").map((line) => (
             <span key={line} className="block">
@@ -56,25 +52,17 @@ function Code({
   )
 }
 
-export async function generateMetadata({
-  params,
-}: PageProps<"/[lang]/install">) {
-  const { lang } = await params
-  if (!hasLocale(lang)) return {}
-  const t = getDictionary(lang)
-  return pageMeta(lang, "/install", t.pages.install, t.install.description)
+export function generateMetadata() {
+  const t = copy
+  return pageMeta("/install", t.pages.install, t.install.description)
 }
 
-export default async function Install({
-  params,
-}: PageProps<"/[lang]/install">) {
-  const { lang } = await params
-  if (!hasLocale(lang)) notFound()
-  const t = getDictionary(lang)
+export default function Install() {
+  const t = copy
   const s = t.install
 
   return (
-    <SitePage lang={lang} t={t}>
+    <SitePage t={t}>
       <PageHero title={s.title} lead={s.lead}>
         <div className="mt-10 max-w-3xl">
           <h2 className="font-medium text-lumen">{s.needsTitle}</h2>
@@ -109,7 +97,7 @@ export default async function Install({
           {s.steps.map((step, i) => (
             <li key={step.title} className="relative flex gap-5 sm:gap-7">
               <span className="relative grid size-10 shrink-0 place-items-center rounded-full border border-glow/40 bg-void font-medium text-glow tabular-nums">
-                {numberOf(lang, i + 1)}
+                {(i + 1).toLocaleString("en-US")}
               </span>
               <div className="min-w-0 flex-1 pt-1.5">
                 <h3 className="t-heading text-2xl">{step.title}</h3>
@@ -123,6 +111,13 @@ export default async function Install({
             </li>
           ))}
         </ol>
+        <a
+          href={site.github.morche}
+          className="ms-15 mt-12 inline-flex items-center gap-2.5 font-medium text-glow transition-colors hover:text-lumen sm:ms-17"
+        >
+          <GithubMark className="size-[1.125rem]" />
+          {s.readme}
+        </a>
       </section>
 
       <section
@@ -205,10 +200,7 @@ export default async function Install({
                   scope="row"
                   className="px-5 py-4 text-start align-top sm:px-7"
                 >
-                  <code
-                    dir="ltr"
-                    className="font-mono font-normal text-[0.8125rem] text-glow break-all"
-                  >
+                  <code className="font-mono font-normal text-[0.8125rem] text-glow break-all">
                     {name}
                   </code>
                 </th>
@@ -223,6 +215,13 @@ export default async function Install({
 
       <p className="mx-auto max-w-4xl px-5 pb-28 text-dust sm:px-8 sm:pb-36">
         {s.help}{" "}
+        <a
+          href={site.github.issues}
+          className="font-medium text-glow underline decoration-glow/30 underline-offset-4 hover:decoration-glow"
+        >
+          {s.issue}
+        </a>{" "}
+        {s.helpOr}{" "}
         <a
           href={`mailto:${site.email}`}
           className="font-medium text-glow underline decoration-glow/30 underline-offset-4 hover:decoration-glow"

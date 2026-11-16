@@ -1,51 +1,55 @@
 import Link from "next/link"
-
+import type { Dictionary } from "@/copy"
 import { docHref } from "@/docs/href"
-import type { Locale } from "@/i18n/config"
-import type { Dictionary } from "@/i18n/en"
-import { demoHref, site } from "@/site"
+import { site } from "@/site"
 
-import { LangSwitch } from "./lang-switch"
+import { GithubMark } from "./github-mark"
+
 import { Logo } from "./logo"
 
-function year(lang: Locale) {
-  const locale = lang === "fa" ? "fa-IR-u-ca-persian" : "en-US"
-  return new Intl.DateTimeFormat(locale, { year: "numeric" }).format(new Date())
+function year() {
+  return new Date().getFullYear()
 }
 
-export function Footer({ lang, t }: { lang: Locale; t: Dictionary }) {
+export function Footer({ t }: { t: Dictionary }) {
   const columns = [
     {
       title: t.footerCols.product,
       links: [
-        { href: `/${lang}/product`, label: t.pages.product },
-        { href: `/${lang}/security`, label: t.pages.security },
-        { href: `/${lang}#faq`, label: t.pages.faq },
+        { href: `/product`, label: t.pages.product },
+        { href: `/security`, label: t.pages.security },
+        { href: `/#faq`, label: t.pages.faq },
       ],
     },
     {
       title: t.footerCols.resources,
       links: [
-        { href: docHref(lang), label: t.pages.docs },
+        { href: docHref(), label: t.pages.docs },
         {
-          href: docHref(lang, "getting-started"),
+          href: docHref("getting-started"),
           label: t.footerCols.gettingStarted,
         },
-        { href: `/${lang}/install`, label: t.pages.install },
+        { href: `/install`, label: t.pages.install },
+      ],
+    },
+    {
+      title: t.footerCols.source,
+      links: [
+        { href: site.github.morche, label: t.footerCols.repos.morche },
+        { href: site.github.backend, label: t.footerCols.repos.backend },
+        { href: site.github.frontend, label: t.footerCols.repos.frontend },
+        { href: site.github.issues, label: t.footerCols.issues },
       ],
     },
     {
       title: t.footerCols.contact,
-      links: [
-        { href: demoHref(t.cta.subject), label: t.nav.demo },
-        { href: `mailto:${site.email}`, label: site.email, ltr: true },
-      ],
+      links: [{ href: `mailto:${site.email}`, label: site.email }],
     },
   ]
 
   return (
     <footer className="px-5 pt-16 pb-[max(2.5rem,env(safe-area-inset-bottom))] sm:px-8 sm:pt-20">
-      <div className="mx-auto grid max-w-7xl gap-12 border-line border-t pt-14 md:grid-cols-[minmax(0,2fr)_repeat(3,minmax(0,1fr))]">
+      <div className="mx-auto grid max-w-7xl gap-12 border-line border-t pt-14 sm:grid-cols-2 lg:grid-cols-[minmax(0,2fr)_repeat(4,minmax(0,1fr))]">
         <div>
           <Logo name={t.brand} />
           <p className="mt-3 max-w-[34ch] text-dust text-sm">
@@ -68,7 +72,6 @@ export function Footer({ lang, t }: { lang: Locale; t: Dictionary }) {
                   ) : (
                     <a
                       href={link.href}
-                      dir={"ltr" in link ? "ltr" : undefined}
                       className="text-dust transition-colors hover:text-lumen"
                     >
                       {link.label}
@@ -82,13 +85,15 @@ export function Footer({ lang, t }: { lang: Locale; t: Dictionary }) {
       </div>
       <div className="mx-auto mt-14 flex max-w-7xl flex-wrap items-center justify-between gap-4 border-line border-t pt-6 text-dust text-xs">
         <p>
-          © {year(lang)} {t.brand}. {t.footer.rights}
+          © {year()} {t.brand}. {t.footer.built}
         </p>
-        <LangSwitch
-          to={lang === "fa" ? "en" : "fa"}
-          text={t.nav.switchTo}
-          label={t.nav.switchLabel}
-        />
+        <a
+          href={site.github.org}
+          className="inline-flex items-center gap-2 transition-colors hover:text-lumen"
+        >
+          <GithubMark className="size-4" />
+          github.com/morcheh-cloud
+        </a>
       </div>
     </footer>
   )

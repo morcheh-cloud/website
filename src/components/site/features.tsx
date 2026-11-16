@@ -18,8 +18,7 @@ import {
   Workflow,
 } from "lucide-react"
 
-import type { Locale } from "@/i18n/config"
-import type { Dictionary } from "@/i18n/en"
+import type { Dictionary } from "@/copy"
 
 import { MoreLink } from "./more-link"
 
@@ -44,7 +43,7 @@ const icons: Record<string, LucideIcon> = {
 
 // Nuxt-style: a plain grid of what's in the box, no cards. The order
 // follows the panel's menu, so the grid reads like a tour of it.
-export function Features({ lang, t }: { lang: Locale; t: Dictionary }) {
+export function Features({ t }: { t: Dictionary }) {
   return (
     <section
       id="features"
@@ -84,7 +83,7 @@ export function Features({ lang, t }: { lang: Locale; t: Dictionary }) {
             )
           })}
         </ul>
-        <MoreLink href={`/${lang}/product`} className="mt-14">
+        <MoreLink href={`/product`} className="mt-14">
           {t.home.featuresMore}
         </MoreLink>
       </div>

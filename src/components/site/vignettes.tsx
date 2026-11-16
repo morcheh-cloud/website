@@ -10,8 +10,7 @@ import type { ReactNode } from "react"
 
 import { cn } from "@/lib/utils"
 
-// Small, faithful slices of the panel, one per chamber. The product's UI is
-// English, so these stay English and left-to-right on both languages.
+// Small, faithful slices of the panel, one per chamber.
 
 function Dot({ tone }: { tone: "ok" | "warn" | "bad" | "idle" }) {
   return (
