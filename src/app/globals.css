@@ -1,26 +1,316 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/*
+  Morcheh website. A near-black page with two lit frames as bookends (the
+  hero and the closing call), indigo from the panel's brand, and honey for
+  anything alive: ants, live signals, progress. One theme only, by design.
+*/
+
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  /* Site palette */
+  --color-void: var(--void);
+  --color-surface: var(--surface);
+  --color-raised: var(--raised);
+  --color-line: var(--line);
+  --color-dust: var(--dust);
+  --color-lumen: var(--lumen);
+  --color-glow: var(--glow);
+  --color-indigo: var(--indigo);
+  --color-honey: var(--honey);
+  --color-leaf: var(--leaf);
+  --color-ember: var(--ember);
+
+  --font-sans: var(--font-body);
+  --font-heading: var(--font-display);
+  --font-display: var(--font-display);
+  --font-mono: var(--font-code);
+
+  /* shadcn tokens */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  color-scheme: dark;
+
+  --void: #06070d; /* page */
+  --surface: #0d0f1a; /* panels, windows */
+  --raised: #151829; /* hover, chips */
+  --line: #222639; /* hairlines */
+  --dust: #8e94b0; /* secondary text */
+  --lumen: #eef0fa; /* text */
+  --glow: #8ea2ff; /* links, focus, indigo on dark */
+  --indigo: #3e63dd; /* the panel's brand */
+  --honey: #f5b544; /* ants, live signals */
+  --leaf: #4cc38a; /* status: online */
+  --ember: #f0716b; /* status: problem */
+
+  --background: var(--void);
+  --foreground: var(--lumen);
+  --card: var(--surface);
+  --card-foreground: var(--lumen);
+  --popover: var(--surface);
+  --popover-foreground: var(--lumen);
+  --primary: var(--lumen);
+  --primary-foreground: var(--void);
+  --secondary: var(--raised);
+  --secondary-foreground: var(--lumen);
+  --muted: var(--raised);
+  --muted-foreground: var(--dust);
+  --accent: var(--raised);
+  --accent-foreground: var(--lumen);
+  --destructive: var(--ember);
+  --border: var(--line);
+  --input: var(--line);
+  --ring: var(--glow);
+  --radius: 0.625rem;
+}
+
+/* One family per script: Vazirmatn for Persian, Onest for English. The
+   panel slices keep the panel's own Inter (.ui-font). */
+html:lang(fa) {
+  --font-body: var(--font-vazir), system-ui, sans-serif;
+  --font-display: var(--font-vazir), system-ui, sans-serif;
+}
+html:lang(en) {
+  --font-body: var(--font-onest), var(--font-vazir), system-ui, sans-serif;
+  --font-display: var(--font-onest), var(--font-vazir), system-ui, sans-serif;
+}
+html {
+  --font-code: var(--font-jetbrains), ui-monospace, Menlo, monospace;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/60;
+  }
+  html {
+    @apply font-sans;
+    background: var(--void);
+    scroll-behavior: smooth;
+    scroll-padding-top: 6rem;
+    -webkit-tap-highlight-color: transparent;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+  body {
+    @apply bg-void text-foreground antialiased;
+    font-size: 1.0625rem;
+    line-height: 1.7;
+  }
+  html:lang(fa) body {
+    line-height: 1.95;
+  }
+  ::selection {
+    background: color-mix(in oklab, var(--glow) 40%, transparent);
+    color: var(--lumen);
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled),
+  [role="tab"] {
+    cursor: pointer;
+  }
+  :focus-visible {
+    outline: 2px solid var(--glow);
+    outline-offset: 3px;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Type scale: a perfect fourth (1.333) from a 17px body. Big type is set
+   light and tight; weight comes down as size goes up. */
+@layer components {
+  .t-mega {
+    font-family: var(--font-display);
+    font-size: clamp(2.75rem, 1rem + 7.4vw, 7.5rem);
+    line-height: 0.98;
+    letter-spacing: -0.045em;
+    font-weight: 380;
+    text-wrap: balance;
+  }
+  html:lang(fa) .t-mega {
+    font-size: clamp(2.5rem, 1rem + 6.2vw, 6.5rem);
+    font-weight: 300;
+    letter-spacing: 0;
+    line-height: 1.3;
+  }
+  .t-title {
+    font-family: var(--font-display);
+    font-size: clamp(2.1rem, 1.2rem + 3.2vw, 4rem);
+    line-height: 1.04;
+    letter-spacing: -0.035em;
+    font-weight: 420;
+    text-wrap: balance;
+  }
+  html:lang(fa) .t-title {
+    font-weight: 400;
+    letter-spacing: 0;
+    line-height: 1.45;
+  }
+  .t-statement {
+    font-family: var(--font-display);
+    font-size: clamp(1.75rem, 1rem + 2.7vw, 3.4rem);
+    line-height: 1.18;
+    letter-spacing: -0.03em;
+    font-weight: 420;
+  }
+  html:lang(fa) .t-statement {
+    font-weight: 400;
+    letter-spacing: 0;
+    line-height: 1.7;
+  }
+  .t-heading {
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+    font-weight: 560;
+  }
+  html:lang(fa) .t-heading {
+    font-weight: 650;
+    letter-spacing: 0;
+    line-height: 1.6;
+  }
+  .t-lead {
+    font-size: clamp(1.0625rem, 0.98rem + 0.4vw, 1.25rem);
+    line-height: 1.6;
+    text-wrap: pretty;
+  }
+  html:lang(fa) .t-lead {
+    line-height: 1.95;
+  }
+
+  /* Product UI slices are English on both languages, set like the panel. */
+  .ui-font {
+    font-family: var(--font-inter), system-ui, sans-serif;
+    line-height: 1.5;
+    letter-spacing: normal;
+  }
+
+  /* The two lit frames. Indigo light falls from above; a warm glow rises
+     from below, where the nest is. Film grain keeps the gradient from
+     banding. */
+  .frame-lit {
+    background-color: #0a0c1c;
+    background-image:
+      var(--grain),
+      radial-gradient(
+        120% 70% at 18% -10%,
+        color-mix(in oklab, var(--indigo) 85%, transparent),
+        transparent 60%
+      ),
+      radial-gradient(
+        70% 60% at 95% 10%,
+        color-mix(in oklab, #6a3fd0 45%, transparent),
+        transparent 65%
+      ),
+      radial-gradient(
+        60% 45% at 50% 105%,
+        color-mix(in oklab, var(--honey) 28%, transparent),
+        transparent 70%
+      );
+  }
+  .frame-ember {
+    background-color: #0a0c1c;
+    background-image:
+      var(--grain),
+      radial-gradient(
+        80% 75% at 50% 115%,
+        color-mix(in oklab, var(--honey) 55%, transparent),
+        transparent 62%
+      ),
+      radial-gradient(
+        90% 70% at 50% -20%,
+        color-mix(in oklab, var(--indigo) 70%, transparent),
+        transparent 60%
+      );
+  }
+}
+
+:root {
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.rise {
+  animation: rise 1s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+/* A tab's progress line: the ant at its tip walks it to the end. */
+@keyframes walk {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes swap-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.swap-in {
+  animation: swap-in 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+/* Statement words: lit in reading order as --p goes from 0 to 1. */
+.lit-word {
+  opacity: clamp(0.14, calc(var(--p, 1) * var(--n) - var(--i)), 1);
+  transition: opacity 0.25s linear;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise,
+  .swap-in {
+    animation: none;
+  }
+  .lit-word {
+    opacity: 1;
+    transition: none;
+  }
 }
