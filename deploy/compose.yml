@@ -1,0 +1,24 @@
+# Morche website in production, from the image CI publishes to ghcr.
+#
+#   docker compose -f deploy/compose.yml pull
+#   docker compose -f deploy/compose.yml up -d
+#
+# WEBSITE_VERSION picks the tag (latest, edge, 1.2.3, sha-abc1234);
+# WEBSITE_PORT the host port. Put a reverse proxy (TLS) in front of it.
+name: morche-website
+
+services:
+  website:
+    image: ghcr.io/morcheh-cloud/website:${WEBSITE_VERSION:-latest}
+    restart: unless-stopped
+    ports:
+      - "${WEBSITE_BIND:-127.0.0.1}:${WEBSITE_PORT:-3300}:3300"
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /app/.next/cache
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }

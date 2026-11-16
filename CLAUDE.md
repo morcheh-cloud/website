@@ -20,6 +20,10 @@ pnpm lint         # Biome — use `rtk proxy pnpm lint` (RTK mangles its output)
 pnpm lint:fix
 ```
 
+## Deploy
+
+- `Dockerfile` (standalone output, port 3300, `NEXT_PUBLIC_SITE_URL` build-arg baked at build) → CI `.github/workflows/image.yml` (lint, then multi-arch push to `ghcr.io/morcheh-cloud/website`: `latest`/`edge` on main, semver on `v*` tags; repo variable `SITE_URL` overrides the address). Production: `deploy/compose.yml` pulls that image (`WEBSITE_VERSION`, `WEBSITE_PORT`, bound to 127.0.0.1 behind a reverse proxy).
+
 ## Structure
 
 - Routes live directly in `src/app/` (`/`, `/product`, `/security`, `/docs`, `/docs/[slug]`, `/install`); no locale segment, no proxy. 404 = `app/not-found.tsx` → `components/site/lost.tsx`.

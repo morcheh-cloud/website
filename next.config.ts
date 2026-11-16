@@ -11,6 +11,8 @@ const securityHeaders = [
 ]
 
 const nextConfig: NextConfig = {
+  // Self-contained server in .next/standalone for the Docker image.
+  output: "standalone",
   poweredByHeader: false,
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }]
