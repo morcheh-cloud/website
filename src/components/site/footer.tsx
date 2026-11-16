@@ -1,4 +1,6 @@
 import Link from "next/link"
+import { topics } from "@/content/db"
+import { topicHref, tutorialsHref } from "@/content/href"
 import type { Dictionary } from "@/copy"
 import { docHref } from "@/docs/href"
 import { site } from "@/site"
@@ -33,6 +35,16 @@ export function Footer({ t }: { t: Dictionary }) {
       ],
     },
     {
+      title: t.footerCols.tutorials,
+      links: [
+        ...topics()
+          .filter((topic) => topic.count > 0)
+          .slice(0, 7)
+          .map((topic) => ({ href: topicHref(topic.slug), label: topic.name })),
+        { href: tutorialsHref(), label: t.footerCols.allTutorials },
+      ],
+    },
+    {
       title: t.footerCols.source,
       links: [
         { href: site.github.morche, label: t.footerCols.repos.morche },
@@ -49,7 +61,7 @@ export function Footer({ t }: { t: Dictionary }) {
 
   return (
     <footer className="px-5 pt-16 pb-[max(2.5rem,env(safe-area-inset-bottom))] sm:px-8 sm:pt-20">
-      <div className="mx-auto grid max-w-7xl gap-12 border-line border-t pt-14 sm:grid-cols-2 lg:grid-cols-[minmax(0,2fr)_repeat(4,minmax(0,1fr))]">
+      <div className="mx-auto grid max-w-7xl gap-12 border-line border-t pt-14 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.6fr)_repeat(5,minmax(0,1fr))]">
         <div>
           <Logo name={t.brand} />
           <p className="mt-3 max-w-[34ch] text-dust text-sm">

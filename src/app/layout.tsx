@@ -16,7 +16,27 @@ export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: copy.meta.title,
   description: copy.meta.description,
-  alternates: { canonical: "/" },
+  applicationName: site.name,
+  alternates: {
+    canonical: "/",
+    types: { "application/rss+xml": "/tutorials/feed.xml" },
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: copy.meta.title,
+    description: copy.meta.description,
+  },
   openGraph: {
     title: copy.meta.title,
     description: copy.meta.description,

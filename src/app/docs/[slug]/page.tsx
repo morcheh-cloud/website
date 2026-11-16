@@ -3,6 +3,8 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 
 import { SitePage } from "@/components/site/site-page"
+import { ArticleCard } from "@/components/tutorials/parts"
+import { articlesForGuide, topicFor } from "@/content/db"
 import { copy } from "@/copy"
 import { content } from "@/docs/content"
 import { guideGroups } from "@/docs/groups"
@@ -12,6 +14,7 @@ import { indexFor } from "@/docs/search-index"
 import { SearchButton } from "@/docs/ui/search"
 import { SectionAnchor } from "@/docs/ui/section-anchor"
 import { HashFlash, Toc } from "@/docs/ui/toc"
+import { breadcrumbs, JsonLd, techArticle } from "@/lib/jsonld"
 import { pageMeta } from "@/lib/meta"
 import { cn } from "@/lib/utils"
 
@@ -25,7 +28,10 @@ export async function generateMetadata({ params }: PageProps<"/docs/[slug]">) {
   const { slug } = await params
   const guide = guideFor(slug)
   if (!guide) return {}
-  return pageMeta(`/docs/${slug}`, guide.title, guide.summary)
+  return pageMeta(`/docs/${slug}`, guide.title, guide.summary, {
+    type: "article",
+    section: guide.group,
+  })
 }
 
 // A guide: the guides list, the article and its table of contents.
@@ -42,9 +48,24 @@ export default async function Guide({ params }: PageProps<"/docs/[slug]">) {
   const next = guides[at + 1]
   const toc = sections.map((s) => ({ id: s.id, title: s.title }))
   const Icon = guide.icon
+  const tutorials = articlesForGuide(slug).slice(0, 6)
 
   return (
     <SitePage t={t}>
+      <JsonLd
+        data={[
+          techArticle({
+            path: docHref(slug),
+            title: guide.title,
+            description: guide.summary,
+            section: guide.group,
+          }),
+          breadcrumbs([
+            { name: t.pages.docs, path: docHref() },
+            { name: guide.title, path: docHref(slug) },
+          ]),
+        ]}
+      />
       <HashFlash />
       <div className="px-5 pt-28 sm:px-8 sm:pt-36">
         <div className="mx-auto grid max-w-[88rem] gap-10 lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-14 xl:grid-cols-[15rem_minmax(0,1fr)_13rem]">
@@ -179,6 +200,31 @@ export default async function Guide({ params }: PageProps<"/docs/[slug]">) {
                 </section>
               ))}
             </div>
+
+            {tutorials.length > 0 && (
+              <section
+                aria-labelledby="guide-tutorials"
+                className="mb-14 border-line border-t pt-10"
+              >
+                <h2
+                  id="guide-tutorials"
+                  className="t-heading text-[1.375rem] text-lumen"
+                >
+                  {t.tutorials.forGuide}
+                </h2>
+                <ul className="mt-6 grid gap-4 sm:grid-cols-2">
+                  {tutorials.map((a) => (
+                    <li key={a.slug}>
+                      <ArticleCard
+                        article={a}
+                        topic={topicFor(a.category)}
+                        minutesLabel={t.tutorials.minutes}
+                      />
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
 
             <nav
               aria-label="Guides"

@@ -7,6 +7,7 @@ import { guideGroups } from "@/docs/groups"
 import { docHref } from "@/docs/href"
 import { docsIndex, indexFor } from "@/docs/search-index"
 import { SearchButton } from "@/docs/ui/search"
+import { breadcrumbs, JsonLd } from "@/lib/jsonld"
 import { pageMeta } from "@/lib/meta"
 
 export function generateMetadata() {
@@ -28,6 +29,7 @@ export default function Docs() {
 
   return (
     <SitePage t={t}>
+      <JsonLd data={breadcrumbs([{ name: t.pages.docs, path: "/docs" }])} />
       <PageHero title={d.title} lead={d.lead}>
         <div className="mt-10 max-w-xl">
           <SearchButton wide />

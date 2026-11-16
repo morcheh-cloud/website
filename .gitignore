@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# tutorial drafts (content.db is the source of truth)
+/content/drafts/
