@@ -10,7 +10,7 @@ export function Lost() {
     <main className="min-h-dvh p-2 sm:p-4">
       <div className="frame-lit grid min-h-[calc(100dvh-1rem)] place-items-center rounded-[1.75rem] px-5 py-24 sm:min-h-[calc(100dvh-2rem)] sm:rounded-[2.75rem]">
         <div className="max-w-xl text-center">
-          <Logo name="Morcheh" className="justify-center" />
+          <Logo name="Morche" className="justify-center" />
           <h1 className="t-title mt-10">{en.notFound.title}</h1>
           <p className="mt-4 text-lumen/70">{en.notFound.body}</p>
           <p lang="fa" dir="rtl" className="mt-8 text-lumen/70">

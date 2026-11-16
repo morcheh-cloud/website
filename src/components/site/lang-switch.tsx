@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 
 import { LOCALE_COOKIE, type Locale } from "@/i18n/config"
 import { cn } from "@/lib/utils"
@@ -18,9 +19,11 @@ export function LangSwitch({
   label: string
   className?: string
 }) {
+  const pathname = usePathname() ?? "/"
+  const href = pathname.replace(/^\/(fa|en)(?=\/|$)/, `/${to}`)
   return (
     <Link
-      href={`/${to}`}
+      href={href.startsWith(`/${to}`) ? href : `/${to}`}
       hrefLang={to}
       lang={to}
       aria-label={label}

@@ -1,0 +1,3427 @@
+// Synced from ../frontend by `pnpm sync:docs`. Edit it there, not here.
+import {
+  C,
+  Code,
+  Example,
+  type GuideSection,
+  H3,
+  Keys,
+  List,
+  P,
+  Recommended,
+  See,
+  Steps,
+  Table,
+  Tip,
+  UI,
+  Warn,
+} from "../prose"
+
+export const reverseProxy: GuideSection[] = [
+  {
+    id: "overview",
+    title: "What it's for",
+    body: (
+      <>
+        <P>
+          <UI>Reverse proxy</UI> puts your apps on their domains. Pick a server
+          that runs (or will run) <UI>nginx</UI>, then add sites: send{" "}
+          <C>app.example.com</C> to an app on <C>127.0.0.1:3000</C>, redirect an
+          old domain, serve a folder of files, answer 404 for names you park, or
+          forward a TCP/UDP port (a database, SSH) to another machine, with
+          https from a certificate already on the server.
+        </P>
+        <P>
+          Morche reaches the server over SSH, like everything else. Nothing else
+          is installed: no agent. nginx can be installed on the server or run in
+          a Docker / Podman container there (see{" "}
+          <See guide="reverse-proxy" section="docker" />
+          ). To manage nginx on Morche's own machine, add that machine as a
+          server first.
+        </P>
+        <Table
+          head={["Page", "What you do there"]}
+          rows={[
+            [
+              <UI key="s">Reverse proxy</UI>,
+              "Every site on every proxy as cards, in tabs Proxy hosts (the default) / Redirections / Streams / 404 hosts, each with its own live numbers",
+            ],
+            [
+              <UI key="p">Reverse proxy › Proxies</UI>,
+              "The button in the toolbar: the servers running a proxy, how each one is doing, Add proxy",
+            ],
+            [
+              "A proxy's page",
+              "Tabs Report (live numbers and state of the whole proxy) / Sites / On the server / Logs / History",
+            ],
+            ["A site's page", "The site's settings and the config they make"],
+          ]}
+        />
+        <P>
+          A server's <UI>Overview</UI> shows a line when a proxy runs on it,
+          linking here. There is no proxy tab on server pages.
+        </P>
+      </>
+    ),
+  },
+  {
+    id: "live",
+    title: "Sites and live numbers",
+    body: (
+      <>
+        <P>
+          <UI>Reverse proxy</UI> opens on <UI>Proxy hosts</UI>: one card per
+          site with its domain (and its other names), where it goes (
+          <UI>Passes to</UI>, <UI>Redirects to</UI>…), https, its four live
+          numbers and a column per minute (5xx in red; point at a column for
+          that minute's requests, 4xx, 5xx and bytes sent). A turned-off site
+          has a dashed border. Click a card to edit it; <UI>⋯</UI> turns it off,
+          copies its domain or deletes it. The other tabs hold{" "}
+          <UI>Redirections</UI>, <UI>Streams</UI> and <UI>404 hosts</UI>; each
+          tab's count is in its label.
+        </P>
+        <P>
+          <UI>All proxies</UI> next to the search shows only the sites of one
+          proxy. The green <UI>Live</UI> dot says the numbers are fresh (hover
+          it to see when they were read). <UI>Add</UI> at the end of the row
+          adds a site of the open tab: straight to the form when one proxy can
+          take it, else it asks which proxy.
+        </P>
+        <P>
+          The overall numbers, every site of a proxy added up, are on that
+          proxy's page, in its <UI>Report</UI> tab (open it from{" "}
+          <UI>Proxies</UI> or the server name at the bottom of a card; see{" "}
+          <See guide="reverse-proxy" section="proxy-report">
+            A proxy's report
+          </See>
+          ). If the proxy also has <UI>Streams</UI>, the switch next to{" "}
+          <UI>Live</UI> moves between its sites and its streams.
+        </P>
+        <Table
+          head={["Number", "What it counts"]}
+          rows={[
+            [
+              <UI key="r">Requests</UI>,
+              "Requests in the last 30 minutes (on a card: that site; on a proxy's page: all its sites)",
+            ],
+            [
+              <UI key="m">Per minute</UI>,
+              "The last full minute (the running one is left out), with the average below",
+            ],
+            [
+              <UI key="e">Server errors</UI>,
+              "Share of answers that were 5xx: amber from 1%, red from 5%",
+            ],
+            [
+              <UI key="t">Sent</UI>,
+              "Bytes sent back to visitors, and how much per request",
+            ],
+          ]}
+        />
+        <P>
+          On a proxy's page, the chart beside the numbers has a column per
+          minute: answered requests in indigo, 4xx in grey and 5xx in red on
+          top. Hover a column (or focus the chart and use the arrow keys) to see
+          that minute.
+        </P>
+        <P>
+          Numbers refresh every 5 seconds. Morche reads them from each site's
+          access log over SSH; nothing extra runs on the server. For{" "}
+          <UI>Streams</UI> they count connections, and <UI>Failed</UI> = the
+          target couldn't be reached.
+        </P>
+        <Tip>
+          A card saying <UI>Couldn't read this proxy's log</UI> means Morche
+          couldn't read that proxy's log just now (it's unreachable or the log
+          was rotated away). The sites still work.
+        </Tip>
+      </>
+    ),
+  },
+  {
+    id: "proxy-report",
+    title: "A proxy's report",
+    body: (
+      <>
+        <P>
+          A proxy's page opens on <UI>Report</UI>: the whole nginx at a glance,
+          refreshed every 5 seconds. Its other tabs are <UI>Sites</UI> (the list
+          of its sites, to search, add and edit), <UI>On the server</UI>,{" "}
+          <UI>Logs</UI> and <UI>History</UI>.
+        </P>
+        <Table
+          head={["Part", "What it shows"]}
+          rows={[
+            [
+              <UI key="l">Live numbers</UI>,
+              "Every site added up over the last 30 minutes: requests, per minute, server errors, sent, and a column per minute",
+            ],
+            [
+              <UI key="s">Sites right now</UI>,
+              "Each site that is on, with its own minutes, per minute, total, share of the proxy's traffic, 4xx, 5xx rate and bytes sent. Order by Busiest, Errors or Sent; click a site to open its report",
+            ],
+            [
+              <UI key="p">This proxy</UI>,
+              "Running or not, version, starts at boot; sites on and off by type; how many answer over https; certificates and the next one to end; sites that need a look; hand-written sites; what this nginx can do (HTTP/3, Brotli, WAF, countries…)",
+            ],
+          ]}
+        />
+        <Example title="Find what's behind a burst of errors">
+          <Steps>
+            <>
+              The <UI>Server errors</UI> tile turns red. Under{" "}
+              <UI>Sites right now</UI>, pick <UI>Errors</UI> to bring the site
+              with the most 5xx to the top.
+            </>
+            <>
+              Click it: its report and <UI>Logs</UI> show which addresses fail
+              and since when.
+            </>
+          </Steps>
+        </Example>
+        <Tip>
+          <UI>Need a look</UI> counts sites whose file on the server was changed
+          by hand or is missing, whose domain is also in another file, or whose
+          port the container doesn't publish. Click it to go to <UI>Sites</UI>,
+          where each one carries a tag.
+        </Tip>
+        <P>
+          Streams count connections, not requests, so their share is worked out
+          among the streams only.
+        </P>
+      </>
+    ),
+  },
+  {
+    id: "add",
+    title: "Add a proxy",
+    body: (
+      <>
+        <Steps>
+          <P>
+            Open <UI>Reverse proxy</UI> and press <UI>Add proxy</UI>.
+          </P>
+          <P>
+            Pick the <UI>Server</UI>. Servers where you don't have Engineer
+            access are greyed out.
+          </P>
+          <P>
+            Morche looks at the server and lists what it found under{" "}
+            <UI>Where it runs</UI>: nginx <UI>Installed on the server</UI>, each
+            container running an nginx image (Docker or Podman, with its Compose
+            project), or <UI>Install on the server</UI> when there's neither.
+            The likely one is tagged <UI>Recommended</UI> and picked for you;
+            when both kinds are there, you choose. One already added shows{" "}
+            <UI>Added</UI> with a button to open it.
+          </P>
+          <P>
+            Leave <UI>Set it up now</UI> ticked. Morche installs nginx with the
+            server's package manager if it's missing (never inside a container),
+            makes the folder <C>/etc/nginx/morche/</C> and includes it in
+            nginx's config. It runs as a background task (see{" "}
+            <See guide="tasks" />
+            ).
+          </P>
+          <P>
+            When the status turns <UI>Running</UI>, press <UI>New site</UI>.
+          </P>
+        </Steps>
+        <Tip>
+          Sites already on the server keep working: setup only adds one{" "}
+          <C>include</C> line and never edits or removes other files.
+        </Tip>
+      </>
+    ),
+  },
+  {
+    id: "docker",
+    title: "nginx in a container",
+    body: (
+      <>
+        <P>
+          When nginx runs in a Docker or Podman container on the server, add
+          that container as the proxy: Morche works on the nginx inside it over
+          the same SSH connection (<C>docker exec</C>), so sites, https, tests,
+          reloads, logs and live numbers all work as they do for an installed
+          nginx. A server can have both: each is its own proxy, named{" "}
+          <C>server · container</C>.
+        </P>
+        <Steps>
+          <P>
+            <UI>Add proxy</UI>, pick the server, then the container under{" "}
+            <UI>Where it runs</UI>. Not listed (an image Morche didn't
+            recognise)? Pick <UI>Another container</UI> and type its name.
+          </P>
+          <P>
+            Set it up. Morche adds its folder and one <C>include</C> line inside
+            the container, and log rotation on the server. The image isn't
+            changed.
+          </P>
+          <P>
+            The proxy's page shows the container as a chip beside the server's
+            address (and <UI>Container</UI> in the ⋯ menu): image, state,
+            networks, published ports and mounted folders.
+          </P>
+        </Steps>
+        <H3>What's different</H3>
+        <Table
+          head={["", "In a container"]}
+          rows={[
+            [
+              "App address",
+              <>
+                Apps in containers on the same (user-defined) network answer by
+                name: <C>http://app:3000</C>. Apps on the server itself answer
+                on the network's gateway address (often <C>172.18.0.1</C>), not{" "}
+                <C>127.0.0.1</C>, which is the container itself.{" "}
+                <UI>Pick from a server</UI> fills in the right one.
+              </>,
+            ],
+            [
+              "Ports",
+              "Visitors reach only the ports the container publishes. A port forward on a port it doesn't publish is tagged Port not published. A container on the server's network (network_mode: host) has neither limit.",
+            ],
+            [
+              "Certificates",
+              "Kept on the server and copied in. certbot runs on the server and copies renewals in too.",
+            ],
+            [
+              "Static sites",
+              "The folder is the path the container sees. Browse picks a server folder and turns it into that path; folders that aren't mounted into the container can't be used.",
+            ],
+            [
+              "Modules",
+              "Brotli, the web firewall, image resizing and countries come with the image. Morche doesn't add them: use an image that has them.",
+            ],
+            [
+              "Stop / Start",
+              "Stop and Start act on the container; Reload and Test on nginx inside it.",
+            ],
+          ]}
+        />
+        <Recommended
+          rows={[
+            {
+              setting: "Restart policy",
+              value: <C>unless-stopped</C>,
+              why: "So it comes back after a reboot or a crash",
+            },
+            {
+              setting: "Network",
+              value: "A named network shared with your apps",
+              why: "Apps answer by name; no ports to publish for them",
+            },
+            {
+              setting: "Ports",
+              value: <C>80, 443, 443/udp</C>,
+              why: "http, https and HTTP/3",
+            },
+          ]}
+        />
+        <Example title="Compose">
+          <Code>{`services:
+  edge:
+    image: nginx:1.29
+    restart: unless-stopped
+    ports: ["80:80", "443:443", "443:443/udp"]
+    networks: [apps]
+networks:
+  apps:
+    external: true`}</Code>
+        </Example>
+        <H3>Proxy managers: read only</H3>
+        <P>
+          Images that write nginx's config themselves (Nginx Proxy Manager,
+          nginx-proxy, SWAG) show a <UI>Read only</UI> tag in the list and can
+          be added to watch them. Morche then changes nothing in the container:
+          no setup, no sites of its own, no reload, restart or stop, no
+          certificates. You still get its status, the sites it serves, the
+          configuration test, and its logs.
+        </P>
+        <P>
+          Its sites show on <UI>Reverse proxy</UI> next to Morche's, under{" "}
+          <UI>In Nginx Proxy Manager</UI> (or the manager's name), sorted into
+          the same tabs: each card has the domain, where it passes visitors,
+          https, the ports and the file. Click one to read its configuration. On
+          the proxy's own page, <UI>On the server</UI> lists everything nginx
+          loads, the manager's admin page included.
+        </P>
+        <P>
+          Live numbers work for them too: Morche reads each site's own access
+          log (the file in its <C>access_log</C> line, for Nginx Proxy Manager{" "}
+          <C>/data/logs/proxy-host-N_access.log</C>) and counts requests, errors
+          and bytes per minute, without changing anything. They show on each
+          site's card and on the proxy's <UI>Report</UI> tab, added up.
+        </P>
+        <Tip>
+          A site without numbers shares its log with other sites (or writes
+          none), so its visits can't be told apart. Give it an <C>access_log</C>{" "}
+          of its own in the manager to count it.
+        </Tip>
+        <Tip>
+          Keep adding and editing sites in the manager itself (for Nginx Proxy
+          Manager, its own web page): it would overwrite anything else. Removing
+          such a proxy from Morche leaves the container as it is.
+        </Tip>
+        <Tip>
+          Recreated the container (a new image, <C>compose up</C>)? Morche
+          notices on its next check, sets it up again and writes its sites back.
+        </Tip>
+        <H3>Troubleshooting</H3>
+        <List>
+          <li>
+            <UI>No nginx found in …</UI>: the container has no nginx at its
+            usual paths. Check the image, or remove this proxy and add the right
+            container.
+          </li>
+          <li>
+            <UI>The container … isn't running</UI>: press <UI>Start</UI>, or
+            start it with Docker. Without a restart policy it stays down after a
+            reboot.
+          </li>
+          <li>
+            502 for an app on the server: the server's firewall may block the
+            container's network. Allow the network (for example{" "}
+            <C>172.18.0.0/16</C>) to the app's port, or put the app in a
+            container on the same network.
+          </li>
+          <li>
+            <UI>Docker is installed but didn't list its containers</UI>: its
+            service isn't running, or the SSH user can't use it (add it to the{" "}
+            <C>docker</C> group or allow <C>sudo -n</C>).
+          </li>
+        </List>
+      </>
+    ),
+  },
+  {
+    id: "sites",
+    title: "Add a site",
+    body: (
+      <>
+        <P>
+          On the proxy's page press <UI>New site</UI>. A site's page works like
+          a server's: a header with the site's name, then tabs, each holding one
+          kind of setting (see <See guide="reverse-proxy" section="tabs" />
+          ). The config Morche will write has a tab of its own, <UI>Config</UI>{" "}
+          (see <See guide="reverse-proxy" section="config" />
+          ). <UI>Save</UI> sits at the end of the tab bar, so it's in reach from
+          every tab.
+        </P>
+        <Steps>
+          <P>
+            On <UI>General</UI>, under <UI>Domains</UI>, type a name and press
+            Enter (or a comma). Paste a list to add them all at once.{" "}
+            <C>*.example.com</C> covers every name one level under it. Each
+            domain's DNS must point at the proxy's server; its address is shown
+            under the list (press it to copy; see <See guide="dns" />
+            ).
+          </P>
+          <P>
+            <UI>What it does</UI>: pick what the site does (below) and fill in
+            its address, redirect target or folder.
+          </P>
+          <P>
+            On the <UI>HTTPS</UI> tab, turn on <UI>Serve over https</UI> and
+            pick a certificate (see{" "}
+            <See guide="reverse-proxy" section="https" />
+            ).
+          </P>
+          <P>
+            Press <UI>Add site</UI>. Morche writes the site's file, runs{" "}
+            <C>nginx -t</C> and reloads only if the test passes.
+          </P>
+        </Steps>
+        <Table
+          head={["What the site does", "Fill in"]}
+          rows={[
+            [
+              <UI key="p">Proxy</UI>,
+              <>
+                <UI>App address</UI>, as the proxy's server reaches it, in
+                parts: <UI>Protocol</UI> (<C>http</C> or <C>https</C>),{" "}
+                <UI>Address</UI> (e.g. <C>127.0.0.1</C> or <C>10.0.0.12</C>),{" "}
+                <UI>Port</UI> (e.g. <C>3000</C>; empty = 80, or 443 on https)
+                and an optional <UI>Path</UI>. Paste or type a whole address
+                like <C>http://10.0.0.12:8080/api</C> into Address and it is
+                split into the fields. Under it Morche says whether the app runs
+                on the proxy's server itself or across the network
+              </>,
+            ],
+            [
+              <UI key="r">Redirect</UI>,
+              <>
+                <UI>Send visitors to</UI>, e.g. <C>https://www.example.com</C>,
+                then the kind of redirect: <C>301</C> moved for good
+                (remembered), <C>302</C> moved for now, <C>308</C>/<C>307</C>{" "}
+                the same but a sent form is sent again there. With{" "}
+                <UI>Keep the path</UI> on, <C>/blog/post</C> lands on the same
+                path there; the <UI>For example</UI> line shows where one visit
+                ends up
+              </>,
+            ],
+            [
+              <UI key="s">Static files</UI>,
+              <>
+                A <UI>Folder</UI> on the server, e.g. <C>/var/www/example</C>:
+                type it or press <UI>Browse</UI> to pick it from the server's
+                folders. Turn on <UI>Single-page app</UI> for React, Vue or
+                Angular builds
+              </>,
+            ],
+            [
+              <UI key="n">404 page</UI>,
+              <>
+                Only the domains, and the answer: <C>404</C> Not Found,{" "}
+                <C>410</C> Gone (search engines drop the pages sooner) or{" "}
+                <C>444</C> (the connection is closed with no answer at all).
+                Parked or retired names never fall through to another site. With{" "}
+                <UI>Answer every other name too</UI> on, it also answers every
+                name no other site has (see{" "}
+                <See guide="reverse-proxy" section="catch-all" />)
+              </>,
+            ],
+            [
+              <UI key="t">Stream</UI>,
+              <>
+                No domains: a <UI>Port</UI> on the proxy's server, <UI>TCP</UI>{" "}
+                or <UI>UDP</UI>, and <UI>Forward to</UI> as Address + Port, e.g.{" "}
+                <C>10.0.0.12</C> and <C>5432</C>. Anything that isn't http:
+                databases, SSH, game or mail servers. Open the port in the
+                server's firewall too (the note under the fields links there)
+              </>,
+            ],
+          ]}
+        />
+        <P>The domain list helps as you go:</P>
+        <List>
+          <li>
+            The first name is the <UI>Main</UI> one: the site's title and the
+            link you open. The arrow on another name makes it the main one.
+          </li>
+          <li>
+            A name with a certificate on the server that covers it shows{" "}
+            <UI>Certificate</UI>, so https will work for it.
+          </li>
+          <li>
+            <UI>Also answered by</UI> warns that another site of this proxy, or
+            a server block written on the server, already answers that name:
+            only one of them will get the visitors.
+          </li>
+          <li>
+            When you add <C>example.com</C> without <C>www.example.com</C> (or
+            the other way round), the twin is offered with one tap.
+          </li>
+          <li>
+            Pasted addresses are tidied: <C>https://App.example.com/login</C>{" "}
+            becomes <C>app.example.com</C>. Backspace in the empty box takes the
+            last name back to fix it.
+          </li>
+        </List>
+        <P>
+          On a wide screen, the <UI>State</UI> card beside them turns the site
+          on or off and holds its note, and <UI>Route</UI> sums up where a
+          visitor goes: the address they open, nginx on which server, and where
+          it's passed on to. It also says when the site is still plain http.
+        </P>
+        <Tip>
+          A new proxy host can <UI>Start from</UI> an app (WordPress, Next.js,
+          Grafana, Portainer, n8n): it fills the settings that app needs, see{" "}
+          <See guide="reverse-proxy" section="templates" />.
+        </Tip>
+        <Example title="Grafana on its own domain">
+          <P>
+            Grafana listens on port 3000 of the same server. Domains{" "}
+            <C>grafana.example.com</C>, Proxy to <C>http://127.0.0.1:3000</C>,
+            WebSockets on (its live panels use them), https with the certificate
+            for <C>grafana.example.com</C>.
+          </P>
+        </Example>
+        <Example title="Old domain to the new one">
+          <P>
+            Domains <C>old-shop.com</C> and <C>www.old-shop.com</C>, Redirect to{" "}
+            <C>https://shop.example.com</C>, <UI>301 · Moved for good</UI>,{" "}
+            <UI>Keep the path</UI> on, so <C>old-shop.com/cart</C> lands on{" "}
+            <C>shop.example.com/cart</C>.
+          </P>
+        </Example>
+        <Example title="A database behind the proxy">
+          <P>
+            PostgreSQL runs on <C>10.0.0.12</C>, which isn't reachable from
+            outside. Open <UI>Streams</UI>, press <UI>Add stream</UI>: Port{" "}
+            <C>5432</C>, <UI>TCP</UI>, Forward to <C>10.0.0.12:5432</C>, and on{" "}
+            <UI>Security</UI> your office address under{" "}
+            <UI>Who can reach it</UI>. Clients now connect to the proxy's server
+            on 5432.
+          </P>
+        </Example>
+        <Warn>
+          Open the stream's port in the proxy server's firewall (see{" "}
+          <See guide="firewall" />
+          ), and always fill <UI>Who can reach it</UI> for databases and SSH: a
+          stream has no password of its own.
+        </Warn>
+      </>
+    ),
+  },
+  {
+    id: "https",
+    title: "HTTPS",
+    body: (
+      <>
+        <P>
+          The site's <UI>HTTPS</UI> tab turns https on and holds every TLS
+          setting nginx offers. Turn on <UI>Serve over https</UI>, then pick a
+          certificate under <UI>Found on the server</UI> (one that covers all
+          the site's domains is picked for you), or get a new one with{" "}
+          <UI>Get a certificate</UI> (see{" "}
+          <See guide="reverse-proxy" section="certificates">
+            Getting a certificate
+          </See>
+          ). Under the list you see who signed the certificate, whether certbot
+          renews it and how many days it has left.
+        </P>
+        <Table
+          head={["Setting", "What it does"]}
+          rows={[
+            [
+              <UI key="f">Force https</UI>,
+              "Every plain http request is redirected to the same address over https. Leave it on.",
+            ],
+            [
+              <UI key="c">Redirect code</UI>,
+              "301 (permanent, the usual), 308 (permanent and keeps a POST), 302 / 307 (temporary). Browsers remember a permanent redirect, so test with a temporary one.",
+            ],
+            [
+              <UI key="h2">HTTP/2</UI>,
+              "Faster pages; turn it off only if an old app has trouble with it.",
+            ],
+            [
+              <UI key="h3">HTTP/3</UI>,
+              "Over QUIC on UDP port 443. Needs nginx 1.25 or newer built with it; the switch stays off when the server's nginx can't.",
+            ],
+            [
+              <UI key="t">TLS settings</UI>,
+              "Mozilla's profiles: Intermediate (TLS 1.2 and 1.3), Modern (TLS 1.3 only), Old (also TLS 1.0 and 1.1), or the server's own defaults.",
+            ],
+            [
+              <UI key="s">HSTS</UI>,
+              "Browsers refuse plain http for the name for as long as they remember it; optionally for every subdomain, and preload.",
+            ],
+            [
+              <UI key="o">OCSP stapling</UI>,
+              "Sends the certificate's revocation status along. Only for certificates that list an OCSP address; Let's Encrypt's no longer do.",
+            ],
+            [
+              <UI key="sc">Session cache</UI>,
+              "Returning visitors skip part of the handshake. Leave it on.",
+            ],
+            [
+              <UI key="m">Client certificates</UI>,
+              "A CA file on the server: visitors must show a certificate it signed (Required), or are asked for one (Optional).",
+            ],
+          ]}
+        />
+        <Recommended
+          rows={[
+            {
+              setting: "Force https",
+              value: "On, 301",
+              why: "Nobody stays on plain http by accident.",
+            },
+            {
+              setting: "TLS settings",
+              value: "Intermediate",
+              why: "Safe, and every current browser and client connects.",
+            },
+            {
+              setting: "HTTP/2, session cache",
+              value: "On",
+              why: "Faster pages and quicker repeat visits.",
+            },
+            {
+              setting: "HSTS",
+              value: "1 year, later",
+              why: "Once https has worked for a while; start with a day.",
+            },
+          ]}
+        />
+        <Warn>
+          Turn HSTS on only once https works and will stay working. If the
+          certificate later expires, visitors who came before can't reach the
+          site at all until it's fixed. Start with <UI>5 minutes</UI> or{" "}
+          <UI>1 day</UI>, then raise it. <UI>Preload</UI> (needs subdomains and
+          a year or more) puts the name into browsers themselves and takes
+          months to undo.
+        </Warn>
+        <Tip>
+          HTTP/3 also needs UDP port 443 open, in the server's firewall and in
+          any cloud firewall in front of it. Until then browsers quietly stay on
+          HTTP/2.
+        </Tip>
+      </>
+    ),
+  },
+  {
+    id: "certificates",
+    title: "Getting a certificate",
+    body: (
+      <>
+        <P>
+          <UI>Get a certificate</UI> on the HTTPS tab puts a certificate on the
+          proxy's server as a background task (it shows under the switch and in{" "}
+          <UI>Tasks</UI>). When it's done, its files are filled in and https is
+          turned on; save the site to use it. The site doesn't need to be saved
+          before.
+        </P>
+        <List>
+          <li>
+            <UI>From a CA</UI>: Let's Encrypt (and its staging service for
+            tests), ZeroSSL, Google Trust Services, SSL.com, or{" "}
+            <UI>Another CA</UI> by its ACME address. certbot is installed if
+            missing and renews the certificate by itself.
+          </li>
+          <li>
+            <UI>Self-signed</UI>: made on the server with openssl, for tests,
+            internal names and IP addresses. Browsers warn about it.
+          </li>
+          <li>
+            <UI>Upload</UI>: a certificate (with its intermediates) and private
+            key you already have, in PEM. It's checked before it's saved in{" "}
+            <C>/etc/ssl/morche/</C>.
+          </li>
+        </List>
+        <Steps>
+          <P>
+            Point the site's domains at the proxy's server (an A or AAAA record)
+            and make sure port 80 is open.
+          </P>
+          <P>
+            On the site's <UI>HTTPS</UI> tab press <UI>Get a certificate</UI>,
+            keep <UI>From a CA</UI> and <UI>Let's Encrypt</UI>, add an email if
+            you want renewal warnings, and start it.
+          </P>
+          <P>
+            When it's done, check <UI>Force https</UI> and save the site.
+          </P>
+        </Steps>
+        <P>
+          ZeroSSL, Google and SSL.com ask for <UI>EAB</UI> keys (External
+          Account Binding) from their dashboards: a key ID and an HMAC key. The
+          HMAC key and an uploaded private key are kept encrypted, never in
+          plain text, and never shown in the task's log.
+        </P>
+        <Example title="Test without hitting the limits">
+          Pick <UI>Let's Encrypt (staging)</UI> first: it has no rate limits but
+          its certificates aren't trusted by browsers. Once it works, get the
+          real one with <UI>Get a new one now</UI> on.
+        </Example>
+        <Warn>
+          Wildcard names (<C>*.example.com</C>) need a DNS check, which isn't
+          available yet: list the names, or upload a wildcard certificate.
+        </Warn>
+        <P>
+          <UI>No certificate</UI> usually means the CA couldn't reach{" "}
+          <C>http://name/.well-known/acme-challenge/</C>: a domain points
+          elsewhere, port 80 is closed, or a CDN in front answers for it. The
+          task's details show certbot's own message. Every site Morche writes
+          answers that path, even when it redirects to https or blocks visitors.
+        </P>
+      </>
+    ),
+  },
+  {
+    id: "tabs",
+    title: "The site's tabs",
+    body: (
+      <>
+        <P>
+          A saved site opens on its <UI>Report</UI>; the tabs after it are its
+          settings, then its <UI>Logs</UI> and the <UI>Config</UI> they make.
+          Only the tabs a site can use show up: a stream has no HTTPS, Login,
+          Routing or Pages, a 404 page has no Login or Routing. A tab with
+          something set shows it beside its name (<UI>HTTPS On</UI>,{" "}
+          <UI>Routing 3</UI>, <UI>Login SSO</UI>); a red dot means a field there
+          was refused when you saved, and Save takes you to it. The open tab is
+          kept in the address (<C>?tab=security</C>), so a link can open a site
+          straight on it. When the window is too narrow for every tab, the rest
+          wait under <UI>More</UI> at the end of the row.
+        </P>
+        <Table
+          head={["Tab", "What's in it"]}
+          rows={[
+            [
+              <UI key="rep">Report</UI>,
+              "Charts and top lists of what visitors did: requests, errors, response times, busiest hours, pages, addresses, browsers (see Report). A saved site opens here",
+            ],
+            [
+              <UI key="g">General</UI>,
+              "Domains, what the site does and where it goes (with Test), the app's https settings, the note, On/Off, and the site's live traffic",
+            ],
+            [
+              <UI key="t">HTTPS</UI>,
+              "Certificate, http → https, HTTP/2 and HSTS (see HTTPS and certificates)",
+            ],
+            [
+              <UI key="s">Security</UI>,
+              <>
+                <UI>Who can reach it</UI>: addresses always let in, always
+                blocked, and what happens to everyone else; <UI>Countries</UI>{" "}
+                (see Who can visit). <UI>Hardening</UI>: ready-made refusals for
+                scanners and bots (see Hardening). <UI>Browser protections</UI>:
+                switches for common safety headers (below);{" "}
+                <UI>Hide the nginx version</UI>
+              </>,
+            ],
+            [
+              <UI key="l">Login</UI>,
+              "A name and password, or a sign-in service (SSO) in front of the whole site (see Login)",
+            ],
+            [
+              <UI key="r">Rate limit</UI>,
+              "Requests per second or minute, open connections, speed, and what a refused visitor gets (see Rate limits)",
+            ],
+            [
+              <UI key="k">Cache</UI>,
+              "How long browsers keep files, and (proxy hosts) nginx keeping the app's answers; Clear cache (see Cache)",
+            ],
+            [
+              <UI key="p">Routing</UI>,
+              <>
+                <UI>Paths</UI>: rules for part of the site, like <C>/api</C> →{" "}
+                <C>http://127.0.0.1:8080</C>, a redirect or a block.{" "}
+                <UI>Headers</UI>: add a header to the answer or the request, or
+                remove one the app sends (see Paths and headers)
+              </>,
+            ],
+            [
+              <UI key="rd">Redirects</UI>,
+              "Old addresses to new ones, written by hand or imported from a list (see Redirects)",
+            ],
+            [
+              <UI key="g">Pages</UI>,
+              "Maintenance mode and your own error pages (see Maintenance and error pages)",
+            ],
+            [
+              <UI key="a">Advanced</UI>,
+              "Compression, passing answers straight through, the visitor's real address behind a CDN, the PROXY protocol for streams, upload size and timeouts, and raw nginx lines (see Advanced options)",
+            ],
+            [
+              <UI key="log">Logs</UI>,
+              "Every request as it arrives, with search and filters by time, status, path, address and more (see Logs of a site)",
+            ],
+            [
+              <UI key="c">Config</UI>,
+              "The whole file Morche writes for the site, tested on the server, and written by hand if you need to (see The config file)",
+            ],
+          ]}
+        />
+        <P>
+          Each browser protection is an ordinary response header: turning it on
+          adds the row to <UI>Routing › Headers</UI>, turning it off removes it.
+          If you set one of them by hand with another value, the switch is on
+          and shows that value.
+        </P>
+        <Table
+          head={["Protection", "Header it adds"]}
+          rows={[
+            [
+              <UI key="f">Block framing by other sites</UI>,
+              <C key="c">X-Frame-Options: SAMEORIGIN</C>,
+            ],
+            [
+              <UI key="n">Stop content-type guessing</UI>,
+              <C key="c">X-Content-Type-Options: nosniff</C>,
+            ],
+            [
+              <UI key="r">Share less with other sites</UI>,
+              <C key="c">Referrer-Policy: strict-origin-when-cross-origin</C>,
+            ],
+            [
+              <UI key="s">Keep out of search engines</UI>,
+              <C key="c">X-Robots-Tag: noindex, nofollow</C>,
+            ],
+          ]}
+        />
+        <Recommended
+          rows={[
+            {
+              setting: "Largest upload",
+              value: <C>100</C>,
+              why: "For apps that take file uploads (Nextcloud, GitLab, a CMS)",
+            },
+            {
+              setting: "Wait for the app",
+              value: <C>300</C>,
+              why: "For slow exports or reports that otherwise end in 504",
+            },
+            {
+              setting: "Who can reach it",
+              value: "Your office or VPN range",
+              why: "For admin tools that shouldn't be open to the internet",
+            },
+            {
+              setting: "Browser protections",
+              value: "The first three on",
+              why: "Safe for almost every site; add the search-engine one for internal tools",
+            },
+          ]}
+        />
+      </>
+    ),
+  },
+  {
+    id: "site-report",
+    title: "Report",
+    body: (
+      <>
+        <P>
+          A site&apos;s <UI>Report</UI> tab is worked out from nginx&apos;s
+          access log for that site, read on the server when you open it. Pick
+          the period at the top: <UI>Last hour</UI>, <UI>24 hours</UI>,{" "}
+          <UI>7 days</UI> or <UI>30 days</UI> (kept in the address as{" "}
+          <C>?period=7d</C>). The time beside it says when the log was read; the
+          refresh button reads it again. It needs Operator access on the server.
+        </P>
+        <Table
+          head={["Part", "What it shows"]}
+          rows={[
+            [
+              <UI key="t">Tiles</UI>,
+              "Requests, different visitors (addresses), share of errors, response time (p95), data sent, and cache hits or the app's own time, each compared with the period before",
+            ],
+            [
+              <UI key="r">Requests</UI>,
+              "Requests over time, split into success, redirects, client errors (4xx) and server errors (5xx)",
+            ],
+            [
+              <UI key="c">Response time, Error rate, Visitors, Data sent</UI>,
+              "The same period, one chart each; hover (or use the arrow keys) for the exact values",
+            ],
+            [
+              <UI key="h">Busiest hours</UI>,
+              "Requests by weekday and hour, in your time zone",
+            ],
+            [
+              <UI key="d">How long they took</UI>,
+              "How many requests answered in under 100 ms, under 1 s, and so on",
+            ],
+            [
+              <UI key="l">Top lists</UI>,
+              "Pages, slowest pages, Not found, Server errors, visitors, status codes, referrers, browsers, systems, devices, bots, domains, methods, protocols, upstreams and cache states. Show all opens the whole list",
+            ],
+          ]}
+        />
+        <P>
+          Click a row in any list (a page, an address, a status code) to open
+          the <UI>Logs</UI> tab already filtered to it, to see the requests
+          behind the number.
+        </P>
+        <Tip>
+          Response times, domains and cache hits come from the detailed log
+          format Morche writes since this version. A site saved before it shows
+          a notice with <UI>Write the site again</UI> (Engineer): it saves the
+          site as it is, nothing else changes, and new lines carry the details.
+          Older lines stay as they were.
+        </Tip>
+        <P>
+          The report can only reach back as far as the log does: when nginx
+          (logrotate) has thrown older lines away, a notice says where the log
+          starts. A stream counts connections instead of requests, and has no
+          pages, browsers or status codes.
+        </P>
+      </>
+    ),
+  },
+  {
+    id: "site-logs",
+    title: "Logs of a site",
+    body: (
+      <>
+        <P>
+          The site&apos;s <UI>Logs</UI> tab lists its requests, newest first,
+          and follows new ones as they arrive (the blue <UI>Live</UI> dot).
+          Press <UI>Live</UI> to pause while you read; a range that ends in the
+          past never follows. Click a row for everything the line says: status,
+          path, domain, address, time taken, the upstream that answered, cache
+          state, request ID, referrer, browser, and the raw line with a copy
+          button.
+        </P>
+        <Table
+          head={["Filter", "How"]}
+          rows={[
+            [
+              <UI key="s">Search</UI>,
+              "Any text in the path, address, referrer or browser",
+            ],
+            [
+              <UI key="st">Status</UI>,
+              <>
+                <UI>2xx</UI>, <UI>3xx</UI>, <UI>4xx</UI>, <UI>5xx</UI> or{" "}
+                <UI>Errors</UI> (4xx and 5xx), with how many of each; exact
+                codes like <C>404</C> or <C>502,504</C> under <UI>Filters</UI>
+              </>,
+            ],
+            [
+              <UI key="t">Time</UI>,
+              "Last 15 minutes up to last 7 days, or your own From / To",
+            ],
+            [
+              <UI key="fw">Firewall</UI>,
+              <>
+                Shown once the site has the{" "}
+                <See guide="reverse-proxy" section="waf">
+                  web application firewall
+                </See>{" "}
+                on: <UI>Blocked</UI> (refused with 403 by the firewall),{" "}
+                <UI>Logged only</UI> (written down, let through) or{" "}
+                <UI>Blocked or logged</UI>, with how many of each
+              </>,
+            ],
+            [
+              <UI key="f">Filters</UI>,
+              <>
+                Path (<C>/api/</C>), address or its start (<C>10.0.</C>),
+                method, domain (when the site has several), status codes, slower
+                than a number of milliseconds
+              </>,
+            ],
+          ]}
+        />
+        <P>
+          Every filter is kept in the address, so a link opens the same list for
+          a colleague. Filters other than search, status and time show as pills
+          under the bar: remove one with its ×, or all with <UI>Clear all</UI>.
+          In a request&apos;s details, <UI>Only this address</UI> and{" "}
+          <UI>Only this path</UI> narrow the list to it.
+        </P>
+        <P>
+          A request the firewall refused has a red shield next to its status; a
+          yellow shield means it only wrote the request down. Its details then
+          have a <UI>Firewall</UI> part with the rules that matched and what
+          they found, and <UI>Only blocked ones</UI> / <UI>Only logged ones</UI>{" "}
+          to filter the list by it. A 403 without a shield came from somewhere
+          else (an address rule, a login, the app itself). On phones the same
+          filters are the <UI>Blocked</UI> and <UI>Logged by firewall</UI>{" "}
+          chips.
+        </P>
+        <P>
+          The table shows the visitor&apos;s <UI>IP</UI>, the time taken and the
+          size sent by default. The columns button (next to <UI>Live</UI>, on
+          computers) adds more from the same line: the browser or client
+          (shortened, like <C>Chrome 131 · Windows</C> or <C>curl 8.5</C>; the
+          whole agent on hover), where the visitor came from, the signed-in
+          user, domain, HTTP version, bytes received, request ID, cache state,
+          and which upstream answered, with its status and time. Your choice is
+          kept on this browser; <UI>Back to default</UI> resets it. On phones
+          each row shows the address, time, size and client under the path.
+        </P>
+        <Recommended
+          rows={[
+            {
+              setting: "Chasing errors",
+              value: "Upstream address + status",
+              why: "A 502 with no upstream status means the app never answered.",
+            },
+            {
+              setting: "Spotting abuse",
+              value: "IP + Browser or client",
+              why: "Bots and scripts stand out at a glance.",
+            },
+          ]}
+        />
+        <Example title="Find what broke after a deploy">
+          <Steps>
+            <P>
+              Open the site&apos;s <UI>Logs</UI> and pick <UI>5xx</UI>.
+            </P>
+            <P>
+              Click one request: <UI>Upstream</UI> and <UI>Upstream status</UI>{" "}
+              say whether the app answered at all.
+            </P>
+            <P>
+              Press <UI>Only this path</UI> to see if every request there fails,
+              then copy the request ID to look it up in the app&apos;s own logs.
+            </P>
+          </Steps>
+        </Example>
+        <P>
+          The list reads the newest lines first and stops after a large number
+          of them in one go; the footer says how many matched and how many lines
+          were read, and <UI>Show more</UI> goes further. For the server&apos;s
+          whole nginx log (errors too), use the proxy&apos;s own Logs tab (see
+          Logs).
+        </P>
+      </>
+    ),
+  },
+  {
+    id: "visitors",
+    title: "Who can visit",
+    body: (
+      <>
+        <P>
+          The <UI>Security</UI> tab decides who reaches a site (or a stream).
+          Two lists name addresses or ranges, IPv4 or IPv6, one per line:{" "}
+          <UI>Always let in</UI> and <UI>Always block</UI>.{" "}
+          <UI>Everyone else</UI> says what happens to every visitor the lists
+          don't name: <UI>Let in</UI> (the default) or <UI>Block</UI>. Blocked
+          visitors get <C>403 Forbidden</C>; a stream just drops them. A line
+          under the lists says in words who gets in, and warns when nobody
+          would.
+        </P>
+        <Example title="Two common setups">
+          <List>
+            <li>
+              Only the office and the VPN: Everyone else = <UI>Block</UI>,
+              Always let in = <C>203.0.113.0/24</C> and <C>10.8.0.0/16</C>.
+            </li>
+            ,
+            <li>
+              Open, minus a few abusers: Everyone else = <UI>Let in</UI>, Always
+              block = <C>198.51.100.23</C>, <C>192.0.2.0/24</C>.
+            </li>
+            ,
+          </List>
+        </Example>
+        <P>
+          When an address is in both lists (a single address inside a blocked
+          range), the narrower entry wins: block <C>10.0.0.0/8</C> and let in{" "}
+          <C>10.1.2.3</C>, and only that one machine of the range gets through.
+          The same entry can't be in both lists.
+        </P>
+        <P>
+          Countries: pick countries with <UI>Choose countries</UI> and say
+          whether they're the <UI>Only these</UI> that get in, or the ones to{" "}
+          <UI>Block these</UI>. The address lists are checked first, so{" "}
+          <UI>Always let in</UI> still works for someone travelling abroad. With{" "}
+          <UI>Only these</UI>, <UI>Everyone else</UI> decides visitors whose
+          country isn't known (private addresses, very new ranges).
+        </P>
+        <Steps>
+          {[
+            <>
+              The first time, the card says country lookup isn't on: press{" "}
+              <UI>Turn on country lookup</UI> (Engineer). It runs as a
+              background task: adds nginx's GeoIP2 module with the server's
+              package manager, downloads a free country database (about 8 MB)
+              and sets a monthly refresh.
+            </>,
+            <>Pick the countries and the mode, then Save.</>,
+          ]}
+        </Steps>
+        <Tip>
+          Countries are a coarse filter: VPNs and proxies hide where people are,
+          and databases are never exact. Pair them with the address lists for
+          anything that really matters. IP to country data by DB-IP.com,
+          licensed CC BY 4.0.
+        </Tip>
+        <Warn>
+          If the module can't be added (no package for it on that system),
+          turning it on fails with a message and nothing is changed; sites with
+          countries can't be saved on that proxy until it's on.
+        </Warn>
+        <P>
+          Port forwards (streams) take countries too, on their own{" "}
+          <UI>Security</UI> tab. They use a separate module of nginx's stream
+          side, so the card asks once more: press{" "}
+          <UI>Turn on countries for port forwards</UI> (Engineer). A refused
+          connection is simply closed, there's no error page for a raw TCP or
+          UDP port.
+        </P>
+        <Recommended
+          rows={[
+            {
+              setting: "Admin tools",
+              value: "Everyone else: Block + your office/VPN ranges",
+              why: "The strongest and simplest rule",
+            },
+            {
+              setting: "A local shop or service",
+              value: "Countries: Only these, your country",
+              why: "Cuts most bots; add Always let in for partners abroad",
+            },
+          ]}
+        />
+      </>
+    ),
+  },
+  {
+    id: "waf",
+    title: "Web application firewall",
+    body: (
+      <>
+        <P>
+          <UI>Web application firewall</UI> (on the <UI>Security</UI> tab of a
+          proxy, static or storage site) reads every request before it reaches
+          the app and stops the usual attacks: SQL injection, cross-site
+          scripting, path traversal, shell commands in parameters, known
+          scanners. It is ModSecurity with the OWASP Core Rule Set, the same
+          rules big hosting companies use.
+        </P>
+        <Steps>
+          {[
+            <>
+              The first time, the card says the firewall isn't on this proxy:
+              press <UI>Add the firewall</UI> (Engineer). A background task
+              installs ModSecurity and the rule set with the server's package
+              manager and reloads nginx.
+            </>,
+            <>
+              Set <UI>Mode</UI> to <UI>Log only</UI> and Save. Requests that
+              would be refused are only written down.
+            </>,
+            <>
+              Use the site normally for a few days, then open{" "}
+              <UI>Flagged requests</UI>. Anything your own app sent there is a
+              false alarm: press <UI>Turn off</UI> on its rule (or add the path
+              to <UI>Paths it leaves alone</UI>) and Save.
+            </>,
+            <>
+              When the list only shows real attacks, switch to <UI>Block</UI>.
+              Refused requests get <C>403 Forbidden</C>.
+            </>,
+          ]}
+        </Steps>
+        <H3>Settings</H3>
+        <Table
+          head={["Setting", "What it does"]}
+          rows={[
+            [
+              "Mode",
+              "Off / Log only (writes down, lets through) / Block (refuses with 403)",
+            ],
+            [
+              "Paranoia level",
+              "1 catches the common attacks with very few false alarms; 2–4 catch more and flag more innocent requests",
+            ],
+            [
+              "Refuse at score",
+              "Each matching rule adds points; a request reaching this score is refused. Lower = stricter. Empty = 5",
+            ],
+            [
+              "Paths it leaves alone",
+              "Path prefixes not checked at all, like an upload endpoint or an admin area that trips rules",
+            ],
+            [
+              "Rules turned off",
+              "Rule ids that are false alarms for this site, like 942100",
+            ],
+          ]}
+        />
+        <P>
+          In <UI>Flagged requests</UI> each request shows the rules that
+          matched, what they found and where, and whether it was{" "}
+          <UI>Blocked</UI> or <UI>Logged only</UI>. The same requests are marked
+          in the site&apos;s{" "}
+          <See guide="reverse-proxy" section="site-logs">
+            Logs
+          </See>
+          , where the <UI>Firewall</UI> filter lists only them. Rules 949xxx,
+          959xxx and 980xxx only add up the score (<UI>Score total</UI>); they
+          can't be turned off, since that would turn the whole firewall off.
+          Turn off the rules listed above them instead.
+        </P>
+        <Recommended
+          rows={[
+            {
+              setting: "Mode",
+              value: "Log only for a week, then Block",
+              why: "Every app has a few requests that look like attacks.",
+            },
+            {
+              setting: "Paranoia level",
+              value: "1",
+              why: "2 or 3 only for sensitive sites, after tuning at 1.",
+            },
+            {
+              setting: "Refuse at score",
+              value: "Empty (5)",
+              why: "Raise it only while tuning a busy site in Block.",
+            },
+          ]}
+        />
+        <Warn>
+          The firewall reads request bodies, so very large uploads take a bit
+          longer, and an API that receives code, SQL or HTML on purpose (a CMS
+          editor, a query console) will trip rules: list its path in{" "}
+          <UI>Paths it leaves alone</UI>.
+        </Warn>
+        <Tip>
+          If the package isn't available for the server's system, adding the
+          firewall fails with a message and nothing changes; a site with the
+          firewall on can't be saved on that proxy until it's added.
+        </Tip>
+      </>
+    ),
+  },
+  {
+    id: "rate-limit",
+    title: "Rate limits",
+    body: (
+      <>
+        <P>
+          The <UI>Rate limit</UI> tab (proxy hosts, static sites and streams)
+          keeps one visitor, or a flood, from taking the whole site down.
+          Nothing is limited until you set something.
+        </P>
+        <Table
+          head={["Card", "What it does"]}
+          rows={[
+            [
+              <UI key="r">Requests</UI>,
+              <>
+                Limits like <C>10 per second</C>, on the whole site or under a
+                path (<C>/login</C>, <C>/api</C>), counted for each visitor or
+                for all visitors together, optionally only for some methods
+                (e.g. <C>POST</C>). Sites only.
+              </>,
+            ],
+            [
+              <UI key="c">Connections</UI>,
+              "How many connections one visitor, or the whole site, may hold open at once",
+            ],
+            [
+              <UI key="s">Speed</UI>,
+              "KB/s per connection sent to visitors; sites can keep the first MB at full speed so pages stay fast; streams can also cap what clients send",
+            ],
+            [
+              <UI key="w">When a limit is hit</UI>,
+              <>
+                The answer (<C>429</C>, <C>503</C>, or <C>444</C> = close
+                without answering), addresses never limited, and{" "}
+                <UI>Try it out first</UI>
+              </>,
+            ],
+          ]}
+        />
+        <P>
+          Burst is how many requests above the rate are taken at once; what
+          happens to them is your choice: <UI>Serve them at once</UI> (the
+          usual), <UI>Slow them to the rate</UI> (they wait in line), or{" "}
+          <UI>Serve some at once, slow the rest</UI>. Beyond the burst, requests
+          are refused. Each limit shows a sentence saying what it does. When
+          several limits match a request, all of them count it and the strictest
+          decides.
+        </P>
+        <Example title="Slow down password guessing">
+          Add limit › <UI>Login form</UI>: path <C>/login</C>, <C>5</C> per
+          minute, burst <C>5</C>, method <C>POST</C>, counted for each visitor.
+          Opening the page stays free; the sixth wrong password in a minute gets
+          429.
+        </Example>
+        <Steps>
+          {[
+            "Set the limits and turn on Try it out first, then Save.",
+            <>
+              Use the site for a day and look in the proxy's <UI>Logs</UI> tab
+              (error log) for lines saying a request would have been limited.
+            </>,
+            "Raise the limits if real visitors show up there, then turn Try it out first off.",
+          ]}
+        </Steps>
+        <Recommended
+          rows={[
+            {
+              setting: "Whole site",
+              value: "10–20 per second, burst 20–50, per visitor",
+              why: "A page with its images and scripts is dozens of requests at once",
+            },
+            {
+              setting: "Login / password reset",
+              value: "5 per minute, burst 5, POST",
+              why: "Stops guessing without bothering people",
+            },
+            {
+              setting: "Connections per visitor",
+              value: <C>20</C>,
+              why: "Browsers open about 6; leaves room for several tabs",
+            },
+            {
+              setting: "Never limit",
+              value: "Monitoring, your office, other servers of yours",
+              why: "So health checks and your own scripts aren't refused",
+            },
+          ]}
+        />
+        <Warn>
+          Behind Cloudflare or another proxy every visitor looks like a few
+          addresses, so per-visitor limits and address lists hit everyone at
+          once. Count for all visitors together there, or limit at the outer
+          proxy. <UI>Try it out first</UI> needs nginx 1.17.6 or newer.
+        </Warn>
+      </>
+    ),
+  },
+  {
+    id: "cache",
+    title: "Cache",
+    body: (
+      <>
+        <P>
+          The <UI>Cache</UI> tab (proxy hosts and static sites) makes pages come
+          back faster in two ways. Both are off until you set them.
+        </P>
+        <Table
+          head={["Card", "What it does"]}
+          rows={[
+            [
+              <UI key="b">Browsers</UI>,
+              <>
+                Tells visitors' browsers to keep images, styles, scripts and
+                fonts for some days (<C>expires</C>), and with{" "}
+                <UI>Always check pages again</UI> never to keep HTML pages, so a
+                change shows at once
+              </>,
+            ],
+            [
+              <UI key="p">Proxy cache</UI>,
+              <>
+                Proxy hosts only: nginx keeps the app's answers on its own disk
+                (<C>/var/cache/morche-nginx</C>) and hands them out again for
+                the time you set (10 minutes if empty), up to a size (1 GB)
+              </>,
+            ],
+          ]}
+        />
+        <P>
+          The proxy cache never keeps an answer for a signed-in request (an{" "}
+          <C>Authorization</C> header), a WebSocket, or an answer that sets a
+          cookie, so one person's page isn't shown to another. Add the paths and
+          cookie names of everything personal (admin, cart, account) to the two{" "}
+          <UI>Never keep</UI> lists; the <UI>WordPress</UI> and{" "}
+          <UI>Admin and API</UI> buttons fill in the usual ones.
+        </P>
+        <Table
+          head={["Switch", "What it does"]}
+          rows={[
+            [
+              <UI key="i">Ignore the app's own cache headers</UI>,
+              <>
+                Keeps answers even when the app sends{" "}
+                <C>Cache-Control: no-cache</C>. Only for apps that send it
+                everywhere by mistake
+              </>,
+            ],
+            [
+              <UI key="h">Show whether an answer came from the cache</UI>,
+              <>
+                Adds <C>X-Cache-Status</C>: <C>HIT</C>, <C>MISS</C>,{" "}
+                <C>EXPIRED</C>, <C>BYPASS</C>…
+              </>,
+            ],
+          ]}
+        />
+        <Example title="Check that it works">
+          <C>curl -sI https://app.example.com/ | grep -i x-cache</C> twice: the
+          first answer says <C>MISS</C>, the second <C>HIT</C>.
+        </Example>
+        <P>
+          <UI>Query string</UI> says what of <C>?…</C> keeps answers apart.{" "}
+          <UI>Every query string counts</UI> (the default) is always safe.{" "}
+          <UI>Ignore the query string</UI> serves <C>/page?utm_source=x</C> the
+          copy of <C>/page</C>, only right when the app never changes a page by
+          its query string. <UI>Only these parameters count</UI> keeps{" "}
+          <C>/list?page=2</C> and <C>/list?page=3</C> apart but ignores tracking
+          parameters (<C>utm_*</C>, <C>fbclid</C>), so shared links don't fill
+          the cache with copies of one page. Answers kept before a change aren't
+          used after it.
+        </P>
+        <P>
+          To give parts of the site their own time see{" "}
+          <See guide="reverse-proxy" section="cache-rules" />; to keep one copy
+          per device or language see{" "}
+          <See guide="reverse-proxy" section="separate-copies" />; to keep pages
+          up while the app is down see{" "}
+          <See guide="reverse-proxy" section="always-online" />. After a
+          release, clear the cache: see{" "}
+          <See guide="reverse-proxy" section="clear-cache" />.
+        </P>
+        <Recommended
+          rows={[
+            {
+              setting: "Keep images, styles, scripts and fonts",
+              value: "30 days",
+              why: "When file names change with each release (most build tools do that)",
+            },
+            {
+              setting: "Always check pages again",
+              value: "On",
+              why: "Pages pick up the new file names straight away",
+            },
+            {
+              setting: "Proxy cache",
+              value: "1–10 minutes",
+              why: "For public pages (a blog, docs, a shop's catalogue); even a minute takes most of the load off the app",
+            },
+            {
+              setting: "Always online",
+              value: "Backup only",
+              why: "A restart or crash of the app goes unnoticed (see Always online below)",
+            },
+          ]}
+        />
+        <Warn>
+          The proxy cache and <UI>Pass answers straight through</UI> (Advanced)
+          can't be on together: turning one on turns the other off. If pages
+          look old after a change, clear the cache; if a personal page shows up
+          for someone else, turn the cache off and list that path first.
+        </Warn>
+      </>
+    ),
+  },
+  {
+    id: "cache-rules",
+    title: "Cache rules",
+    body: (
+      <>
+        <P>
+          <UI>Cache rules</UI> (Cache tab, once the proxy cache is on) give
+          parts of the site their own cache time: images for a week, the news
+          pages for a minute, the API never. Each rule has a name, its addresses
+          and <UI>Keep answers</UI>: <UI>For its own time</UI> (minutes, hours
+          or days, up to 30 days), <UI>Never keep</UI>, or{" "}
+          <UI>As the rest of the site</UI> (a rule only for clearing). Every
+          rule can also be cleared on its own: <UI>Clear</UI> on the rule, or{" "}
+          <UI>A cache rule</UI> in the Clear cache window.
+        </P>
+        <Steps>
+          <>
+            Turn on <UI>Keep the app's answers</UI> on the Proxy cache card.
+          </>
+          <>
+            Under <UI>Cache rules</UI> press <UI>Add rule</UI>, or a ready one:{" "}
+            <UI>Images</UI> (7 days), <UI>Styles and scripts</UI> (1 day),{" "}
+            <UI>API</UI> (never) or <UI>Tagged by the app</UI>.
+          </>
+          <>
+            Name it, pick how long to keep its answers and list its paths, one
+            per line.
+          </>
+          <>Save the site.</>
+        </Steps>
+        <Table
+          head={["Path", "Covers"]}
+          rows={[
+            [<C key="1">/api</C>, "/api and everything under it (not /apis)"],
+            [<C key="2">/news/</C>, "Everything under /news/"],
+            [<C key="3">*.css</C>, "Every stylesheet of the site"],
+            [<C key="4">/img/*</C>, "Anything under /img/"],
+          ]}
+        />
+        <Example title="A news site">
+          The rest of the site keeps 10 minutes. Rule <UI>Latest news</UI> with{" "}
+          <C>/news/</C> for 1 minute, <UI>Images</UI> for 7 days, and{" "}
+          <UI>Account</UI> with <C>/account</C> never kept.
+        </Example>
+        <P>
+          When an address fits several rules the first one wins: move rules with
+          the arrows to put the narrower ones first. Rules with a time take
+          paths only (no domain or <C>?query</C>); a rule that only clears may
+          also pick answers by a header the app sends (see{" "}
+          <See guide="reverse-proxy" section="clear-cache" />
+          ).
+        </P>
+        <Warn>
+          The app's own <C>Cache-Control</C> or <C>Expires</C> still wins over a
+          rule's time unless <UI>Ignore the app's own cache headers</UI> is on.
+          Rules apply to the site's main address, not to paths set on the
+          Routing tab.
+        </Warn>
+      </>
+    ),
+  },
+  {
+    id: "separate-copies",
+    title: "Separate copies by device, system or language",
+    body: (
+      <>
+        <P>
+          When the app answers the same address differently per visitor (a
+          mobile layout, a page in the visitor's language, prices in their
+          currency), one kept copy would be shown to everyone.{" "}
+          <UI>Separate copies</UI> (Cache tab, once the proxy cache is on) keeps
+          a copy per kind of visitor instead.
+        </P>
+        <Table
+          head={["Choice", "Copies"]}
+          rows={[
+            [
+              <UI key="d">By device type</UI>,
+              "phone, tablet, desktop (from the browser's User-Agent)",
+            ],
+            [
+              <UI key="o">By operating system</UI>,
+              "windows, macos, linux, android, ios, chromeos, other",
+            ],
+            [
+              <UI key="l">By language</UI>,
+              "The first language the browser asks for, like en or fa",
+            ],
+            [
+              <UI key="h">By request headers</UI>,
+              <>
+                Up to 3, like <C>X-Country</C> set by a CDN
+              </>,
+            ],
+            [
+              <UI key="c">By cookies</UI>,
+              <>
+                Up to 3 cookie names, like <C>lang</C> or <C>currency</C>
+              </>,
+            ],
+          ]}
+        />
+        <Example title="A shop with a mobile layout and two languages">
+          Turn on <UI>By device type</UI> and add the cookie <C>lang</C>. A page
+          is then kept up to six times (3 devices × 2 languages) and each
+          visitor gets the right one.
+        </Example>
+        <P>
+          With <UI>Show whether an answer came from the cache</UI> on, answers
+          also carry <C>X-Cache-Variant</C>, like <C>phone,android</C>, to show
+          which copy was used. Clearing an address clears all its copies.
+        </P>
+        <Warn>
+          Every choice multiplies the copies kept and the trips to the app: pick
+          only what really changes the page. An iPad on iPadOS says it is a Mac,
+          so it counts as desktop / macos. Changing these choices starts the
+          cache over.
+        </Warn>
+      </>
+    ),
+  },
+  {
+    id: "always-online",
+    title: "Always online",
+    body: (
+      <>
+        <P>
+          <UI>Always online</UI> (Cache tab, proxy hosts) keeps the last good
+          answer of every page. When the app is down, restarting or failing,
+          visitors get that copy instead of an error page; once the app works
+          again the copies are brought up to date in the background. It works
+          with the proxy cache off: then nothing is served from a copy while the
+          app is fine.
+        </P>
+        <Table
+          head={["Mode", "What visitors get"]}
+          rows={[
+            [
+              <UI key="b">Backup only</UI>,
+              "Every visit goes to the app as usual. Its last good answer is kept and handed out only when the app fails. The recommended mode",
+            ],
+            [
+              <UI key="f">Fast, with backup</UI>,
+              "The copy at once, while it is refreshed in the background: a page can be one visit old, and the app gets far fewer visits",
+            ],
+            [
+              <UI key="c">Copies only</UI>,
+              "For maintenance: the app is not asked at all. Pages with a copy work, the rest show an error (502). Switch back when you're done",
+            ],
+          ]}
+        />
+        <Steps>
+          <>
+            Open the site, tab <UI>Cache</UI>, card <UI>Always online</UI>, and
+            pick <UI>Backup only</UI>.
+          </>
+          <>
+            Under <UI>Also count as down</UI> leave <C>502</C>, <C>503</C> and{" "}
+            <C>504</C> ticked; tick <C>500</C> too if the app answers <C>500</C>{" "}
+            when its database is down.
+          </>
+          <>
+            Add sign-in paths and cookies to the <UI>Never keep</UI> lists (the{" "}
+            <UI>WordPress</UI> and <UI>Admin and API</UI> buttons fill the usual
+            ones), then save.
+          </>
+          <>
+            Open the site's pages once (or let visitors do it), then press{" "}
+            <UI>Pages with a copy</UI> to see what is covered.
+          </>
+        </Steps>
+        <Table
+          head={["Setting", "What it does"]}
+          rows={[
+            [
+              <UI key="k">Keep each copy for</UI>,
+              "A copy no one asks for is dropped after this many days (7 if empty, up to 365)",
+            ],
+            [
+              <UI key="w">Wait for the app</UI>,
+              "How long to try reaching the app before using the copy (5 seconds if empty)",
+            ],
+            [
+              <UI key="sl">Use the copy if the app is slower than</UI>,
+              <>
+                Also use the copy when the app is up but hasn't started
+                answering a page within this many seconds, even if it would have
+                answered <C>200</C> later. Empty = off (the site's own{" "}
+                <UI>Wait for the app</UI> in Limits, 60 s by default)
+              </>,
+            ],
+            [
+              <UI key="s">Also count as down</UI>,
+              <>
+                App answers that count as a failure: <C>500</C>, <C>502</C>,{" "}
+                <C>503</C>, <C>504</C>, <C>429</C>. No answer, a refused
+                connection or a timeout always counts
+              </>,
+            ],
+            [
+              <UI key="p">Keep pages the app marks private</UI>,
+              <>
+                Cache off only: also keep answers sent with{" "}
+                <C>Cache-Control: private</C> or <C>no-store</C>
+              </>,
+            ],
+          ]}
+        />
+        <P>
+          <UI>Pages with a copy</UI> (Operator access) lists every kept page,
+          newest first, with how old its copy is and its size, so you know what
+          visitors would still see. With <UI>Separate copies</UI> on, each copy
+          is listed with the kind of visitor it is for.
+        </P>
+        <Example title="An app that restarts with every release">
+          <UI>Backup only</UI> with the defaults: during the 20 seconds the app
+          restarts, visitors get the pages as they were a moment before, and
+          nobody sees a <C>502</C>.
+        </Example>
+        <Example title="An app that sometimes hangs for a minute">
+          Set <UI>Use the copy if the app is slower than</UI> to <C>15</C>: a
+          page the app hasn't started sending after 15 seconds is answered from
+          its copy at once. Forms, uploads, WebSockets and signed-in requests
+          (an <C>Authorization</C> header, or paths and cookies under{" "}
+          <UI>Never keep</UI>) still wait the site's full time, so a slow save
+          is never cut off. A page that has no copy yet gets a <C>504</C> after
+          the 15 seconds.
+        </Example>
+        <Recommended
+          rows={[
+            {
+              setting: "Mode",
+              value: "Backup only",
+              why: "Nothing changes while the app works, so it's safe for any site",
+            },
+            {
+              setting: "Also count as down",
+              value: "502, 503, 504",
+              why: "The answers a stopped or overloaded app gives",
+            },
+            {
+              setting: "Wait for the app",
+              value: "3–5 seconds",
+              why: "Shorter makes a dead app show the copy sooner",
+            },
+            {
+              setting: "Use the copy if the app is slower than",
+              value: "Above your slowest page (15–30 s)",
+              why: "It counts until the first byte; set it lower than a normal slow page and those pages turn into copies or 504s",
+            },
+          ]}
+        />
+        <Warn>
+          Only pages visitors opened while the app worked have a copy, and only
+          plain visits (GET): sign-ins, forms, carts and anything else sent to
+          the app still fail while it's down. Answers made for one signed-in
+          person are never kept unless you turn on{" "}
+          <UI>Keep pages the app marks private</UI>; list sign-in cookies under{" "}
+          <UI>Never keep</UI> first. It can't be on together with{" "}
+          <UI>Pass answers straight through</UI> (Advanced). Sites saved with
+          the old <UI>Serve the last copy</UI> switch now show{" "}
+          <UI>Fast, with backup</UI>.
+        </Warn>
+      </>
+    ),
+  },
+  {
+    id: "clear-cache",
+    title: "Clearing the cache",
+    body: (
+      <>
+        <P>
+          <UI>Clear cache…</UI> (on the Proxy cache card, or in the site's ⋯
+          menu; Operator access) opens a window that first says how much is kept
+          now, then lets you pick what to clear. As you type it counts the kept
+          answers that match, so you see what goes before you press{" "}
+          <UI>Clear</UI>. Visitors' browsers keep their own copies (Browsers
+          card) until those run out.
+        </P>
+        <P>
+          The Proxy cache card always shows <UI>Kept answers</UI> and{" "}
+          <UI>On disk</UI> for the saved site (the arrows count again). While
+          the cache is off, the site isn't saved yet or nothing is kept, they
+          read 0 and <UI>Clear cache…</UI> (and each rule's <UI>Clear</UI>, and
+          the ⋯ menu item) stay greyed out; hover one to see why.
+        </P>
+        <Table
+          head={["Choice", "What goes"]}
+          rows={[
+            [<UI key="e">Everything</UI>, "Every kept answer of this site"],
+            [
+              <UI key="a">Some addresses</UI>,
+              "The pages and folders you list, one per line",
+            ],
+            [
+              <UI key="h">By a header the app sends</UI>,
+              <>
+                Answers the app tagged, like <C>Cache-Tag: product-12</C>
+              </>,
+            ],
+            [
+              <UI key="g">A cache rule</UI>,
+              "The answers of one of the Cache tab's rules (shown when there is one)",
+            ],
+          ]}
+        />
+        <Table
+          head={["Address", "Clears"]}
+          rows={[
+            [
+              <C key="1">/blog</C>,
+              "/blog, everything under it, with any query string (not /blogs)",
+            ],
+            [<C key="2">/img/*.png</C>, "PNG files anywhere under /img/"],
+            [<C key="3">*.css</C>, "Every stylesheet of the site"],
+            [<C key="4">/search?q=*</C>, "Searches, but not /search?page=2"],
+            [
+              <C key="5">shop.example.com/cart</C>,
+              "/cart on that domain only, when the site has several",
+            ],
+            [
+              <C key="6">https://example.com/</C>,
+              "Only answers kept for https visitors",
+            ],
+          ]}
+        />
+        <P>
+          A cache rule (see <See guide="reverse-proxy" section="cache-rules" />)
+          is cleared in one go: press <UI>Clear</UI> on the rule, or pick it in
+          the window. A rule kept <UI>As the rest of the site</UI> exists just
+          for that, and may pick answers by a header the app sends instead of,
+          or as well as, addresses (then both must match).
+        </P>
+        <Example title="Clear one product's pages after an edit">
+          Have the app send <C>Cache-Tag: product-12, category-3</C> with each
+          page it builds from product 12. Then pick{" "}
+          <UI>By a header the app sends</UI> with header <C>Cache-Tag</C>, value{" "}
+          <C>product-12</C> clears every page showing it, whatever its address.
+          A value matches one item of the list; <C>*</C> = any characters (
+          <C>product-*</C>).
+        </Example>
+        <Tip>
+          The cache is cleared on the proxy's server by reading the kept files,
+          so a very large cache (many GB) takes a few seconds to count.
+        </Tip>
+      </>
+    ),
+  },
+  {
+    id: "advanced",
+    title: "Advanced options",
+    body: (
+      <>
+        <P>
+          The <UI>Advanced</UI> tab holds what most sites never need to change.
+        </P>
+        <Table
+          head={["Option", "What it does"]}
+          rows={[
+            [
+              <UI key="g">Compress text answers</UI>,
+              "On by default: pages, styles, scripts, JSON and SVG go out gzipped, often 70% smaller",
+            ],
+            [
+              <UI key="b">Pass answers straight through</UI>,
+              "Proxy hosts: nothing is held back, for server-sent events, streamed downloads and AI chat answers that arrive word by word; uploads reach the app as they come",
+            ],
+            [
+              <UI key="r">Behind a CDN or load balancer</UI>,
+              <>
+                The addresses of Cloudflare or your load balancer, and the
+                header they put the visitor's address in. Logs, address lists,
+                countries and rate limits then see the real visitor.{" "}
+                <UI>Use Cloudflare's</UI> fills in Cloudflare's ranges and{" "}
+                <C>CF-Connecting-IP</C>
+              </>,
+            ],
+            [
+              <UI key="c">Give up connecting after</UI>,
+              "Proxy hosts and streams: how long to try reaching the app (nginx's default is 60 s, up to 75); a few seconds shows an error fast when it's down",
+            ],
+            [
+              <UI key="p">Send the PROXY protocol</UI>,
+              "Streams: tells the target who connected. Only when the target expects it (HAProxy, Traefik, Postfix), or every connection fails",
+            ],
+            [
+              <UI key="l">Largest upload, Wait for the app</UI>,
+              "nginx's 1 MB limit and 60 s wait; raise them for uploads and slow exports",
+            ],
+            [
+              <UI key="z">Brotli</UI>,
+              <>
+                Also compress with Brotli, about 15–20% smaller than gzip for
+                text. Needs nginx's Brotli module: without it the switch is
+                greyed out and only gzip is used. <UI>Install Brotli module</UI>{" "}
+                (Engineer) adds it from the server's own packages (Debian 12+ /
+                Ubuntu 23.04+: <C>libnginx-mod-http-brotli-filter</C>, Alpine:{" "}
+                <C>nginx-mod-http-brotli</C>), reloads nginx and writes the
+                sites again, as a background task. An nginx from nginx.org or
+                built by hand is left alone: add <C>ngx_brotli</C> to it
+                yourself, then <UI>Check</UI> the proxy
+              </>,
+            ],
+            [
+              <UI key="i">Give each request an ID</UI>,
+              <>
+                A unique <C>X-Request-ID</C> goes to the app, back to the
+                visitor and into the access log. When someone reports an error,
+                ask for the ID and find the same request in the app's log. An ID
+                the visitor sends is kept
+              </>,
+            ],
+            [
+              <UI key="d">Raw directives</UI>,
+              "nginx lines added as they are inside the site's block",
+            ],
+          ]}
+        />
+        <P>
+          <UI>Hide the nginx version</UI> sits in the <UI>Security</UI> tab and
+          is on by default: error pages and the <C>Server</C> header stop naming
+          the exact version.
+        </P>
+        <Warn>
+          Only list addresses you trust under{" "}
+          <UI>Behind a CDN or load balancer</UI>: anything sending from them can
+          claim to be any visitor. Cloudflare changes its list now and then;
+          press <UI>Use Cloudflare's</UI> again and save to refresh it.
+        </Warn>
+      </>
+    ),
+  },
+  {
+    id: "templates",
+    title: "Templates and copies",
+    body: (
+      <>
+        <P>
+          A new proxy host shows <UI>Start from</UI> above the address: press an
+          app and the settings it needs are filled in. Nothing else changes, and
+          the address is filled only when the box is empty; check it, since it's
+          only where the app usually listens.
+        </P>
+        <Table
+          head={["App", "What it sets"]}
+          rows={[
+            [
+              <UI key="w">WordPress</UI>,
+              <>
+                64 MB uploads, 2 min wait, <C>/xmlrpc.php</C> blocked, hidden
+                files, backups and scanners refused (Common probes stays off:
+                its own <C>/wp-admin</C> must work)
+              </>,
+            ],
+            [
+              <UI key="n">Next.js</UI>,
+              "WebSockets, gzip, browsers keep built files 30 days, hidden files refused",
+            ],
+            [
+              <UI key="g">Grafana</UI>,
+              "WebSockets for live panels, the site's name passed on, 5 min wait for heavy queries",
+            ],
+            [
+              <UI key="p">Portainer</UI>,
+              <>
+                <C>https://127.0.0.1:9443</C> without checking its self-signed
+                certificate, WebSockets for consoles, 1 GB uploads, 10 min wait
+              </>,
+            ],
+            [
+              <UI key="8">n8n</UI>,
+              "WebSockets and Pass answers straight through for its editor, 16 MB payloads, 1 h wait",
+            ],
+          ]}
+        />
+        <P>
+          To make a site like one you already have, open the site's ⋯ menu and
+          press <UI>Duplicate</UI>. A new site opens with every setting copied
+          except its domains, its certificate and its accounts' passwords (the
+          names are kept): fill those in and save. The copy is saved as a new
+          site; the original doesn't change.
+        </P>
+      </>
+    ),
+  },
+  {
+    id: "upstream-https",
+    title: "An app that speaks https",
+    body: (
+      <>
+        <P>
+          Some apps only answer on https themselves (Portainer, Proxmox, a
+          Kubernetes ingress). Write the address with <C>https://</C> and the{" "}
+          <UI>App over https</UI> card appears under <UI>What it does</UI>.
+        </P>
+        <Table
+          head={["Setting", "What it does"]}
+          rows={[
+            [
+              <UI key="v">Check the app's certificate</UI>,
+              "Off by default, since internal apps mostly use self-signed ones. On = refuse to connect unless the certificate is valid for the name",
+            ],
+            [
+              <UI key="n">Name to ask for</UI>,
+              "Sent to the app (SNI) and checked on its certificate. Needed when the address is an IP but the app's certificate names a domain",
+            ],
+            [
+              <UI key="c">Trusted CA file</UI>,
+              "Your own CA, as a path on the proxy's server; empty = the system's list",
+            ],
+            [
+              <UI key="m">Client certificate, Its key</UI>,
+              "Only when the app wants the proxy to prove who it is (mutual TLS)",
+            ],
+          ]}
+        />
+        <P>
+          <UI>Test</UI> next to the address asks the app once from the proxy's
+          server, with these settings, and says what it answered and how fast.
+          Use it before saving: a refused connection or a certificate problem
+          shows here instead of as a 502 later.
+        </P>
+        <Tip>
+          The settings cover every https address of the site, including paths
+          sent to another app on the <UI>Routing</UI> tab.
+        </Tip>
+      </>
+    ),
+  },
+  {
+    id: "pick-upstream",
+    title: "Pick the app from a server",
+    body: (
+      <>
+        <P>
+          You don't have to know the app's port by heart. Under the address of a
+          proxy host or a stream, press <UI>Pick from a server</UI>: a list of
+          what listens on the proxy's server opens, read from its <UI>Ports</UI>{" "}
+          (see <See guide="ports" />
+          ), grouped as <UI>Docker containers</UI>, <UI>Services</UI> and{" "}
+          <UI>Other programs</UI>. Press one and its address and port are filled
+          in.
+        </P>
+        <Steps>
+          <P>
+            Pick the server at the top. It starts on the proxy's own server; any
+            other server you can see is in the list too.
+          </P>
+          <P>
+            Search by name, image or port, then press the row. Each row shows
+            the address that will be filled in.
+          </P>
+          <P>
+            Check the protocol (http or https is a guess: ports 443 and 8443
+            become https) and press <UI>Test the address</UI>.
+          </P>
+        </Steps>
+        <Table
+          head={["Where the app is", "Address filled in"]}
+          rows={[
+            [
+              "On the proxy's server",
+              <>
+                <C>127.0.0.1</C> (or <C>::1</C> when it listens only there), so
+                the traffic never leaves the server
+              </>,
+            ],
+            [
+              "On another server, listening on every address",
+              "That server's address, as written in Servers",
+            ],
+            ["On another server, listening on one address", "That address"],
+            [
+              "On another server, only on 127.0.0.1",
+              "Greyed out: only that server itself can reach it",
+            ],
+          ]}
+        />
+        <P>
+          On a load-balanced site, <UI>Add from a server</UI> under the list
+          adds the picked one as a new server row. A stream lists TCP or UDP
+          ports, as its protocol says.
+        </P>
+        <Tip>
+          A Docker container shows up only when it publishes a port (
+          <C>-p 8080:80</C>, <C>ports:</C> in compose). One on an internal
+          Docker network alone isn't listening on the server, so it isn't
+          listed: publish its port on <C>127.0.0.1</C> and pick that.
+        </Tip>
+      </>
+    ),
+  },
+  {
+    id: "storage-site",
+    title: "Publish a bucket from Storage",
+    body: (
+      <>
+        <P>
+          The <UI>Storage</UI> site type puts a bucket of an S3 storage you
+          added in <UI>Storage</UI> (MinIO, AWS S3, R2…) on a domain: a built
+          front end, downloads, images. nginx on the proxy's server fetches each
+          file from the bucket and answers with it, with https and every setting
+          of the site (rate limit, login, cache, IP lists) in front.
+        </P>
+        <Steps>
+          <P>
+            Add a site, set its domains, and pick <UI>Storage</UI> under{" "}
+            <UI>What it does</UI>.
+          </P>
+          <P>
+            Pick the storage and the bucket. A storage tied to one bucket fills
+            it in by itself.
+          </P>
+          <P>
+            Optionally pick a <UI>Folder</UI> inside the bucket (<UI>Browse</UI>{" "}
+            opens the bucket); the site then serves only that folder, as its
+            root.
+          </P>
+          <P>
+            Check the bucket's access: the bucket must let anyone download its
+            files. When it doesn't, press <UI>Let anyone download files</UI>{" "}
+            (Owner on the storage), or set it in the bucket's settings (see{" "}
+            <See guide="storage" section="bucket-access" />
+            ).
+          </P>
+          <P>Save.</P>
+        </Steps>
+        <Table
+          head={["Request", "What visitors get"]}
+          rows={[
+            [<C key="a">/app.js</C>, "The object app.js (under the folder)"],
+            [
+              <C key="b">/docs/</C>,
+              <>
+                <C>docs/index.html</C>
+              </>,
+            ],
+            [
+              "A file that isn't there",
+              <>
+                404, or the site's own 404 page (<UI>Pages</UI> tab). With{" "}
+                <UI>Single-page app</UI> on: the folder's <C>index.html</C>, for
+                apps that route in the browser
+              </>,
+            ],
+            ["POST, PUT, DELETE…", "405: the site only reads"],
+          ]}
+        />
+        <Warn>
+          Everything in the bucket (or the folder) becomes public, the same as
+          its public access already allows. Keep private files in another
+          bucket.
+        </Warn>
+        <Tip>
+          The storage's address is written into the site when you save it. If
+          you change the storage's address later, open the site and save it
+          again.
+        </Tip>
+      </>
+    ),
+  },
+  {
+    id: "mirror",
+    title: "Copy traffic to a test server",
+    body: (
+      <>
+        <P>
+          <UI>Traffic mirror</UI> (on the <UI>Advanced</UI> tab of a proxy host)
+          sends a copy of the site's requests to another server, while visitors
+          keep getting their answers from the real app. Use it to try a new
+          version under real traffic, warm a cache, or compare two builds. The
+          test server's answers are thrown away.
+        </P>
+        <Steps>
+          <P>
+            Type the test server's address in <UI>Test server</UI>, like{" "}
+            <C>http://10.0.0.7:3000</C>.
+          </P>
+          <P>
+            Choose <UI>How many</UI>: every request, or a share (50%, 10%, 1%)
+            to keep the load on the test server low.
+          </P>
+          <P>
+            Leave <UI>Copy request bodies</UI> on to send uploads and form posts
+            too, or turn it off to copy only the address and headers.
+          </P>
+          <P>Save. Clear the address to stop.</P>
+        </Steps>
+        <P>
+          Copies carry the header <C>X-Morche-Mirror: 1</C>, so the test app
+          (and its logs) can tell them apart.
+        </P>
+        <Warn>
+          Writes are copied too: a POST that sends an email, charges a card or
+          changes data happens again on the test server. Point it at a test
+          database and turn off outgoing email and payments there.
+        </Warn>
+        <Recommended
+          rows={[
+            {
+              setting: "How many",
+              value: "10% to start",
+              why: "Enough to see problems without doubling the load.",
+            },
+            {
+              setting: "Copy request bodies",
+              value: "Off, unless you test uploads or forms",
+              why: "With bodies, nginx reads each whole body before passing the request on.",
+            },
+          ]}
+        />
+        <Tip>
+          A slow or down test server doesn't fail visitors' requests, but it can
+          hold the next request on the same connection for up to 10 seconds. If
+          the site feels slower, lower the share or stop the mirror.
+        </Tip>
+      </>
+    ),
+  },
+  {
+    id: "images",
+    title: "Resize images",
+    body: (
+      <>
+        <P>
+          <UI>Resize images</UI> (on the <UI>Advanced</UI> tab of a proxy,
+          static or storage site) makes smaller pictures on the fly: add{" "}
+          <C>?w=</C> (width) and/or <C>?h=</C> (height) to an image's address
+          and nginx sends it at that size. No thumbnails to make by hand, no
+          change to the app. Works for jpg, png, gif and webp.
+        </P>
+        <Example title="With the default sizes">
+          <List>
+            <li>
+              <C>/photo.jpg?w=320</C>: 320 pixels wide, height to match.
+            </li>
+            ,
+            <li>
+              <C>/photo.jpg?w=640&amp;h=320</C>: fits inside 640×320 (or fills
+              it exactly with <UI>Crop to size</UI>).
+            </li>
+            ,
+            <li>
+              <C>/photo.jpg</C> or <C>?w=333</C> (not an allowed size): the
+              original, untouched.
+            </li>
+            ,
+          </List>
+        </Example>
+        <Steps>
+          {[
+            <>
+              The first time, press <UI>Add image resizing</UI> (Engineer): a
+              background task installs nginx's image filter module and reloads
+              nginx.
+            </>,
+            <>
+              Turn on <UI>Resize images on the fly</UI>, adjust the settings and
+              Save.
+            </>,
+          ]}
+        </Steps>
+        <Table
+          head={["Setting", "What it does"]}
+          rows={[
+            [
+              "When both are set",
+              "Keep proportions fits the picture inside the size; Crop to size fills it and cuts off the rest (thumbnails)",
+            ],
+            [
+              "Allowed sizes",
+              "The only widths/heights served; any other size gets the original, so nobody can make the server resize to every size there is. Empty = 160, 320, 640, 960, 1280, 1920",
+            ],
+            ["Quality", "JPEG and WebP quality, 1–100. Empty = 80"],
+            [
+              "Largest original (MB)",
+              "Bigger pictures are sent untouched. Empty = 10",
+            ],
+          ]}
+        />
+        <Tip>
+          Resizing takes CPU on every request. Turn on the site's{" "}
+          <See guide="reverse-proxy" section="cache">
+            cache
+          </See>{" "}
+          too, so each size is made once and then served from disk.
+        </Tip>
+      </>
+    ),
+  },
+  {
+    id: "load-balancing",
+    title: "Load balancing",
+    body: (
+      <>
+        <P>
+          When the same app runs on several servers, a proxy site (or a stream)
+          can spread its traffic over all of them: more capacity, and the site
+          stays up when one server goes down. With no other servers nothing is
+          balanced: every request goes to the one <UI>App address</UI>.
+        </P>
+        <Steps>
+          <P>
+            In <UI>General</UI>, under the <UI>App address</UI> (or{" "}
+            <UI>Forward to</UI> for a stream), press <UI>Add another server</UI>
+            . The address field turns into a list of servers side by side:
+            server 1 (the address you had) and the new row. Every row works the
+            same way: edit or remove any of them, server 1 too (removing it
+            makes the next one server 1).
+          </P>
+          <P>
+            For a site, <UI>Protocol</UI> (http or https) and an optional{" "}
+            <UI>Path</UI> above the list apply to every server.
+          </P>
+          <P>
+            Type each server's <UI>Address</UI> (like <C>10.0.0.6</C>) and its{" "}
+            <UI>Port</UI> (like <C>3000</C>). An empty port = server 1's port.
+            Typing or pasting <C>10.0.0.6:3000</C> or a URL in the address fills
+            both fields; pasting a list (one per line, or comma separated) adds
+            a row for each.
+          </P>
+          <P>
+            Set each row's <UI>Weight</UI> if the servers aren't equal; the{" "}
+            <UI>Share</UI> column shows the part of the traffic each one gets.
+          </P>
+          <P>
+            Press <UI>Test</UI> on a row (or <UI>Test all</UI>): that server is
+            asked from the proxy's server, with the protocol and path above, and
+            the answer shows under the row.
+          </P>
+          <P>
+            Pick <UI>How a server is picked</UI> right under the list (its
+            options show beside it), set <UI>When a server fails</UI> in the
+            card just below, then save. Everything stays in <UI>General</UI>:
+            there is no separate tab.
+          </P>
+        </Steps>
+        <P>
+          Each row's <UI>More</UI> button (the sliders icon; a dot means
+          something is set) opens its <UI>Role</UI>, <UI>Most connections</UI>{" "}
+          at once and a <UI>Note</UI>:
+        </P>
+        <Table
+          head={["Role", "What it means"]}
+          rows={[
+            [<UI key="o">In use</UI>, "Gets its share of the traffic"],
+            [
+              <UI key="b">Backup</UI>,
+              "Gets traffic only while every server in use is down. Only with Take turns and Fewest connections",
+            ],
+            [
+              <UI key="f">Off</UI>,
+              "Gets nothing, but stays in the list: for maintenance, without losing its settings",
+            ],
+          ]}
+        />
+        <P>Ways a server is picked:</P>
+        <Table
+          head={["Way", "When to use it"]}
+          rows={[
+            [
+              <UI key="r">Take turns</UI>,
+              "The usual choice: each server gets the next request in turn, weights counted",
+            ],
+            [
+              <UI key="l">Fewest connections</UI>,
+              "Some requests take much longer than others (reports, uploads, websockets)",
+            ],
+            [
+              <UI key="i">Same visitor, same server</UI>,
+              "The app keeps logins or carts in memory. Picked by the visitor's network (first three parts of an IPv4 address). Sites only",
+            ],
+            [
+              <UI key="h">By a key</UI>,
+              "The same visitor address, page, cookie, header or query value always goes to the same server: per-tenant servers, or caches that should each hold their own pages. Streams use the client's address",
+            ],
+            [
+              <UI key="n">Random</UI>,
+              "Several proxies in front of the same servers. Pick the less busy of two spreads it more evenly",
+            ],
+          ]}
+        />
+        <Tip>
+          With <UI>By a key</UI>, keep{" "}
+          <UI>Move few keys when servers change</UI> on: adding or removing a
+          server then moves only that server's share, instead of reshuffling
+          every visitor.
+        </Tip>
+        <P>
+          <UI>When a server fails</UI>: a server that fails the set number of
+          times within the time given is taken out for that time, then tried
+          again. nginx learns this from real requests: it doesn't check servers
+          on its own.
+        </P>
+        <P>
+          <UI>Tries the next server</UI> (same card): when a server can't be
+          reached, times out or (if picked) answers with one of the chosen error
+          codes, before anything reached the visitor, the request goes to the
+          next server. The visitor sees an error only when every server failed.
+          POST and PATCH are never sent twice unless{" "}
+          <UI>Also POST and PATCH</UI> is picked.
+        </P>
+        <Warn>
+          Turn on <UI>Also POST and PATCH</UI> only for apps where sending a
+          form twice is safe: otherwise an order or a payment can happen twice.
+        </Warn>
+        <P>
+          <UI>Idle connections kept to the servers</UI> (sites, same card): kept
+          open, so requests don't wait for a new one each time.
+        </P>
+        <Recommended
+          rows={[
+            {
+              setting: <UI>How a server is picked</UI>,
+              value: "Take turns",
+              why: "Fewest connections when requests vary a lot in length",
+            },
+            {
+              setting: <UI>Failures before it's taken out</UI>,
+              value: "3",
+              why: "One slow answer shouldn't take a healthy server out",
+            },
+            {
+              setting: <UI>Taken out for</UI>,
+              value: "30 seconds",
+              why: "Long enough for a restart, short enough to come back soon",
+            },
+            {
+              setting: <UI>Servers tried at most</UI>,
+              value: "2 or 3",
+              why: "Caps how long a visitor waits when several servers are down",
+            },
+            {
+              setting: <UI>Idle connections kept</UI>,
+              value: "32",
+              why: "Faster answers on busy sites, fewer ports used",
+            },
+          ]}
+        />
+        <Example title="An app on three servers, one kept in reserve">
+          <P>
+            General's address is <C>http://10.0.0.5:3000</C>. Add{" "}
+            <C>10.0.0.6:3000</C> with weight 2 (a bigger machine) and{" "}
+            <C>10.0.0.7:3000</C>, whose <UI>More</UI> sets it to <UI>Backup</UI>
+            . With <UI>Take turns</UI>, .5 gets a third of the requests, .6 two
+            thirds, and .7 only when both are down. To update .5, set it to{" "}
+            <UI>Off</UI>, save, update it, set it back to <UI>In use</UI>.
+          </P>
+        </Example>
+        <P>
+          How it's written: an <C>upstream</C> block named after the site (
+          <C>…_pool</C>) with a shared <C>zone</C>, and <C>proxy_pass</C>{" "}
+          pointed at it. The <C>Host</C> header and the https name stay the main
+          address's, so the app sees the same request whichever server answers.
+          Paths on the <UI>Routing</UI> tab that go to the main address use the
+          pool too; paths sent to another app don't. See the result on the{" "}
+          <UI>Config</UI> tab.
+        </P>
+        <Table
+          head={["Problem", "What to do"]}
+          rows={[
+            [
+              "Visitors get logged out now and then",
+              "The app keeps sessions in memory: use Same visitor, same server, By a key with the session cookie, or a shared session store in the app",
+            ],
+            [
+              "One server gets almost everything",
+              "Check the weights and roles; with Same visitor, same server, visitors behind one company network count as one",
+            ],
+            [
+              "Backups can't be saved",
+              "Backups only work with Take turns and Fewest connections",
+            ],
+            [
+              "A server name doesn't follow DNS changes",
+              "nginx looks names up when it starts or reloads: use IP addresses, or reload after a change",
+            ],
+          ]}
+        />
+        <Tip>
+          Not available in free nginx (they need nginx Plus): active health
+          checks that probe servers on their own, sticky cookies, slow start and
+          least time.
+        </Tip>
+      </>
+    ),
+  },
+  {
+    id: "login",
+    title: "Login",
+    body: (
+      <>
+        <P>
+          The <UI>Login</UI> tab puts a sign-in in front of the site, even when
+          the app has none of its own (an admin tool, a staging copy, a
+          dashboard). <UI>Where to ask</UI> picks <UI>Whole site</UI> (every
+          path, except the ones marked <UI>No login</UI>) or{" "}
+          <UI>Chosen paths</UI> (only the paths whose <UI>Sign in</UI> switch is
+          on, on <UI>Routing</UI>; at least one must be).
+        </P>
+        <Table
+          head={["Choice", "How it works"]}
+          rows={[
+            [<UI key="o">Off</UI>, "Anyone who can reach the site opens it"],
+            [
+              <UI key="p">Password</UI>,
+              "The browser asks for a name and password (HTTP basic auth). Each person gets an account; the proxy keeps only a hash of each password",
+            ],
+            [
+              <UI key="s">Sign-in service</UI>,
+              "Before each request nginx asks an SSO service (Authelia, oauth2-proxy, authentik…) whether the visitor is signed in; if not, they're sent to its sign-in page",
+            ],
+          ]}
+        />
+        <Steps>
+          <P>
+            Pick <UI>Password</UI>, press <UI>Add an account</UI>, and type a
+            name and a password for each person.
+          </P>
+          <P>
+            Turn on HTTPS for the site: browsers send the password with every
+            request.
+          </P>
+          <P>Save. The browser now asks before showing anything.</P>
+        </Steps>
+        <P>
+          Saved passwords are never shown again: the box says <UI>Unchanged</UI>
+          ; type in it only to set a new one. A renamed account needs a new
+          password.
+        </P>
+        <P>
+          For a sign-in service, press its name under <UI>Start from</UI> to
+          fill the usual addresses, then change them to yours:{" "}
+          <UI>Check address</UI> is where the service answers each check as the
+          proxy's server reaches it, <UI>Sign-in page</UI> where visitors go to
+          sign in, and <UI>Pass these headers to the app</UI> who signed in (the
+          app can trust them: visitors can't send their own).
+        </P>
+        <List>
+          <li>
+            A path marked <UI>No login</UI> on <UI>Routing</UI> stays open, e.g.{" "}
+            <C>/api/webhook</C> or <C>/health</C>.
+          </li>
+          <li>
+            With <UI>Chosen paths</UI>, only e.g. <C>/admin/</C> asks; the rest
+            of the site stays open. Sign-in works on paths that{" "}
+            <UI>Send to an app</UI> or <UI>Serve files</UI>.
+          </li>
+          <li>
+            <UI>No login from the Always let in list</UI>: visitors from the
+            addresses in <UI>Security</UI> (your office, your VPN) come straight
+            in; everyone else signs in.
+          </li>
+        </List>
+        <Warn>
+          A sign-in service needs nginx's <C>auth_request</C> module. The tab
+          says so when the proxy's nginx lacks it; install the nginx.org package
+          or your distro's <C>nginx-extras</C>.
+        </Warn>
+      </>
+    ),
+  },
+  {
+    id: "routing",
+    title: "Paths and headers",
+    body: (
+      <>
+        <P>
+          The <UI>Routing</UI> tab holds rules for parts of the site. Each path
+          row has how it matches, the path, and what happens:
+        </P>
+        <Table
+          head={["Match", "Covers"]}
+          rows={[
+            [
+              <UI key="s">Starts with</UI>,
+              <>
+                <C>/api/</C> covers <C>/api/users</C> and everything under it
+              </>,
+            ],
+            [
+              <UI key="e">Is exactly</UI>,
+              <>
+                Only <C>/xmlrpc.php</C> itself; wins over any other rule
+              </>,
+            ],
+            [
+              <UI key="r">Matches pattern</UI>,
+              <>
+                A regular expression, e.g. <C>\.(php|asp)$</C>
+              </>,
+            ],
+          ]}
+        />
+        <Table
+          head={["Action", "What happens"]}
+          rows={[
+            [
+              <UI key="p">Send to an app</UI>,
+              <>
+                Passed on to another address. <UI>Drop the path</UI> sends{" "}
+                <C>/api/users</C> on as <C>/users</C>
+              </>,
+            ],
+            [
+              <UI key="r">Redirect</UI>,
+              "Sends visitors to another address, with the redirect kind",
+            ],
+            [
+              <UI key="f">Serve files</UI>,
+              "Files from a folder on the proxy's server",
+            ],
+            [
+              <UI key="b">Block</UI>,
+              "Refused with 403, 404, 410 or 444 (connection closed)",
+            ],
+            [
+              <UI key="a">Answer with</UI>,
+              <>
+                A fixed status and text, e.g. <C>200</C> <C>ok</C> for a health
+                check, without touching the app
+              </>,
+            ],
+          ]}
+        />
+        <P>
+          Header rows add a header to what visitors get back or to what the app
+          receives. On a proxy host, <UI>Remove from the app's answer</UI>{" "}
+          strips a header the app sends, e.g. <C>X-Powered-By</C> or{" "}
+          <C>Server</C>, so it never reaches visitors.
+        </P>
+        <Example title="An API, a health check and a blocked file">
+          <P>
+            <UI>Starts with</UI> <C>/api/</C> → <UI>Send to an app</UI>{" "}
+            <C>http://127.0.0.1:8080</C> with <UI>Drop the path</UI>;{" "}
+            <UI>Is exactly</UI> <C>/health</C> → <UI>Answer with</UI> <C>200</C>{" "}
+            <C>ok</C>, marked <UI>No login</UI> so the monitor needs no
+            password; <UI>Is exactly</UI> <C>/xmlrpc.php</C> → <UI>Block</UI>{" "}
+            <C>403</C>.
+          </P>
+        </Example>
+        <H3>Who can open a path</H3>
+        <P>
+          A path that <UI>Sends to an app</UI> or <UI>Serves files</UI> has a{" "}
+          <UI>Who can open it</UI> choice (the shield):
+        </P>
+        <Table
+          head={["Choice", "Who gets in"]}
+          rows={[
+            [
+              <UI key="s">Same as the site</UI>,
+              "Whatever Security says for the whole site",
+            ],
+            [
+              <UI key="o">Only these addresses</UI>,
+              "Only the listed addresses or ranges; everyone else gets 403",
+            ],
+            [
+              <UI key="e">Everyone but these</UI>,
+              "Everyone except the listed addresses",
+            ],
+            [
+              <UI key="a">Everyone</UI>,
+              "Every address, even when Security limits the site",
+            ],
+          ]}
+        />
+        <P>
+          List one address or range per line (<C>203.0.113.7</C>,{" "}
+          <C>10.0.0.0/8</C>, IPv6 too). The path's own list replaces the site's{" "}
+          <UI>Always let in</UI> / <UI>Always block</UI> lists for that path;
+          country rules still apply everywhere. With a login as well, a visitor
+          needs both: an allowed address and a sign-in.
+        </P>
+        <Example title="Admin only from the office, webhooks open">
+          <P>
+            <UI>Starts with</UI> <C>/admin/</C> → <UI>Only these addresses</UI>{" "}
+            <C>198.51.100.0/24</C> (the office), and on the Login tab{" "}
+            <UI>Chosen paths</UI> with <UI>Sign in</UI> on for <C>/admin/</C>.{" "}
+            <UI>Starts with</UI> <C>/webhooks/</C> → <UI>Everyone</UI>, so
+            GitHub or a payment provider can reach it while Security lets only
+            your countries into the rest of the site.
+          </P>
+        </Example>
+        <Tip>
+          Lock admin and staff paths with <UI>Only these addresses</UI> (office
+          or VPN range) plus a sign-in; keep webhook and health paths as narrow
+          as you can (<UI>Is exactly</UI>) before opening them to{" "}
+          <UI>Everyone</UI>.
+        </Tip>
+        <Tip>
+          No shield on a row? Redirect, Block and Answer with run before nginx
+          checks addresses or sign-ins, so they can't be limited: limit the site
+          instead, or send the path to the app. A visitor still refused on an
+          allowed path is usually behind a CDN or load balancer: set{" "}
+          <UI>Behind a CDN or load balancer</UI> (Advanced) so nginx sees their
+          own address.
+        </Tip>
+      </>
+    ),
+  },
+  {
+    id: "redirects",
+    title: "Redirects",
+    body: (
+      <>
+        <P>
+          The <UI>Redirects</UI> tab sends old addresses of a site to new ones:
+          after a redesign, a move to another domain, or to retire pages for
+          good. It holds up to 5,000 rules, answered by nginx before anything
+          else on the site (the app, the cache, paths and logins never see
+          them). Every site type has it except streams.
+        </P>
+        <H3>Kinds of rule</H3>
+        <Table
+          head={["Match", "Covers"]}
+          rows={[
+            [
+              <UI key="e">Exact</UI>,
+              <>
+                Only that address: <C>/old-page</C>. Upper and lower case are
+                the same, and <C>/old-page/</C> is taken too unless{" "}
+                <UI>Tell /page and /page/ apart</UI> is on. Add a query to match
+                only that one: <C>/shop?id=5</C>
+              </>,
+            ],
+            [
+              <UI key="s">Starts with</UI>,
+              <>
+                The path and everything under it; the rest is added to the new
+                address: <C>/blog</C> → <C>/news</C> sends{" "}
+                <C>/blog/2024/hello</C> to <C>/news/2024/hello</C>
+              </>,
+            ],
+            [
+              <UI key="p">Pattern</UI>,
+              <>
+                A regular expression on the path; <C>$1</C>…<C>$9</C> in the new
+                address are the parts in brackets:{" "}
+                <C>{"^/item/(\\d+)\\.html$"}</C> → <C>/items/$1</C>
+              </>,
+            ],
+          ]}
+        />
+        <P>
+          Order: exact rules always win; then the first starts-with or pattern
+          rule from the top of the list. Move a rule with its menu (
+          <UI>Move to top</UI>, <UI>Move up</UI>…) when two patterns overlap.
+          The new address is a path on this site (<C>/new</C>) or a full address
+          (<C>https://shop.example.com/</C>). An old address written as a full
+          address of this site is turned into its path for you.
+        </P>
+        <Table
+          head={["Answer", "Use it for"]}
+          rows={[
+            [
+              <UI key="1">301 Moved</UI>,
+              "Moved for good; search engines move the old page's ranking over. The usual choice",
+            ],
+            [
+              <UI key="2">302 Found</UI>,
+              "For now only (a campaign, a page being rebuilt); browsers don't remember it",
+            ],
+            [
+              <UI key="7">307 / 308</UI>,
+              "Like 302 / 301, but a form sent with POST stays a POST (APIs, form handlers)",
+            ],
+            [
+              <UI key="g">410 Gone</UI>,
+              "The page is gone and isn't coming back; search engines drop it faster than a 404",
+            ],
+          ]}
+        />
+        <P>
+          <UI>Keep the query string</UI> adds whatever came after <C>?</C> to
+          the new address (<C>/old?utm_source=x</C> → <C>/new?utm_source=x</C>),
+          joined with <C>&amp;</C> when the new address has a query of its own.
+        </P>
+        <H3>Adding rules</H3>
+        <Steps>
+          <P>
+            Type the old and the new address in the row at the top and press{" "}
+            <Keys>Enter</Keys>. Ending the old one with <C>/*</C> makes a
+            starts-with rule; starting it with <C>^</C> makes a pattern.
+          </P>
+          <P>
+            For anything more, press <UI>Add</UI>: pick the match, the answer, a
+            note, and use <UI>Try it</UI> to see what an address turns into.{" "}
+            <UI>Add and next</UI> keeps the form open for the next one.
+          </P>
+          <P>
+            Press <UI>Save</UI>. Nothing changes on the server until then.
+          </P>
+        </Steps>
+        <H3>Importing a list</H3>
+        <P>
+          <UI>Import a list…</UI> takes a pasted list, a dropped file or{" "}
+          <UI>Choose a file</UI>, and shows what it read before anything is
+          added: new rules, rules it updates, problems and skipped lines (with
+          the reason). It understands:
+        </P>
+        <List>
+          <li>
+            Spreadsheets: CSV, TSV, <C>;</C> or <C>|</C> columns, with or
+            without a header row (<C>from,to,code</C>)
+          </li>
+          <li>
+            Two addresses per line, separated by spaces, <C>-&gt;</C> or{" "}
+            <C>=&gt;</C>, with an optional code
+          </li>
+          <li>
+            Apache / .htaccess: <C>Redirect</C>, <C>RedirectPermanent</C>,{" "}
+            <C>RedirectTemp</C>, <C>RedirectMatch</C>,{" "}
+            <C>RewriteRule … [R=301]</C> (a rewrite without <C>R</C> is skipped:
+            it isn't a redirect)
+          </li>
+          <li>
+            nginx: <C>{"rewrite … permanent;"}</C> and one-line{" "}
+            <C>{"location = /x { return 301 /y; }"}</C>
+          </li>
+          <li>
+            Netlify <C>_redirects</C> (<C>/blog/*</C>, <C>:splat</C>, <C>:id</C>
+            ) and Vercel / JSON lists (<C>source</C>, <C>destination</C>,{" "}
+            <C>permanent</C>)
+          </li>
+          <li>
+            A plain list of old addresses: each gets the address in{" "}
+            <UI>Lines with only an old address</UI>, or 410 Gone when it's empty
+          </li>
+        </List>
+        <Example title="Moving a WordPress blog">
+          <Code>{`from,to,code
+/?p=123,/posts/hello-world,301
+/category/news/*,/news/:splat,301
+https://example.com/old-shop,https://shop.example.com/,301
+/2019/sale,,410`}</Code>
+          <P>
+            Pick <UI>Keep …, add these</UI> to add to the list (a rule for an
+            address that's already there is updated, not doubled) or{" "}
+            <UI>Put these in their place</UI> to replace it.{" "}
+            <UI>Leave out the rules with problems</UI> (on by default) imports
+            the rest. Addresses of other sites in the list are named in the
+            preview and skipped.
+          </P>
+        </Example>
+        <P>
+          <UI>Export as CSV</UI> downloads the list in the same columns, to keep
+          a copy, edit it in a spreadsheet and import it back, or move it to
+          another site.
+        </P>
+        <H3>Checking the list</H3>
+        <P>
+          <UI>Try an address</UI> under the list follows an address through your
+          rules, hop by hop, the way nginx will. Rows are tagged <UI>Chain</UI>{" "}
+          when the new address is redirected again (visitors take two hops:
+          point the first rule at the final address) and <UI>Loop</UI> when it
+          comes back to where it started (visitors never arrive). The{" "}
+          <UI>Problems</UI> filter shows rules with a mistake; search finds
+          addresses and notes.
+        </P>
+        <Recommended
+          rows={[
+            {
+              setting: "Answer",
+              value: <UI>301 Moved</UI>,
+              why: "Permanent moves keep search ranking; use 302 only for something temporary",
+            },
+            {
+              setting: "Match",
+              value: <UI>Exact</UI>,
+              why: "Fast at any count (a lookup table); keep patterns for real families of addresses",
+            },
+            {
+              setting: "Tell /page and /page/ apart",
+              value: "Off",
+              why: "One rule then takes both, which is what visitors expect",
+            },
+            {
+              setting: "Keep the query string",
+              value: "On for marketing links",
+              why: "Campaign tags (utm_…) survive the redirect",
+            },
+          ]}
+        />
+        <Tip>
+          Thousands of exact rules cost nothing per request; hundreds of
+          patterns are checked one by one. Turn a rule off instead of removing
+          it while you're unsure: it stays in the list, shown as <UI>Off</UI>.
+        </Tip>
+        <H3>Only for some visitors</H3>
+        <P>
+          Open <UI>Only for some visitors</UI> in a rule to make it redirect
+          only some people: by <UI>Countries</UI>, <UI>Languages</UI> (the
+          browser's first language: <C>fa</C>, <C>en</C>), <UI>Devices</UI>{" "}
+          (phones, tablets, computers) and a <UI>From</UI> / <UI>Until</UI>{" "}
+          window on the proxy server's clock. A visitor must fit all of them;
+          everyone else falls through to the plain rules. Rows with conditions
+          are tagged <UI>Some visitors</UI>.
+        </P>
+        <Example title="A campaign that ends by itself">
+          <P>
+            <C>/sale</C> → <C>/black-friday</C>, 302, From{" "}
+            <C>2026-11-27 00:00</C> Until <C>2026-12-01 00:00</C>. Before and
+            after, <C>/sale</C> answers as usual.
+          </P>
+        </Example>
+        <P>
+          Countries need the visitor-country lookup (Security ›{" "}
+          <UI>Countries</UI>); the rule form warns until it's on. Netlify lines
+          with <C>Country=de</C> or <C>Language=fa</C> are imported with those
+          conditions. With such rules in the list, <UI>Try an address</UI> asks
+          who's visiting (country, language, device, time).
+        </P>
+        <H3>From the access log</H3>
+        <P>
+          On a saved site, Operators see the <UI>From the access log</UI> card
+          under the list, for the last 24 hours, 7 or 30 days:
+        </P>
+        <List>
+          <li>
+            Each row shows how many times visitors met it (<C>42×</C>, the last
+            time on hover) or <UI>Unused</UI>. The <UI>Unused</UI> filter lists
+            the rules nobody met, candidates to retire.
+          </li>
+          <li>
+            <UI>Not found</UI> lists addresses that answered 404, most asked
+            first, each with the closest real page of the site already filled in
+            (<UI>Close match</UI> or <UI>Guess</UI>). Change the target if
+            needed and press <UI>Add</UI>, or <UI>Add all with a target</UI>.
+            Scanner probes (<C>/wp-login.php</C>, <C>.env</C>…) are hidden; the
+            eye sets an address aside on this browser.
+          </li>
+        </List>
+        <P>
+          Counts come from the site's own access log, so rules added before the
+          log began, or since the last rotation, can read as unused. A very big
+          log is read from its newest part (the card says so).
+        </P>
+        <H3>Checking the targets</H3>
+        <P>
+          <UI>Check the targets</UI> (menu, Engineer) asks every new address
+          from the proxy's server (with <C>curl</C>), without following it, and
+          tags rows whose target is <UI>Broken</UI> (4xx, 5xx or no answer) or{" "}
+          <UI>Redirects again</UI>. Paths are asked at the site's first name;
+          patterns with <C>$1</C>, starts-with rules and 410s are skipped. Up to
+          500 addresses per check; the <UI>Broken</UI> filter shows what to fix.
+        </P>
+        <P>
+          <UI>Shorten chains</UI> (the notice above the list, or the menu)
+          points every rule that leads into another redirect straight at the
+          final address, and leaves loops for you to fix.
+        </P>
+        <H3>Moving to a new site</H3>
+        <P>
+          <UI>Moving to a new site…</UI> builds the rules from two lists of
+          addresses: the old site's and the new one's. Each side can be pasted,
+          fetched from a <C>sitemap.xml</C> (indexes followed) or, for the new
+          side, taken from the pages this site's log has served.
+        </P>
+        <Steps>
+          <P>
+            Give the old addresses (paste, or <UI>Fetch</UI> the old sitemap
+            before it goes away).
+          </P>
+          <P>Give the new addresses the same way.</P>
+          <P>
+            Review: addresses that didn't move are left out, each other one gets
+            its closest new page (<UI>Close</UI> / <UI>Guess</UI>, edit any
+            target, untick to skip). Those with no match go to <UI>Send to</UI>{" "}
+            (the home page by default) or <UI>Gone (410)</UI>.
+          </P>
+          <P>
+            <UI>Add</UI>, then check the list and <UI>Save</UI>.
+          </P>
+        </Steps>
+        <H3>Changing many rules at once</H3>
+        <P>
+          On a computer, tick rows (the box in the header ticks everything
+          shown, so filter or search first). On a phone, pick{" "}
+          <UI>Select rules</UI> in the ⋯ menu and tap rows. Then turn them on or
+          off, change their answer (rules without a target are left alone unless
+          you pick 410), keep or drop the query string, export just those as
+          CSV, or remove them (<UI>Undo</UI> in the message brings them back).
+        </P>
+        <H3>Troubleshooting</H3>
+        <List>
+          <li>
+            <UI>A redirect doesn't happen</UI>: browsers remember 301s; try a
+            private window or <C>curl -I https://example.com/old</C>. Check the
+            rule isn't <UI>Off</UI> and that an exact rule with a query isn't
+            what you meant.
+          </li>
+          <li>
+            <UI>The wrong rule wins</UI>: an exact rule always beats a pattern;
+            between patterns the higher one wins, so move the narrower one up.
+          </li>
+          <li>
+            <UI>This sends the address to itself</UI>: the old and new address
+            are the same (case and a trailing slash don't count). Use{" "}
+            <UI>Tell /page and /page/ apart</UI> to redirect <C>/page</C> to{" "}
+            <C>/page/</C>.
+          </li>
+          <li>
+            <UI>A rule with countries never fires</UI>: the visitor-country
+            lookup is off, or the visitor's address isn't the real one behind a
+            CDN (set the real IP in Advanced).
+          </li>
+          <li>
+            <UI>Broken</UI> on a target that works in your browser: the site may
+            refuse the proxy server's address, or answer only after a login. Try{" "}
+            <C>curl -I</C> on the proxy server.
+          </li>
+          <li>
+            Certificate checks (<C>/.well-known/acme-challenge/</C>) are never
+            redirected, so renewing https keeps working.
+          </li>
+          <li>
+            Redirecting a whole domain? A <UI>Redirect</UI> site type does that
+            in one line (see Sites); use this tab for single addresses.
+          </li>
+        </List>
+      </>
+    ),
+  },
+  {
+    id: "pages",
+    title: "Maintenance and error pages",
+    body: (
+      <>
+        <P>
+          <UI>Maintenance</UI> on the <UI>Pages</UI> tab shows visitors a simple
+          “back soon” page (status 503) while you work on the app; the site's
+          other settings stay as they are. <UI>Still let in</UI> lists addresses
+          that see the real site, so you can test before turning it off.{" "}
+          <UI>Back in about</UI> tells browsers and search engines when to try
+          again, so rankings aren't hurt.
+        </P>
+        <P>
+          <UI>Error pages</UI> replace nginx's plain ones. Add a page, tick the
+          statuses it's for (each status can have one page), and give it a title
+          and a short message. The first page starts with 502 and 504, what
+          visitors see when the app is down or too slow.
+        </P>
+        <List>
+          <li>
+            By default the pages show only for the proxy's own errors.{" "}
+            <UI>Also for the app's own errors</UI> (proxy hosts) shows them when
+            the app itself answers with one of the statuses too.
+          </li>
+          <li>
+            While maintenance is on, 503 belongs to it and can't have its own
+            page.
+          </li>
+        </List>
+        <Warn>
+          Leave <UI>Also for the app's own errors</UI> off for apps with an API:
+          an API that explains a 404 or 400 in its answer loses that text.
+        </Warn>
+      </>
+    ),
+  },
+  {
+    id: "hardening",
+    title: "Hardening",
+    body: (
+      <>
+        <P>
+          <UI>Hardening</UI> on the <UI>Security</UI> tab refuses requests only
+          scanners and bots send, before they reach the app:
+        </P>
+        <Table
+          head={["Switch", "Refuses"]}
+          rows={[
+            [
+              <UI key="h">Hidden files</UI>,
+              <>
+                <C>/.env</C>, <C>/.git</C>, <C>/.htaccess</C>… (
+                <C>/.well-known</C> stays open for certificates)
+              </>,
+            ],
+            [
+              <UI key="b">Backups and dumps</UI>,
+              <>
+                Files ending in <C>.bak</C>, <C>.old</C>, <C>.sql</C>,{" "}
+                <C>.swp</C>, <C>~</C>
+              </>,
+            ],
+            [
+              <UI key="s">Known scanners</UI>,
+              "sqlmap, nikto, masscan, zgrab… by the name they send",
+            ],
+            [
+              <UI key="a">AI crawlers</UI>,
+              "GPTBot, ClaudeBot, CCBot, Bytespider… that collect pages for AI training",
+            ],
+            [
+              <UI key="p">Common probes</UI>,
+              <>
+                <C>/wp-admin</C>, <C>/phpmyadmin</C>, <C>/cgi-bin</C>… Off for a
+                site that really has them
+              </>,
+            ],
+            [
+              <UI key="m">Only these request methods</UI>,
+              "Everything except the ticked methods (GET is always allowed)",
+            ],
+          ]}
+        />
+        <P>
+          <UI>Answer</UI> picks what they get: <C>404</C> (looks like any
+          missing page, the default), <C>403</C>, or <C>444</C> (the connection
+          is closed with no answer).
+        </P>
+        <Recommended
+          rows={[
+            {
+              setting: "Hidden files, Backups, Known scanners",
+              value: "On",
+              why: "Safe for almost every site",
+            },
+            {
+              setting: "Only these request methods",
+              value: "GET, HEAD, POST, OPTIONS",
+              why: "For plain websites; APIs also need PUT, PATCH and DELETE",
+            },
+          ]}
+        />
+      </>
+    ),
+  },
+  {
+    id: "catch-all",
+    title: "Names no site has",
+    body: (
+      <>
+        <P>
+          A request for a name none of the proxy's sites has (the server's IP,
+          an old domain still pointing at it) lands on whichever site nginx
+          takes as the default, often the first one. To stop that, add a{" "}
+          <UI>404 host</UI> with <UI>Answer every other name too</UI> on: it
+          needs no domains and answers every unknown name with 404, 410 or 444.
+        </P>
+        <List>
+          <li>A proxy can have one such site.</li>
+          <li>
+            If a site written by hand on the server already does this (
+            <C>default_server</C>, like nginx's stock{" "}
+            <C>sites-enabled/default</C>), saving moves the role to Morche's
+            site. Morche takes only the word <C>default_server</C> off that
+            file's <C>listen</C> lines on ports 80 and 443 (a copy is kept), in
+            the same change that adds its own site, tested with <C>nginx -t</C>;
+            if the test fails, everything is put back.
+          </li>
+          <li>
+            When the site stops answering other names, is turned off or removed,
+            or the proxy is removed from Morche, the word goes back. A file
+            someone edited by hand in the meantime is left as it is, and the
+            change says so.
+          </li>
+          <li>
+            <C>444</C> is the quietest: scanners going through IP addresses get
+            nothing at all.
+          </li>
+        </List>
+      </>
+    ),
+  },
+  {
+    id: "config",
+    title: "The config file",
+    body: (
+      <>
+        <P>
+          The <UI>Config</UI> tab shows the file Morche writes for the site,
+          made from the other tabs and updated as you change them. Nothing is
+          sent to the server until you save.
+        </P>
+        <List>
+          <li>
+            <UI>Test on the server</UI> runs <C>nginx -t</C> on the proxy's
+            server with this file and every other site in place, then puts the
+            old files back. Nothing is saved or reloaded. If nginx refuses it,
+            its message is shown, and <UI>Go to line</UI> jumps to the line it
+            names.
+          </li>
+          <li>
+            The copy button copies the whole file, e.g. to keep it or to compare
+            it with another server.
+          </li>
+        </List>
+        <P>
+          <UI>Edit by hand</UI> is for what the tabs can't express (a <C>map</C>
+          , several <C>location</C> blocks with their own rules, a module's
+          directives). It starts from the generated file. From then on, Morche
+          writes your text exactly as it is, and the tab shows <UI>By hand</UI>.
+        </P>
+        <Steps>
+          <P>
+            Open <UI>Config</UI>, press <UI>Edit by hand</UI> and confirm.
+          </P>
+          <P>
+            Change the file. Unclosed <C>{"{"}</C> blocks and quotes are flagged
+            as you type.
+          </P>
+          <P>
+            Press <UI>Test on the server</UI> until nginx accepts it, then{" "}
+            <UI>Save</UI>.
+          </P>
+        </Steps>
+        <Warn>
+          At your own risk: while the file is written by hand, HTTPS, Security,
+          Login, Routing, Pages and Advanced don't change it, and Morche doesn't
+          check what's in it, only that nginx accepts it. A file nginx refuses
+          is never loaded (every save is still tested), but one it accepts can
+          still send visitors to the wrong place.
+        </Warn>
+        <Tip>
+          Keep the <C>access_log</C> and <C>error_log</C> lines as they are:
+          live traffic and the <UI>Logs</UI> tab read those files. Keep each
+          domain from <UI>General</UI> in <C>server_name</C> too: the domains
+          there only name the site in lists, the file decides what's answered.
+          The tab reminds you when either is missing.
+        </Tip>
+        <P>
+          <UI>Use the generated one</UI> drops your text; once you save, the
+          file is made from the other tabs again. Lines starting with{" "}
+          <C>MORCHE_</C> or holding <C>@@morche-</C> are refused: Morche uses
+          them for itself.
+        </P>
+        <P>
+          People who can only view the site (Viewer, Operator) don't see a
+          hand-written file, like header values.
+        </P>
+      </>
+    ),
+  },
+  {
+    id: "safety",
+    title: "How changes stay safe",
+    body: (
+      <>
+        <List>
+          <li>
+            Morche writes only its own files, one per site, in{" "}
+            <C>/etc/nginx/morche/</C>. Nothing else on the server is changed.
+          </li>
+          <li>
+            Every save is tested with <C>nginx -t</C> first. If the test fails,
+            the old file is put back, nothing is reloaded, and the form shows
+            nginx's own message under <UI>Not saved: nothing changed</UI>.
+          </li>
+          <li>
+            Two people editing the same site: the second save is stopped with{" "}
+            <UI>Someone else saved this site</UI>. <UI>Load theirs</UI> shows
+            their version; <UI>Overwrite</UI> keeps yours.
+          </li>
+          <li>
+            Every save keeps a copy of all the proxy's sites in <UI>History</UI>
+            , so any earlier state can be restored in one step.
+          </li>
+          <li>
+            If someone edits one of Morche's files by hand, the site shows as{" "}
+            <UI>Changed</UI>. Saving it from Morche writes it back.
+          </li>
+        </List>
+      </>
+    ),
+  },
+  {
+    id: "existing",
+    title: "Sites already on the server",
+    body: (
+      <>
+        <P>
+          The <UI>On the server</UI> tab lists the sites written by hand or by
+          another tool (certbot, a control panel), what they listen on and
+          serve, and the certificates nginx uses. They are read-only here and
+          keep working next to Morche's sites.
+        </P>
+        <P>
+          At the top, <UI>Default site</UI> says who answers names no site has
+          and visits by the server's IP address: a site of Morche's, a
+          hand-written one (tagged <UI>Default</UI> in the list), or nobody, in
+          which case nginx uses the first site it reads.{" "}
+          <UI>Manage in Morche</UI> (Engineer) opens a new 404 host with{" "}
+          <UI>Answer every other name too</UI> on; saving it takes the role
+          over, as{" "}
+          <See guide="reverse-proxy" section="catch-all">
+            Names no site has
+          </See>{" "}
+          explains. That is the only change Morche makes to hand-written files.
+        </P>
+        <Steps>
+          {[
+            <>
+              Open the proxy, tab <UI>On the server</UI>.
+            </>,
+            <>
+              In <UI>Default site</UI>, press <UI>Manage in Morche</UI> (or{" "}
+              <UI>Set up a default site</UI> when nothing holds it).
+            </>,
+            <>
+              Pick the answer (<C>444</C> closes the connection, the quietest)
+              and save.
+            </>,
+          ]}
+        </Steps>
+        <Tip>
+          A domain served by both a hand-written site and a Morche site is a
+          conflict: nginx picks one and warns. Remove the old one by hand before
+          adding the same domain in Morche.
+        </Tip>
+      </>
+    ),
+  },
+  {
+    id: "logs",
+    title: "Logs",
+    body: (
+      <>
+        <P>
+          A proxy's <UI>Logs</UI> tab reads a site's <UI>Requests</UI> (access
+          log) or <UI>Errors</UI> log, or nginx's own. Pick the log in the first
+          menu. It needs Operator access on the server.
+        </P>
+        <Table
+          head={["View", "What you get"]}
+          rows={[
+            [
+              <UI key="t">Table</UI>,
+              "A site's requests only: the same live, searchable list as the site's own Logs tab (status, time range, method, path, address, slow, firewall, columns, details of a request)",
+            ],
+            [
+              <UI key="r">Raw</UI>,
+              "Any log, line by line as nginx wrote it: the last 100 to 2,000 lines, followed live every 5 seconds",
+            ],
+          ]}
+        />
+        <P>
+          In <UI>Raw</UI>, the search marks every match, and the chips keep only
+          some lines: by status (<UI>2xx</UI>… <UI>5xx</UI>, <UI>Errors</UI> =
+          4xx and 5xx) for requests, by level (<UI>Errors</UI> takes in crit,
+          alert and emerg too, <UI>Warnings</UI>, <UI>Notices</UI>) for the
+          error log. Each chip says how many of the lines read it holds. 5xx and
+          error lines are red, 4xx and warnings amber. <UI>Live</UI> follows the
+          end while you stay at the bottom; scroll up to read in peace, or press
+          it to pause. Copy takes the lines shown.
+        </P>
+        <Tip>
+          Use <UI>Table</UI> for a site's traffic (it searches far back and
+          filters on the server) and <UI>Raw</UI> for the error log, nginx's own
+          log or a quick look at the last lines exactly as written.
+        </Tip>
+        <P>
+          A <C>502 Bad Gateway</C> in Requests with <C>connect() failed</C> in
+          Errors means the app isn't answering at its address: check the app,
+          not nginx.
+        </P>
+      </>
+    ),
+  },
+  {
+    id: "status",
+    title: "Statuses and troubleshooting",
+    body: (
+      <>
+        <Table
+          head={["Status", "Meaning"]}
+          rows={[
+            [<UI key="r">Running</UI>, "Serving its sites"],
+            [
+              <UI key="s">Stopped</UI>,
+              "Installed but not running: no site answers. Start it from ⋯",
+            ],
+            [
+              <UI key="n">Not installed / Not set up</UI>,
+              "Press Set up: Morche installs it or wires in its folder",
+            ],
+            [
+              <UI key="c">Config error</UI>,
+              "nginx -t fails, usually because of a hand-edited file. Test config shows where",
+            ],
+            [
+              <UI key="u">Unreachable</UI>,
+              "The server doesn't answer over SSH; see the server's page",
+            ],
+          ]}
+        />
+        <Table
+          head={["Problem", "What to do"]}
+          rows={[
+            [
+              "The site shows nginx's welcome page",
+              "The domain's DNS points here but the site isn't on: check its domain is spelled the same and the site is On",
+            ],
+            [
+              "502 Bad Gateway",
+              "The app isn't answering at its App address. Try it from the server's terminal with curl",
+            ],
+            [
+              "504 Gateway Timeout",
+              "The app is too slow: raise Wait for the app in Limits",
+            ],
+            ["413 Request Entity Too Large", "Raise Largest upload in Limits"],
+            ["Live pages don't update", "Turn WebSockets on"],
+            [
+              "The app redirects to its own address",
+              "Turn on Pass the visitor's domain",
+            ],
+            [
+              "Add stream says streams aren't available",
+              "nginx's stream module is missing or not wired in: press Set up on the proxy, which installs and includes it",
+            ],
+            [
+              "A stream doesn't answer from outside",
+              "Open its port in the server's firewall, and check Who can reach it (Security tab)",
+            ],
+            [
+              "A stream's port is in use",
+              "Another program (or another stream) already listens there: pick a free port",
+            ],
+          ]}
+        />
+      </>
+    ),
+  },
+  {
+    id: "access",
+    title: "Who can do what",
+    body: (
+      <>
+        <P>A proxy follows its server's access level:</P>
+        <Table
+          head={["Level on the server", "Can"]}
+          rows={[
+            [
+              "Viewer",
+              "See the proxy and its sites (header values and raw directives hidden)",
+            ],
+            ["Operator", "Also check, test, reload and read logs"],
+            [
+              "Engineer",
+              "Also set up, start/stop, add, change, turn off and delete sites, restore history",
+            ],
+            ["Owner", "Also remove the proxy"],
+          ]}
+        />
+        <P>
+          Removing a proxy asks whether to take Morche's sites off the server
+          too, or leave them running unmanaged. nginx itself stays installed.
+        </P>
+      </>
+    ),
+  },
+]

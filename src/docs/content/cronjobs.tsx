@@ -1,0 +1,798 @@
+// Synced from ../frontend by `pnpm sync:docs`. Edit it there, not here.
+import {
+  A,
+  C,
+  Code,
+  Example,
+  type GuideSection,
+  List,
+  P,
+  Recommended,
+  See,
+  Steps,
+  Table,
+  Tip,
+  UI,
+  Warn,
+} from "../prose"
+
+export const cronjobs: GuideSection[] = [
+  {
+    id: "overview",
+    title: "What it's for",
+    body: (
+      <>
+        <P>
+          <A href="/cronjobs">Cron jobs</A> are jobs Morche runs itself, on a
+          schedule: every night, every hour, every 15 minutes, whatever you set.
+          Each job does one thing, chosen when it's made: copy files, archive a
+          folder, download a file, run a script or a playbook, act on a service,
+          reboot servers, upgrade their packages or verify database backups (see{" "}
+          <See guide="cronjobs" section="actions" />
+          ).
+        </P>
+        <List>
+          <li>
+            Copying works in any direction: server → storage (backups), storage
+            → server (deploying files), server → server, storage → storage. One
+            source can go to up to 20 destinations at once.
+          </li>
+          <li>
+            Nothing is installed on your servers. Morche connects with the saved
+            SSH login or storage credentials and streams the files itself.
+          </li>
+          <li>
+            Each run is kept in the job's history with its result on every
+            destination, server or database. A run is also a background task,
+            shown in <See guide="tasks" />.
+          </li>
+          <li>
+            To schedule a command on one server (its own crontab), use the
+            server's <See guide="cron" /> tab instead.
+          </li>
+        </List>
+      </>
+    ),
+  },
+  {
+    id: "actions",
+    title: "What a job can do",
+    body: (
+      <>
+        <Table
+          head={["Action", "What it does"]}
+          rows={[
+            [
+              <UI key="sync">Copy files</UI>,
+              "Copies a folder (or one file) from a server or storage to up to 20 servers and storages, in one of three modes (see Modes).",
+            ],
+            [
+              <UI key="archive">Archive a folder</UI>,
+              "Packs a server folder into one .tar.gz on that server (name-2026-11-08_03-00-00.tar.gz), sends it to servers and storages and deletes all but the newest N there.",
+            ],
+            [
+              <UI key="fetch">Download a file</UI>,
+              "Each chosen server downloads an http(s) address into its folder: block lists, GeoIP files, a release. It must reach the address itself.",
+            ],
+            [
+              <UI key="script">Run a script</UI>,
+              "A saved script (with its parameters) or a command typed into the job, on up to 200 servers, 5 at a time. The output is a normal script run.",
+            ],
+            [
+              <UI key="ansible">Run a playbook</UI>,
+              "A saved playbook on servers picked by name, tag or folder. Tags and folders are read at each run, so new servers join on their own.",
+            ],
+            [
+              <UI key="service">Service action</UI>,
+              "Starts, stops, restarts or reloads a systemd service on servers. A server without it is marked failed; the others go on.",
+            ],
+            [
+              <UI key="reboot">Reboot servers</UI>,
+              "Reboots servers one at a time, waiting for each to come back. Can skip those that don't need it or have someone logged in.",
+            ],
+            [
+              <UI key="packages">Upgrade packages</UI>,
+              "Upgrades the system packages with each server's own package manager (every update, security only, or apt's full upgrade), optionally cleans up, and restarts the servers that need it. See Upgrading packages.",
+            ],
+            [
+              <UI key="software">Update applications</UI>,
+              "Updates the applications installed on chosen servers (all with an update, or only some) and, if asked, upgrades system packages (optionally security only), a few servers at a time.",
+            ],
+            [
+              <UI key="docker-update">Update containers</UI>,
+              "On servers with Docker or Podman, pulls newer images and recreates the containers using them (all with an update, or only some projects/containers). Each one is watched for a while and put back on its old image if it stops or turns unhealthy. See Containers › Updates.",
+            ],
+            [
+              <UI key="docker-volume-backup">Back up volumes</UI>,
+              "Packs a server's Docker volumes (all, or names with * and ?) into .tar.gz files, sends them to a storage and keeps the newest N copies of each. Can stop the containers using a volume while it's copied. See Containers › Volume copies.",
+            ],
+            [
+              <UI key="docker-prune">Clean up Docker</UI>,
+              "On servers with Docker or Podman, removes what nothing uses any more: unused images, build cache, stopped containers, unused networks and, if you ask, volumes. See Cleaning up Docker.",
+            ],
+            [
+              <UI key="pve-backup">Back up machines</UI>,
+              "Backs up Proxmox VMs and containers (every machine on a cluster, or chosen ones) with vzdump to a backup storage or a Proxmox Backup Server. See Backing up and snapshotting machines.",
+            ],
+            [
+              <UI key="pve-snapshot">Snapshot machines</UI>,
+              "Takes a snapshot of chosen Proxmox machines and removes the oldest ones it made beyond the number to keep.",
+            ],
+            [
+              <UI key="verify">Verify backups</UI>,
+              "Reads back the latest backup of a database (every plan, or one) on every storage it's kept on and compares its checksum. Nothing is restored.",
+            ],
+          ]}
+        />
+        <P>
+          The action can't be changed later: for something else, make a new job.
+          A saved script or playbook is read again at every run, so edits to it
+          count from the next run. Script, playbook, application and backup
+          check runs link to their own page (<See guide="scripts" />,{" "}
+          <See guide="ansible" />,{" "}
+          <See guide="applications" section="schedule" />,{" "}
+          <See guide="databases" section="backups" />) from the run's details;
+          container updates and volume copies show per server and per volume (
+          <See guide="containers" section="updates" />,{" "}
+          <See guide="containers" section="volume-backups" />
+          ).
+        </P>
+        <Tip>
+          Only <UI>Copy files</UI> has a <UI>Test run</UI>. To try any other
+          job, press <UI>Run now</UI> on a server you can afford to touch.
+        </Tip>
+      </>
+    ),
+  },
+  {
+    id: "package-upgrade",
+    title: "Upgrading packages",
+    body: (
+      <>
+        <P>
+          <UI>Upgrade packages</UI> does on a schedule what <UI>Upgrade all</UI>{" "}
+          does on a server's <See guide="packages">Packages</See> page, on up to
+          200 servers. Each server uses its own manager (apt, dnf, yum, zypper,
+          apk, pacman), and the update lists are read again at every run.
+        </P>
+        <Steps>
+          {[
+            <>
+              Press <UI>New cron job</UI> and pick <UI>Upgrade packages</UI>, or
+              open a server's Packages page, press <UI>⋯</UI> and{" "}
+              <UI>Schedule upgrades…</UI> (the server is then already picked).
+            </>,
+            <>
+              Tick the servers, and choose <UI>Every update</UI>,{" "}
+              <UI>Security only</UI> or <UI>Full upgrade</UI>.
+            </>,
+            <>
+              Leave <UI>Remove packages nobody needs any more</UI> on to drop
+              old kernels; turn on <UI>Empty the package cache</UI> on small
+              disks.
+            </>,
+            <>
+              Under <UI>Restart</UI>, keep <UI>Never</UI> or pick{" "}
+              <UI>When one is needed</UI>.
+            </>,
+            <>Set the schedule (a quiet hour, once a week) and save.</>,
+          ]}
+        </Steps>
+        <Table
+          head={["Choice", "What happens"]}
+          rows={[
+            [
+              "Every update",
+              "Everything the package manager has an update for. Held packages stay where they are.",
+            ],
+            [
+              "Security only",
+              "Only updates marked as security fixes (apt, dnf, yum, zypper). A server whose manager doesn't mark them is skipped, with a note.",
+            ],
+            [
+              "Full upgrade",
+              "apt's full-upgrade: may install or remove packages to finish an upgrade. Other managers get every update.",
+            ],
+            [
+              "Restart: When one is needed",
+              "After the upgrade, only servers that say they need a restart are restarted, one at a time, each waiting for the last to come back (15 minutes at most). If one doesn't come back, no other server is restarted.",
+            ],
+            [
+              "Not while someone is logged in",
+              "A server with an open SSH session is upgraded but not restarted, and the run says so.",
+            ],
+          ]}
+        />
+        <P>
+          Each server's row in the run says what changed, e.g.{" "}
+          <C>3 packages upgraded, 1 removed.</C> or <C>Already up to date.</C>,
+          and whether it still needs a restart. The full package manager output
+          is in the run's task log.
+        </P>
+        <List>
+          <li>
+            <UI>Servers at a time</UI> (1–10) upgrades several at once; restarts
+            still go one by one.
+          </li>
+          <li>
+            With <UI>Carry on after a server fails</UI> off, the first failure
+            leaves the servers not started yet alone, marked <C>Not upgraded</C>
+            .
+          </li>
+          <li>
+            While a package manager works, the run can't be stopped: stopping it
+            half way can break a server's packages. The Packages page also
+            refuses other changes on that server until it ends.
+          </li>
+        </List>
+        <Example title="Weekly upgrade with restarts">
+          <List>
+            <li>Schedule: Sunday 04:00, your time zone</li>
+            <li>Every update, remove unneeded on, restart when needed</li>
+            <li>Not while someone is logged in on, 1 server at a time</li>
+          </List>
+        </Example>
+        <Tip>
+          On apt and dnf servers, automatic updates (see{" "}
+          <See guide="packages" section="auto-updates" />) already install
+          security fixes daily. A weekly job here then picks up the rest and
+          handles restarts.
+        </Tip>
+      </>
+    ),
+  },
+  {
+    id: "docker-prune",
+    title: "Cleaning up Docker",
+    body: (
+      <>
+        <P>
+          <UI>Clean up Docker</UI> frees the disk that old images, build cache
+          and stopped containers take, on up to 50 servers with Docker or
+          Podman. It removes only what no container uses: images of running and
+          stopped containers stay.
+        </P>
+        <Steps>
+          {[
+            <>
+              Press <UI>New cron job</UI> and pick <UI>Clean up Docker</UI>, or
+              on the Containers › Images page press <UI>⋯</UI> and{" "}
+              <UI>Schedule a cleanup…</UI> (the server is then already picked).
+            </>,
+            <>Tick the servers.</>,
+            <>
+              Under <UI>What to remove</UI>, choose for images (<UI>Keep</UI>,{" "}
+              <UI>Untagged</UI>, <UI>Every unused one</UI>), build cache,
+              stopped containers, unused networks and volumes.
+            </>,
+            <>
+              Under <UI>Safety</UI>, set <UI>Only what's older than (hours)</UI>{" "}
+              so something pulled or stopped a moment ago isn't removed.
+            </>,
+            <>Set the schedule (once a week at a quiet hour) and save.</>,
+          ]}
+        </Steps>
+        <Recommended
+          rows={[
+            {
+              setting: "Images",
+              value: "Untagged",
+              why: "Every unused one frees more, but the next deploy pulls them again.",
+            },
+            {
+              setting: "Build cache, stopped containers, networks",
+              value: "On",
+              why: "Rebuilt or made again when needed.",
+            },
+            {
+              setting: "Volumes",
+              value: "Keep",
+              why: "Volumes hold data. Remove them by hand, on purpose.",
+            },
+            {
+              setting: "Only what's older than",
+              value: "24 hours",
+              why: "Leaves what a deploy in progress is about to use.",
+            },
+          ]}
+        />
+        <P>
+          Each server's row in the run says what was removed and how much space
+          it freed. With <UI>Carry on after a server fails</UI> off, the first
+          failure leaves the servers not started yet alone.
+        </P>
+        <Warn>
+          <UI>Every unused one</UI> for volumes deletes the data of any volume
+          no container is attached to, including one whose project is just
+          stopped for now. Docker keeps no age for volumes, so the hours setting
+          doesn't protect them.
+        </Warn>
+        <Tip>
+          Each workspace can also clean every environment by itself (see{" "}
+          <See guide="containers" section="auto-cleanup" />
+          ). Use this cron job when you want to choose the servers, the time or
+          a stricter clean-up.
+        </Tip>
+      </>
+    ),
+  },
+  {
+    id: "pve-backup",
+    title: "Backing up and snapshotting machines",
+    body: (
+      <>
+        <P>
+          <UI>Back up machines</UI> and <UI>Snapshot machines</UI> work on one
+          Proxmox cluster from{" "}
+          <See guide="virtual-machines">Virtual machines</See>. Pick{" "}
+          <UI>All of them</UI> (machines made later are included; tick the ones
+          to leave out) or <UI>Chosen ones</UI>. Templates are never included.
+          You need Engineer on the cluster.
+        </P>
+        <P>
+          A backup runs Proxmox's <C>vzdump</C> on each machine's node, one
+          machine after another, to a storage that takes backups. Pick the mode
+          (keep running, pause briefly, or stop), the compression and a note;{" "}
+          <C>{"{{guestname}}"}</C> and <C>{"{{vmid}}"}</C> are filled in. How
+          many backups are kept is the storage's own retention in Proxmox (
+          <UI>Datacenter › Storage › Backup Retention</UI>), or the Proxmox
+          Backup Server's prune settings.
+        </P>
+      </>
+    ),
+  },
+  {
+    id: "pve-snapshot",
+    title: "Snapshot rotation",
+    body: (
+      <>
+        <P>
+          <UI>Snapshot machines</UI> names each snapshot <C>prefix_date_time</C>{" "}
+          and, after taking it, deletes the oldest ones starting with the same
+          prefix beyond <UI>Keep</UI>. Snapshots you take by hand (another name)
+          are never touched.
+        </P>
+        <Recommended
+          rows={[
+            {
+              setting: "Schedule",
+              value: "Every 6 hours, keep 4",
+              why: "A day of quick go-backs without piling up snapshots that slow the disks.",
+            },
+            {
+              setting: "With memory",
+              value: "Off",
+              why: "Saving the RAM is slow and takes as much space as it; the disks are enough to go back.",
+            },
+            {
+              setting: "Backups too",
+              value: "Nightly Back up machines",
+              why: "Snapshots live on the same storage as the machine: lose it and they're gone too.",
+            },
+          ]}
+        />
+      </>
+    ),
+  },
+  {
+    id: "create",
+    title: "Making a cron job",
+    body: (
+      <>
+        <Steps>
+          {[
+            <>
+              Open <A href="/cronjobs">Cron jobs</A> and press{" "}
+              <UI>New cron job</UI>.
+            </>,
+            <>
+              Under <UI>What it does</UI> pick the action, then give it a name,
+              like <C>Nightly uploads backup</C>.
+            </>,
+            <>
+              Fill in the action's part. For copying: under <UI>Copy from</UI>{" "}
+              press <UI>Choose source</UI>, pick the server or storage, then the
+              folder (browse the tree or type the path; both stay in step), and
+              add each destination under <UI>Copy to</UI> the same way. Missing
+              folders are created on the first run. Other actions ask for their
+              script, playbook, service, servers or database instead.
+            </>,
+            <>
+              Set <UI>When</UI>: every few minutes, hourly, daily, weekly,
+              monthly, or a custom expression. Check the time zone and the next
+              runs shown under it.
+            </>,
+            <>
+              For copying, pick the mode (see{" "}
+              <See guide="cronjobs" section="modes" />) and add anything to
+              leave out. Then press <UI>Create</UI>.
+            </>,
+            <>
+              On the job's page, press <UI>Test run</UI> (copying only) to see
+              what it would do, then <UI>Run now</UI> or wait for its time.
+            </>,
+          ]}
+        </Steps>
+        <Tip>
+          The source is copied by its contents: choosing <C>/var/www/site</C> as
+          the source and <C>/backups/site</C> as a destination gives{" "}
+          <C>/backups/site/index.html</C>, not <C>/backups/site/site/…</C>.
+        </Tip>
+      </>
+    ),
+  },
+  {
+    id: "examples",
+    title: "Examples",
+    body: (
+      <>
+        <Example title="Back up a site's uploads to S3 every night">
+          <P>
+            Source: server <C>web-1</C>, <C>/var/www/app/uploads</C>.
+            Destination: storage <C>backups</C> (S3),{" "}
+            <C>/site-backups/uploads</C>. When: <UI>Every day</UI> at 03:00.
+            Mode: <UI>Snapshot</UI>, keep <C>14</C>. You get one dated folder
+            per night and two weeks of history.
+          </P>
+        </Example>
+        <Example title="Push the same config files to every web server">
+          <P>
+            Source: storage <C>shared</C>, <C>/configs/nginx</C>. Destinations:{" "}
+            <C>web-1</C>, <C>web-2</C>, <C>web-3</C>, each{" "}
+            <C>/etc/nginx/conf.d</C>. When: every 15 minutes. Mode:{" "}
+            <UI>Update</UI>, so only changed files are copied and nothing local
+            is deleted.
+          </P>
+        </Example>
+        <Example title="Keep a standby server in step">
+          <P>
+            Source: <C>app-1</C>, <C>/srv/data</C>. Destination: <C>app-2</C>,{" "}
+            <C>/srv/data</C>. When: every hour. Mode: <UI>Mirror</UI>, with{" "}
+            <C>*.tmp</C> and <C>cache</C> left out.
+          </P>
+        </Example>
+        <Example title="Weekly archive of a site, 8 kept on S3">
+          <P>
+            Action: <UI>Archive a folder</UI>. Folder: <C>web-1</C>,{" "}
+            <C>/var/www/site</C>. Send to: storage <C>backups</C>,{" "}
+            <C>/archives/site</C>. When: <UI>Every week</UI>, Sunday 02:00.
+            Archives to keep: <C>8</C>, leave out <C>cache</C>. Two months of
+            single-file archives, easy to download whole.
+          </P>
+        </Example>
+        <Example title="Refresh a block list every 6 hours">
+          <P>
+            Action: <UI>Download a file</UI>. Address{" "}
+            <C>https://example.com/lists/blocklist.txt</C>, save in{" "}
+            <C>/etc/nginx/blocklist</C> on every web server,{" "}
+            <UI>Replace the file each time</UI> on. Follow it with a{" "}
+            <UI>Service action</UI> job that reloads <C>nginx</C> 5 minutes
+            later.
+          </P>
+        </Example>
+        <Example title="Clean old logs every night">
+          <P>
+            Action: <UI>Run a script</UI>, <UI>Type a command</UI>, run as{" "}
+            <C>root</C>:
+          </P>
+          <Code>{"find /var/log/app -name '*.log' -mtime +14 -delete"}</Code>
+        </Example>
+        <Example title="Patch reboots on Sunday night">
+          <P>
+            Action: <UI>Reboot servers</UI> on the app servers, with{" "}
+            <UI>Only when a reboot is needed</UI> and{" "}
+            <UI>Not while someone is logged in</UI> on. When: Sunday 04:00. Only
+            servers that got a kernel update reboot, one after another.
+          </P>
+        </Example>
+        <Example title="Check backups every morning">
+          <P>
+            Action: <UI>Verify backups</UI>, database <C>shop</C>, every plan.
+            When: every day at 07:00, after the night's backups. A copy that
+            doesn't read back fails the run, which shows on the menu's red
+            count.
+          </P>
+        </Example>
+        <Example title="Copy one bucket to another provider">
+          <P>
+            Source: storage <C>aws</C>, <C>/media</C>. Destination: storage{" "}
+            <C>r2</C>, <C>/media</C>. When: <UI>Every day</UI>. Mode:{" "}
+            <UI>Update</UI>. Good for a second copy with another company.
+          </P>
+        </Example>
+      </>
+    ),
+  },
+  {
+    id: "modes",
+    title: "Modes",
+    body: (
+      <>
+        <Table
+          head={["Mode", "What a run does"]}
+          rows={[
+            [
+              <UI key="u">Update</UI>,
+              "Copies files that are new, or whose size or time changed. Never deletes anything at the destination. The safe default.",
+            ],
+            [
+              <UI key="m">Mirror</UI>,
+              "Like Update, then deletes files and folders at the destination that the source doesn't have, so both end up the same.",
+            ],
+            [
+              <UI key="s">Snapshot</UI>,
+              "Copies everything into a new folder named by the time (2026-11-04_03-00-00) inside the destination, then deletes the oldest ones beyond Keep.",
+            ],
+          ]}
+        />
+        <Warn>
+          Mirror deletes. Point it only at a folder that holds nothing but this
+          copy, and run a <UI>Test run</UI> first. If the source turns out empty
+          (a disk that didn't mount, say), a mirror deletes nothing and the run
+          fails instead.
+        </Warn>
+        <Tip>
+          Snapshot only ever removes folders named like a snapshot, so other
+          things you keep in the same folder are safe. Keep <C>0</C> keeps every
+          snapshot.
+        </Tip>
+      </>
+    ),
+  },
+  {
+    id: "schedule",
+    title: "Schedule and time zone",
+    body: (
+      <>
+        <P>
+          The builder covers the usual cases. <UI>Custom</UI> takes a standard
+          five-field cron expression (minute, hour, day of month, month, day of
+          week) or a shortcut:
+        </P>
+        <Table
+          head={["Expression", "Runs"]}
+          rows={[
+            [<C key="a">*/15 * * * *</C>, "Every 15 minutes"],
+            [<C key="b">0 3 * * *</C>, "Every day at 03:00"],
+            [<C key="c">0 20 * * 1-5</C>, "Weekdays at 20:00"],
+            [<C key="d">0 1 1 * *</C>, "The 1st of each month at 01:00"],
+            [<C key="e">@daily</C>, "Every day at midnight"],
+            [<C key="f">@every 6h</C>, "Every 6 hours, counted from now"],
+          ]}
+        />
+        <P>
+          Times are read in the job's time zone (your browser's by default), so{" "}
+          <C>0 3 * * *</C> in <C>Asia/Tehran</C> is 03:00 in Tehran whatever
+          zone the Morche server uses. The editor shows the next three runs
+          before you save.
+        </P>
+        <List>
+          <li>
+            If Morche was down when a run was due, it runs once when Morche is
+            back (not once per missed time).
+          </li>
+          <li>
+            If a run is still going when the next one is due, the new one is
+            recorded as <UI>Skipped</UI> rather than started twice.
+          </li>
+          <li>
+            A paused job doesn't make up for the runs it missed when resumed.
+          </li>
+        </List>
+      </>
+    ),
+  },
+  {
+    id: "excludes",
+    title: "Leaving files out",
+    body: (
+      <>
+        <P>
+          <UI>Leave out</UI> takes one pattern per line. A pattern without a
+          slash matches a file or folder name at any depth; one with a slash
+          matches a path from the source folder. A left-out folder is skipped
+          with everything in it.
+        </P>
+        <Code>{`*.log
+node_modules
+.git
+cache/tmp`}</Code>
+        <P>
+          In mirror mode, left-out files at the destination are not touched.
+        </P>
+      </>
+    ),
+  },
+  {
+    id: "runs",
+    title: "Test runs and the history",
+    body: (
+      <>
+        <P>
+          <UI>Test run</UI> goes through the whole job without writing or
+          deleting anything, then shows what it would copy and delete at each
+          destination. Use it after every change to a mirror.
+        </P>
+        <P>
+          The job's page lists every run (newest first, filter by Failed, Partly
+          done or Skipped). Open one to see, per destination, the files copied
+          and their size, files already up to date, files deleted, files that
+          couldn't be copied and the first problems. While a run is going it
+          shows the file it's on and its speed; <UI>Stop</UI> ends it after that
+          file.
+        </P>
+        <Table
+          head={["State", "Meaning"]}
+          rows={[
+            [<UI key="s">Succeeded</UI>, "Every destination got everything."],
+            [
+              <UI key="p">Partly done</UI>,
+              "Some files or some destinations failed; the rest were copied. Open the run to see which.",
+            ],
+            [
+              <UI key="f">Failed</UI>,
+              "Nothing could be done: usually the source couldn't be reached.",
+            ],
+            [<UI key="k">Skipped</UI>, "The run before was still going."],
+            [
+              <UI key="i">Interrupted</UI>,
+              "Morche was restarted during the run. The next run picks up what's missing.",
+            ],
+            [<UI key="c">Stopped</UI>, "Someone pressed Stop."],
+          ]}
+        />
+      </>
+    ),
+  },
+  {
+    id: "access",
+    title: "Who can do what",
+    body: (
+      <>
+        <Table
+          head={["Workspace level", "Can"]}
+          rows={[
+            ["Viewer", "See cron jobs and their runs."],
+            ["Operator", "Also Run now, Test run and Stop a run."],
+            [
+              "Engineer",
+              "Also create, edit, pause and delete jobs, and delete runs from the history.",
+            ],
+          ]}
+        />
+        <P>
+          Saving a job also needs access to what it touches; pickers grey out
+          what you can't use (and read-only storages as destinations):
+        </P>
+        <Table
+          head={["Action", "Needs"]}
+          rows={[
+            [
+              "Copy files",
+              "Operator on the source, Engineer on every destination",
+            ],
+            [
+              "Archive a folder",
+              "Engineer on the folder's server and every destination",
+            ],
+            ["Download a file", "Engineer on every server it saves to"],
+            ["Run a script", "Engineer on every server"],
+            ["Run a playbook", "Owner on every server it runs on"],
+            [
+              "Service action",
+              "Operator; Engineer to stop a protected service",
+            ],
+            ["Reboot servers", "Operator on every server"],
+            ["Upgrade packages", "Engineer on every server"],
+            ["Update applications", "Engineer on every server"],
+            ["Verify backups", "Operator on the database"],
+          ]}
+        />
+        <P>
+          <UI>Run now</UI> on a reboot job asks first, since it reboots straight
+          away.
+        </P>
+        <P>
+          A job runs with the access of whoever saved it last, shown as{" "}
+          <UI>Runs as</UI> on its page. If that person loses access, is disabled
+          or removed, the job stops with a note saying why; someone with access
+          opens it and saves it to take it over.
+        </P>
+      </>
+    ),
+  },
+  {
+    id: "recommended",
+    title: "Recommended settings",
+    body: (
+      <Recommended
+        rows={[
+          {
+            setting: "Backups",
+            value: "Snapshot, keep 7–30",
+            why: "A bad file overwritten today is still in yesterday's folder.",
+          },
+          {
+            setting: "Keeping copies in step",
+            value: "Update, or Mirror after a Test run",
+            why: "Update can never lose data at the destination.",
+          },
+          {
+            setting: "Big folders",
+            value: "Hourly or slower",
+            why: "Every run lists both sides; too often and runs start getting skipped.",
+          },
+          {
+            setting: "Leave out",
+            value: "*.log, cache, node_modules, .git",
+            why: "Smaller, faster runs with only what you need.",
+          },
+          {
+            setting: "Time zone",
+            value: "Where the people are",
+            why: "So 03:00 means 03:00 for whoever reads the history.",
+          },
+        ]}
+      />
+    ),
+  },
+  {
+    id: "troubleshooting",
+    title: "Troubleshooting",
+    body: (
+      <Table
+        head={["What you see", "What to do"]}
+        rows={[
+          [
+            "“It can't run” on the job",
+            "A server or storage it uses was deleted, or the person it runs as lost their account. Press Fix, choose another place or just save it again.",
+          ],
+          [
+            "Failed: source …",
+            "Morche couldn't reach or read the source. Check the server or storage status and its saved login.",
+          ],
+          [
+            "Partly done with permission errors",
+            "The SSH user can't read those files (source) or write that folder (destination). Fix ownership, or pick a folder the user owns.",
+          ],
+          [
+            "Many runs Skipped",
+            "Runs take longer than the gap between them. Run less often, or leave out what doesn't need copying.",
+          ],
+          [
+            "Mirror failed: source folder is empty",
+            "On purpose: an empty source usually means a mount went missing, so nothing was deleted. Check the source.",
+          ],
+          [
+            "Reboot skipped: “login session(s) open”",
+            "Someone was logged in to that server. It's tried again at the next run; turn Not while someone is logged in off to reboot anyway.",
+          ],
+          [
+            "Reboot failed: “didn't come back within 15 minutes”",
+            "The server wasn't reachable 15 minutes after rebooting, so the servers after it were left alone (Not rebooted). Check its console.",
+          ],
+          [
+            "Service action failed on some servers",
+            "Open the run: usually that server has no unit with that name. Check the exact name on its Services tab (.service is added for you).",
+          ],
+          [
+            "A protected service wasn't stopped",
+            "sshd, dbus, journald and the like keep the server reachable. Edit the job and turn on Even if it's protected (needs Engineer).",
+          ],
+          [
+            "Playbook run failed before starting",
+            "A target server is unreachable or the person it runs as lost Owner on it. Fix the server, or change the job's servers and save.",
+          ],
+          [
+            "Download failed: couldn't fetch",
+            "The server itself couldn't reach the address (firewall, DNS, proxy) or got an error page. Try the address with curl on that server.",
+          ],
+          [
+            "Every file copied every time (FTP)",
+            "FTP servers often report times to the minute only; Morche allows for that, but a server that reports no times at all is compared by size.",
+          ],
+        ]}
+      />
+    ),
+  },
+]

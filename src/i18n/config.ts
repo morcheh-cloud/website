@@ -5,7 +5,7 @@ export type Locale = (typeof locales)[number]
 export const defaultLocale: Locale = "fa"
 
 // Remembers a visitor's pick from the language switch.
-export const LOCALE_COOKIE = "MORCHEH_LOCALE"
+export const LOCALE_COOKIE = "MORCHE_LOCALE"
 
 export function hasLocale(value: string): value is Locale {
   return (locales as readonly string[]).includes(value)

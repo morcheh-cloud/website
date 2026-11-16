@@ -7,7 +7,7 @@ import { Lost } from "@/components/site/lost"
 import { fontVariables } from "./fonts"
 
 export const metadata: Metadata = {
-  title: "Morcheh: page not found",
+  title: "Morche: page not found",
 }
 
 // URLs that match no route skip the [lang] layout and land here.

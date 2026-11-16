@@ -1,10 +1,10 @@
 export const en = {
   meta: {
-    title: "Morcheh: a private cloud on your own servers",
+    title: "Morche: a private cloud on your own servers",
     description:
-      "Morcheh is a private cloud that installs on your organization's servers and runs your team's whole infrastructure from one panel: servers, databases, storage, DNS, backups and access.",
+      "Morche is a private cloud that installs on your organization's servers and runs your team's whole infrastructure from one panel: servers, databases, storage, DNS, backups and access.",
   },
-  brand: "Morcheh",
+  brand: "Morche",
   nav: {
     label: "Main",
     tour: "Tour",
@@ -15,13 +15,13 @@ export const en = {
     demo: "Request a demo",
     menu: "Open menu",
     close: "Close menu",
-    home: "Morcheh home",
+    home: "Morche home",
     switchTo: "فارسی",
     switchLabel: "نسخه‌ی فارسی",
   },
   hero: {
     title: "Your own cloud, on your own servers.",
-    lead: "Morcheh installs on your organization's servers and runs everything your team manages from one panel: servers, databases, storage, DNS, backups and access.",
+    lead: "Morche installs on your organization's servers and runs everything your team manages from one panel: servers, databases, storage, DNS, backups and access.",
     primary: "Request a demo",
     secondary: "See it in action",
   },
@@ -69,7 +69,7 @@ export const en = {
   },
   // Words in backticks are tool names, set in mono.
   statement:
-    "Most teams run their servers from `PuTTY`, a shared `passwords.xlsx`, crontabs nobody remembers, a separate tool for every database and a chat group for alerts. Morcheh puts all of it in one place, and gives each person exactly the access their job needs.",
+    "Most teams run their servers from `PuTTY`, a shared `passwords.xlsx`, crontabs nobody remembers, a separate tool for every database and a chat group for alerts. Morche puts all of it in one place, and gives each person exactly the access their job needs.",
   features: {
     title: "One panel instead of ten tools.",
     lead: "Built for the work your team does every day, from a quick look at a server to a restore at three in the morning.",
@@ -158,7 +158,7 @@ export const en = {
   },
   security: {
     title: "It all stays inside your walls.",
-    lead: "Morcheh runs on your servers and talks to your machines over SSH. There's no outside service in the middle, and nothing to install on the servers you add.",
+    lead: "Morche runs on your servers and talks to your machines over SSH. There's no outside service in the middle, and nothing to install on the servers you add.",
     points: [
       {
         icon: "server",
@@ -197,11 +197,11 @@ export const en = {
     steps: [
       {
         title: "Install it on one server",
-        body: "Morcheh ships as Docker Compose: PostgreSQL, Redis, the backend and the panel.",
+        body: "Morche ships as Docker Compose: PostgreSQL, Redis, the backend and the panel.",
       },
       {
         title: "Add your servers",
-        body: "Connect each one with an SSH key or a password. Morcheh checks the connection and starts watching right away.",
+        body: "Connect each one with an SSH key or a password. Morche checks the connection and starts watching right away.",
       },
       {
         title: "Bring your team",
@@ -217,11 +217,11 @@ export const en = {
     items: [
       {
         q: "Does any of our data leave our network?",
-        a: "No. Morcheh runs on your own server and connects only to the machines and services you add to it.",
+        a: "No. Morche runs on your own server and connects only to the machines and services you add to it.",
       },
       {
         q: "Do we need to install anything on our servers?",
-        a: "No. Morcheh connects over SSH with a key or a password. Some features use tools most Linux servers already have, like systemd or ufw, and Morcheh tells you when one is missing.",
+        a: "No. Morche connects over SSH with a key or a password. Some features use tools most Linux servers already have, like systemd or ufw, and Morche tells you when one is missing.",
       },
       {
         q: "What does it work with?",
@@ -243,14 +243,362 @@ export const en = {
   },
   cta: {
     title: "Bring your servers home.",
-    body: "Tell us about your infrastructure and we'll show you Morcheh running on it.",
+    body: "Tell us about your infrastructure and we'll show you Morche running on it.",
     button: "Request a demo",
     or: "or write to",
-    subject: "Morcheh demo request",
+    subject: "Morche demo request",
   },
   footer: {
     tagline: "A private cloud for organizations.",
     rights: "All rights reserved.",
+  },
+  pages: {
+    product: "Product",
+    security: "Security",
+    install: "Install",
+    docs: "Docs",
+    faq: "Questions",
+  },
+  footerCols: {
+    product: "Product",
+    resources: "Resources",
+    contact: "Contact",
+    gettingStarted: "Getting started",
+  },
+  home: {
+    featuresMore: "See everything Morche does",
+    securityMore: "How Morche keeps you safe",
+    startMore: "Read the install guide",
+    docs: {
+      title: "Answers before you ask.",
+      body: "Every feature ships with a guide: what it does, how to use it, recommended settings and what to do when something goes wrong. These are the same guides the panel opens from its help button.",
+      button: "Browse the docs",
+      count: "guides",
+      sections: "sections",
+      minutes: "minutes of reading",
+    },
+  },
+  product: {
+    description:
+      "Servers, databases, storage, DNS, reverse proxy, containers, automation and access: everything Morche does, area by area.",
+    title: "Everything your team runs, in one panel.",
+    lead: "Morche starts with your servers and grows into the rest of your infrastructure. Here is what each part does.",
+    guides: "Guides",
+    areas: [
+      {
+        id: "servers",
+        title: "Servers",
+        lead: "Every Linux server you can reach over SSH, with its whole toolbox one click away.",
+        points: [
+          "Live CPU, memory, disk and network, every second",
+          "A terminal with tabs that survive a reload, and a file manager with an editor",
+          "Firewall, fail2ban, users, packages, services and processes in plain forms",
+          "Folders, tags and favourites, and a map of which server can reach which",
+        ],
+        guides: [
+          "servers",
+          "terminal",
+          "files",
+          "firewall",
+          "packages",
+          "processes",
+        ],
+      },
+      {
+        id: "databases",
+        title: "Databases",
+        lead: "Six engines watched from one place: what's slow, what's blocked, who's connected and how much room is left.",
+        points: [
+          "Sessions, slow queries, locks and replication lag, refreshed live",
+          "Explain a query without running it, or end a stuck session",
+          "Scheduled backups, full or incremental, to several storages at once",
+          "Restores that take a safety backup first",
+        ],
+        guides: ["databases", "alerts"],
+      },
+      {
+        id: "storage",
+        title: "Storage",
+        lead: "S3, FTP, SFTP and WebDAV in the same file manager you use on servers.",
+        points: [
+          "Buckets, share links that expire, lifecycle and access rules",
+          "Syncs and migrations between storages, even the moment a folder changes",
+          "Space used over time, biggest folders first",
+          "Send files from any server to any storage, streamed by Morche",
+        ],
+        guides: ["storage", "tasks"],
+      },
+      {
+        id: "dns",
+        title: "DNS and reverse proxy",
+        lead: "Zones on every Technitium server, and nginx sites with HTTPS, caching and a firewall, without hand-written config.",
+        points: [
+          "Every zone on one screen, out-of-sync copies flagged",
+          "Proxy sites, redirects and load balancing in plain forms",
+          "Certificates from Let's Encrypt and other ACME providers",
+          "Every config tested before nginx reloads",
+        ],
+        guides: ["dns", "reverse-proxy", "network-map"],
+      },
+      {
+        id: "automation",
+        title: "Automation",
+        lead: "Do a thing once, then on fifty servers, then every night.",
+        points: [
+          "Ansible playbooks with a visual builder and live output",
+          "Saved scripts run on any set of servers, every output kept",
+          "Scheduled syncs, archives, backup checks, upgrades and reboots",
+          "Software installed and kept up to date from a catalog",
+        ],
+        guides: ["ansible", "scripts", "cronjobs", "applications"],
+      },
+      {
+        id: "team",
+        title: "Team and access",
+        lead: "A workspace per team or customer, and exactly the access each person's job needs.",
+        points: [
+          "Viewer, Operator, Engineer or Owner, per workspace, server or storage",
+          "Groups, sign-up approvals and sign-in alerts",
+          "A log of every command Morche runs and every terminal typed in",
+          "Shared web logins shown only to people allowed to see them",
+        ],
+        guides: [
+          "access",
+          "command-log",
+          "terminal-recordings",
+          "service-launcher",
+        ],
+      },
+    ],
+    moreTitle: "And a lot more in the box",
+    more: [
+      {
+        guide: "containers",
+        title: "Containers",
+        body: "Docker and Podman projects, images, volumes, updates and security scans.",
+      },
+      {
+        guide: "virtual-machines",
+        title: "Virtual machines",
+        body: "Proxmox VMs and containers: console, snapshots, backups and hardware.",
+      },
+      {
+        guide: "cloud",
+        title: "Cloud servers",
+        body: "Servers rented from cloud providers, managed through their API.",
+      },
+      {
+        guide: "monitoring",
+        title: "Monitoring",
+        body: "Twenty kinds of checks, from websites to message queues, from several places.",
+      },
+      {
+        guide: "alerts",
+        title: "Alerts",
+        body: "Rules on CPU, disks, services and databases, sent to email, Telegram, Slack and more.",
+      },
+      {
+        guide: "server-metrics",
+        title: "Metrics history",
+        body: "Thirty days of CPU, memory, disk and network, with your limits drawn in.",
+      },
+      {
+        guide: "log-retention",
+        title: "Logs and archives",
+        body: "Keep logs as long as you need, then archive them to a storage.",
+      },
+      {
+        guide: "server-notes",
+        title: "Server notes",
+        body: "Notes in Markdown beside each server, pinned ones on its overview.",
+      },
+    ],
+  },
+  securityPage: {
+    description:
+      "How Morche protects your infrastructure: self-hosted, no agents, four access levels enforced by the server, sign-in security, a full audit trail and changes that undo themselves.",
+    title: "Built for teams that can't afford a mistake.",
+    lead: "Morche runs inside your network, enforces every permission on the server and keeps a record of what happened. Here is how.",
+    levels: {
+      title: "Four levels, set where they matter",
+      body: "Give a person or a group a level for a whole workspace, or for one server, storage or service. The panel hides what a level can't do, and the backend refuses it anyway.",
+      items: [
+        {
+          name: "Viewer",
+          body: "Sees status, lists and reports. Changes nothing.",
+        },
+        {
+          name: "Operator",
+          body: "Runs checks, restarts services, reads logs and sessions.",
+        },
+        {
+          name: "Engineer",
+          body: "Changes configuration: firewall, files, containers, playbooks.",
+        },
+        {
+          name: "Owner",
+          body: "Manages access, credentials, backups and restores.",
+        },
+      ],
+    },
+    topics: [
+      {
+        id: "sign-in",
+        icon: "lock",
+        title: "Sign-in security",
+        guide: "access",
+        items: [
+          "Allow sign-ins only from your office's address ranges",
+          "See every session, and end any of them",
+          "A record of every sign-in, failed ones included",
+          "A “Was it you?” alert for a new device or place",
+        ],
+      },
+      {
+        id: "trail",
+        icon: "scroll",
+        title: "A trail of who did what",
+        guide: "command-log",
+        items: [
+          "Every SSH command Morche runs, and every command typed in its terminals",
+          "Terminal sessions recorded for replay, output only",
+          "Every reveal of a shared password logged",
+          "Kept as long as you need, then archived to a storage",
+        ],
+      },
+      {
+        id: "secrets",
+        icon: "key",
+        title: "Secrets stay secret",
+        guide: "access",
+        items: [
+          "SSH keys, passwords and tokens encrypted with a key only you hold",
+          "Masked until someone allowed to see them asks",
+          "Never sent to the browser in lists",
+          "A session cookie only: nothing kept in the browser's scripts",
+        ],
+      },
+      {
+        id: "safe",
+        icon: "undo",
+        title: "Changes that can be undone",
+        guide: "firewall",
+        items: [
+          "A firewall change that cuts you off rolls back by itself",
+          "nginx config tested before it reloads",
+          "Package changes simulated and reviewed before they run",
+          "A safety backup before a database restore",
+        ],
+      },
+    ],
+    readGuide: "Read the guide",
+  },
+  install: {
+    description:
+      "Install Morche on your own Linux server with Docker: requirements, the installer, the first admin, HTTPS, updates and backups.",
+    title: "Running on your server in ten minutes.",
+    lead: "One script on any Linux server with Docker. You keep everything: the data, the keys and the updates.",
+    needsTitle: "What you need",
+    needs: [
+      "A Linux server with Docker 24 or newer and the compose plugin",
+      "2 GB of memory and 10 GB of disk",
+      "Ports 3200 (panel) and 8080 (API) open, or a reverse proxy in front",
+      "SSH from it to the servers you'll add",
+    ],
+    stepsTitle: "Install",
+    steps: [
+      {
+        title: "Download Morche",
+        body: "Clone the release repository on the server.",
+        code: "git clone https://github.com/morcheh-cloud/morche.git\ncd morche",
+      },
+      {
+        title: "Run the installer",
+        body: "It asks for the address people will reach the panel at, writes .env with fresh secrets, starts every service and prints a setup token.",
+        code: "./install.sh",
+      },
+      {
+        title: "Create the first admin",
+        body: "Open the panel at that address on port 3200. The first visit asks for the setup token, then your admin account.",
+        code: "",
+      },
+      {
+        title: "Add your servers",
+        body: "Add each one with an SSH key or a password. Morche checks the connection and starts watching right away.",
+        code: "",
+      },
+    ],
+    afterTitle: "After installing",
+    after: [
+      {
+        id: "secrets",
+        title: "Keep a copy of SECRETS_KEY",
+        body: "It encrypts every stored password and key. Without it they can't be read, so keep a copy of .env somewhere other than this server.",
+        code: "",
+      },
+      {
+        id: "https",
+        title: "Put it behind HTTPS",
+        body: "Use any reverse proxy, with one name for the panel and one for the API, then set PANEL_URL and API_URL in .env to those addresses.",
+        code: "",
+      },
+      {
+        id: "update",
+        title: "Update",
+        body: "Pin MORCHE_VERSION in .env if you like, then pull and restart.",
+        code: "docker compose pull\ndocker compose up -d",
+      },
+      {
+        id: "backup",
+        title: "Back up",
+        body: "Two things matter: the database and .env.",
+        code: "docker compose exec -T postgres pg_dump -U morche morche | gzip > morche-$(date +%F).sql.gz\ncp .env /somewhere/safe/",
+      },
+    ],
+    settingsTitle: "Settings in .env",
+    settingsHead: ["Setting", "What it does"],
+    settings: [
+      ["MORCHE_VERSION", "Which release to run (default: the latest)."],
+      ["PANEL_URL", "The panel's address, as people open it."],
+      ["API_URL", "The API's address, as the browser reaches it."],
+      ["SECRETS_KEY", "Encrypts stored credentials. Keep a copy."],
+      ["COOKIE_INSECURE", "Allow sign-in over plain http (testing only)."],
+      ["TRUST_PROXY", "Read the visitor's address from your reverse proxy."],
+      ["TZ", "Time zone for schedules and reports."],
+    ],
+    copy: "Copy",
+    copied: "Copied",
+    help: "Stuck? Write to us and we'll help you set it up.",
+  },
+  docs: {
+    title: "Documentation",
+    description:
+      "Every guide from Morche's help center: what each feature does, how to use it, recommended settings and troubleshooting.",
+    lead: "Every guide from the panel's help center: what each feature does, how to use it and what to do when something goes wrong.",
+    search: "Search the guides",
+    searchShort: "Search",
+    placeholder: "Search the guides…",
+    empty: "Nothing matches that. Try fewer or other words.",
+    loading: "Loading the guides…",
+    failed: "The search couldn't load. Check your connection and try again.",
+    hint: "Type a feature, a task or a problem.",
+    guides: "guides",
+    sections: "sections",
+    minutes: "min read",
+    onThisPage: "On this page",
+    allGuides: "All guides",
+    previous: "Previous",
+    next: "Next",
+    englishOnly:
+      "The guides are in English for now. A Persian version is on the way.",
+    copyLink: "Copy link to this section",
+    groups: {
+      Basics: "Basics",
+      "On a server": "On a server",
+      Infrastructure: "Infrastructure",
+      Storage: "Storage",
+      Administration: "Administration",
+    } as Record<string, string>,
   },
   notFound: {
     title: "This tunnel doesn't lead anywhere.",

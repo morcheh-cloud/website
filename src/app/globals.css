@@ -3,7 +3,7 @@
 @import "shadcn/tailwind.css";
 
 /*
-  Morcheh website. A near-black page with two lit frames as bookends (the
+  Morche website. A near-black page with two lit frames as bookends (the
   hero and the closing call), indigo from the panel's brand, and honey for
   anything alive: ants, live signals, progress. One theme only, by design.
 */
@@ -312,5 +312,46 @@ html {
   .lit-word {
     opacity: 1;
     transition: none;
+  }
+}
+
+/* The guides are English on both languages: inside them the Persian page
+   gets the English type back (family, weights, tracking, leading). */
+@layer components {
+  .docs-en {
+    --font-body: var(--font-onest), var(--font-vazir), system-ui, sans-serif;
+    --font-display: var(--font-onest), var(--font-vazir), system-ui, sans-serif;
+    font-family: var(--font-body);
+    line-height: 1.7;
+  }
+  html:lang(fa) .docs-en .t-title {
+    font-weight: 420;
+    letter-spacing: -0.035em;
+    line-height: 1.04;
+  }
+  html:lang(fa) .docs-en .t-heading {
+    font-weight: 560;
+    letter-spacing: -0.01em;
+    line-height: 1.35;
+  }
+  html:lang(fa) .docs-en .t-lead {
+    line-height: 1.6;
+  }
+  /* A section someone jumped to glows once. */
+  .docs-flash {
+    animation: docs-flash 1.6s ease-out;
+  }
+  @keyframes docs-flash {
+    from {
+      background: color-mix(in oklab, var(--glow) 14%, transparent);
+    }
+    to {
+      background: transparent;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .docs-flash {
+      animation: none;
+    }
   }
 }

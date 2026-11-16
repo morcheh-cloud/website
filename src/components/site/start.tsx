@@ -2,21 +2,30 @@ import { type Locale, numberOf } from "@/i18n/config"
 import type { Dictionary } from "@/i18n/en"
 
 import { CopyButton } from "./copy-button"
+import { MoreLink } from "./more-link"
 
 const commands = [
-  "cd morcheh/deploy",
-  "cp .env.example .env",
-  "docker compose up -d --build",
+  "git clone https://github.com/morcheh-cloud/morche.git",
+  "cd morche",
+  "./install.sh",
 ]
 
-// What `docker compose up` prints for the deploy stack (project
-// morcheh-prod), and where the panel answers by default.
+// The tail of what install.sh prints on a fresh machine (deploy repo).
 const output = [
-  { text: "[+] Running 4/4", tone: "text-dust" },
-  { text: " ✔ Container morcheh-prod-postgres-1  Healthy", tone: "text-leaf" },
-  { text: " ✔ Container morcheh-prod-redis-1     Healthy", tone: "text-leaf" },
-  { text: " ✔ Container morcheh-prod-backend-1   Started", tone: "text-leaf" },
-  { text: " ✔ Container morcheh-prod-frontend-1  Started", tone: "text-leaf" },
+  { text: "Address people will use to reach this machine", tone: "text-dust" },
+  { text: "(IP or domain) [10.0.0.4]: panel.example.com", tone: "text-dust" },
+  {
+    text: "Wrote .env (keep a copy of SECRETS_KEY somewhere safe).",
+    tone: "text-dust",
+  },
+  {
+    text: "Morche is starting. Open http://panel.example.com:3200",
+    tone: "text-leaf",
+  },
+  {
+    text: "The first-run form asks for the setup token: 4be1…",
+    tone: "text-lumen",
+  },
 ]
 
 // A real sequence, so the steps are numbered; the terminal beside them is
@@ -48,6 +57,9 @@ export function Start({ lang, t }: { lang: Locale; t: Dictionary }) {
               </li>
             ))}
           </ol>
+          <MoreLink href={`/${lang}/install`} className="mt-12 ms-14">
+            {t.home.startMore}
+          </MoreLink>
         </div>
 
         <figure

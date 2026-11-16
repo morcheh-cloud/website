@@ -1,0 +1,1200 @@
+// Synced from ../frontend by `pnpm sync:docs`. Edit it there, not here.
+import {
+  A,
+  C,
+  Code,
+  Example,
+  type GuideSection,
+  List,
+  P,
+  Recommended,
+  See,
+  Steps,
+  Table,
+  Tip,
+  UI,
+  Warn,
+} from "../prose"
+
+export const storage: GuideSection[] = [
+  {
+    id: "overview",
+    title: "What it's for",
+    body: (
+      <>
+        <P>
+          <UI>Storage</UI> connects Morche to places that hold files but aren't
+          servers you manage: an S3 bucket, an FTP or SFTP account, a WebDAV
+          share. Browse them with the same file manager as a server's{" "}
+          <See guide="files" />, and send files between them and your servers
+          without downloading anything to your computer.
+        </P>
+        <Table
+          head={["Protocol", "Use it for"]}
+          rows={[
+            [
+              "S3",
+              "Amazon S3 and compatible object storage: MinIO, Cloudflare R2, Wasabi, DigitalOcean Spaces, Backblaze B2, ArvanCloud…",
+            ],
+            [
+              "FTP",
+              "Hosting accounts and old NAS boxes; FTPS when they support TLS",
+            ],
+            ["SFTP", "Any machine with an SSH server, e.g. a backup box"],
+            ["WebDAV", "Nextcloud, ownCloud, NAS boxes"],
+          ]}
+        />
+      </>
+    ),
+  },
+  {
+    id: "status",
+    title: "Connection status",
+    body: (
+      <>
+        <P>
+          Morche re-checks every storage by itself every 30 seconds, even when
+          nobody has the panel open, by signing in afresh. The list and the
+          storage's page pick up new statuses every 10 seconds, so a storage
+          that went away stops showing <UI>Online</UI> within about a minute.
+          Press <UI>Check connection</UI> in its menu to check right now.
+        </P>
+        <P>
+          The red number beside <UI>Storage</UI> in the sidebar (on a phone, in{" "}
+          <UI>More</UI>) counts the storages in this workspace that are{" "}
+          <UI>Unreachable</UI>, <UI>Auth failed</UI>, <UI>Host key changed</UI>{" "}
+          or <UI>Error</UI>. When one comes back online, folders that failed to
+          load while it was down load again by themselves.
+        </P>
+        <Recommended
+          rows={[
+            {
+              setting: <C>STORAGE_CHECK_INTERVAL</C>,
+              value: "30s (the default)",
+              why: "A backend setting (e.g. 1m, 5m; 0 turns background checks off). Each check is a sign-in, plus one list request on S3: on a paid provider, or an FTP server that logs every login, raise it to 5m.",
+            },
+          ]}
+        />
+      </>
+    ),
+  },
+  {
+    id: "list",
+    title: "The storage list",
+    body: (
+      <>
+        <P>
+          <UI>Storage</UI> › <UI>Storages</UI> shows each storage as a card with
+          its last 24 hours at a glance:
+        </P>
+        <Table
+          head={["On the card", "Means"]}
+          rows={[
+            [
+              <UI key="u">Used</UI>,
+              "Space the files take, from the last measurement, with the change over 24 hours (or the file count). Not measured = press Measure on Insights.",
+            ],
+            [
+              <UI key="r">Response</UI>,
+              "How long the last check took to sign in, with the slowest 5% (p95) of the day under it.",
+            ],
+            [
+              <UI key="m">Moved · 24 h</UI>,
+              "Data moved by file transfers, cron job syncs and database backups that used it today, with the runs (and failures).",
+            ],
+            [
+              "The strip",
+              "One block per hour: green answered every check, red failed some. Hover a block for its numbers.",
+            ],
+          ]}
+        />
+        <P>
+          The row above the cards picks which ones show: <UI>All</UI>,{" "}
+          <UI>Needs a look</UI> (unreachable, refused sign-in, changed host key)
+          or <UI>Favorites</UI>, and searches by name, provider or address. The
+          same row on <UI>Syncs</UI> and <UI>Migrations</UI> filters by{" "}
+          <UI>Needs a look</UI>, <UI>Running</UI> and <UI>Paused</UI> and
+          searches the source and destination too. Both stay in the address, so
+          a filtered list can be shared as a link.
+        </P>
+      </>
+    ),
+  },
+  {
+    id: "add",
+    title: "Adding a storage",
+    body: (
+      <>
+        <Steps>
+          <P>
+            Open <UI>Storage</UI> and press <UI>Add storage</UI>.
+          </P>
+          <P>
+            Pick the <UI>Protocol</UI>, then the <UI>Provider</UI>. A provider
+            fills the endpoint, region and URL style for you; everything stays
+            editable.
+          </P>
+          <P>
+            Fill in the address and the credentials, then press{" "}
+            <UI>Test connection</UI>. It connects without saving, and shows what
+            it found or why it failed.
+          </P>
+          <P>
+            Press <UI>Add storage</UI>. Morche checks the connection once more
+            and shows the result in the list.
+          </P>
+        </Steps>
+        <P>
+          Passwords, secret keys and private keys are stored encrypted. When you
+          edit a storage, leave a secret blank to keep the saved one, or tick{" "}
+          <UI>Forget the saved…</UI> to remove it. To read a saved secret, see{" "}
+          <A href="#credentials">Seeing a storage's credentials</A>.
+        </P>
+      </>
+    ),
+  },
+  {
+    id: "s3",
+    title: "S3 and compatible",
+    body: (
+      <>
+        <List>
+          <li>
+            <UI>Endpoint</UI>: the API address, with <C>https://</C> (or{" "}
+            <C>http://</C> for a local MinIO). Not the web console's address.
+          </li>
+          <li>
+            <UI>Bucket</UI>: leave it empty to see every bucket the key can list
+            (each one shows as a top-level folder), or set one to stay inside
+            it.
+          </li>
+          <li>
+            <UI>Path-style URLs</UI>: needed by MinIO and most self-hosted
+            servers; AWS and the big clouds use the default (off).
+          </li>
+          <li>
+            Use an access key limited to the buckets Morche needs, not your root
+            account's.
+          </li>
+        </List>
+        <Example title="A MinIO on one of your servers">
+          <Table
+            head={["Field", "Value"]}
+            rows={[
+              ["Provider", "MinIO"],
+              [
+                <UI key="e">Endpoint</UI>,
+                <C key="v">http://203.0.113.10:9000</C>,
+              ],
+              [<UI key="r">Region</UI>, <C key="v">us-east-1</C>],
+              [<UI key="p">Path-style URLs</UI>, "On"],
+              [<UI key="k">Access key</UI>, "A user made for Morche"],
+            ]}
+          />
+          <P>
+            The API is on port 9000 by default; 9001 is the console and won't
+            answer S3 requests.
+          </P>
+        </Example>
+      </>
+    ),
+  },
+  {
+    id: "ftp-sftp-webdav",
+    title: "FTP, SFTP and WebDAV",
+    body: (
+      <>
+        <List>
+          <li>
+            <UI>FTP</UI>: choose the <UI>Encryption</UI>. <UI>Explicit TLS</UI>{" "}
+            (port 21) is the usual FTPS; <UI>Implicit (990)</UI> is the older
+            kind. <UI>None</UI> sends the password in the clear.
+          </li>
+          <li>
+            <UI>SFTP</UI>: log in with a password or a <UI>Private key</UI>{" "}
+            (paste it or load the file). The host key is trusted on the first
+            connection; if it changes later the storage shows{" "}
+            <UI>Host key changed</UI> and waits for you.
+          </li>
+          <li>
+            <UI>WebDAV</UI>: the full URL of the folder, e.g. for Nextcloud{" "}
+            <C>https://cloud.example.com/remote.php/dav/files/USER/</C>, with an
+            app password instead of your login password.
+          </li>
+          <li>
+            <UI>Start folder</UI> opens the storage in a sub-folder and keeps
+            you inside it.
+          </li>
+        </List>
+        <Warn>
+          <UI>Accept any certificate</UI> turns off the TLS check: anyone
+          between Morche and the storage can read the traffic, password
+          included. Use it only for a self-signed certificate on a network you
+          trust.
+        </Warn>
+      </>
+    ),
+  },
+  {
+    id: "browse",
+    title: "Browsing and files",
+    body: (
+      <>
+        <P>
+          Click a storage to open its files. Everything works as in a server's{" "}
+          <See guide="files" section="actions">
+            file manager
+          </See>
+          : upload by dragging, download (folders as zip), rename, move, copy,
+          delete, search, preview, and edit text files with a check that nobody
+          changed them meanwhile.
+        </P>
+        <P>
+          What doesn't apply is hidden: storages have no Unix permissions,
+          owners or links, and no terminal.
+        </P>
+        <Table
+          head={["Feature", "Works on"]}
+          rows={[
+            [<UI key="s">Share link…</UI>, "S3"],
+            ["Copies made on the storage itself (fast)", "S3, WebDAV"],
+            ["Resumable downloads, seeking in video", "S3, SFTP"],
+          ]}
+        />
+        <Tip>
+          On S3 a folder is only a shared name prefix: renaming or moving a big
+          folder copies every object inside it, so it can take a while.
+        </Tip>
+      </>
+    ),
+  },
+  {
+    id: "send",
+    title: "Sending files between servers and storages",
+    body: (
+      <>
+        <P>
+          On any file or selection, in a server's <UI>Files</UI> or in a
+          storage, choose <UI>Send to…</UI>. Pick the <UI>Destination</UI> (any
+          server or storage), then the folder in its tree (or type a path in{" "}
+          <UI>Folder</UI>; <UI>Change</UI> goes back to the list). On an S3
+          storage that shows every bucket, pick a bucket or a folder inside one.
+          Morche streams the files from one to the other: nothing passes through
+          your browser, so it's as fast as the link between them.
+        </P>
+        <P>
+          To pull files the other way, open the folder they should land in and
+          choose <UI>Upload</UI> › <UI>From a server or storage…</UI> (phones:{" "}
+          <UI>+</UI> › <UI>From a server or storage</UI>). Pick where they are
+          under <UI>From</UI>, browse its folders, tick the files or folders you
+          want (the ticks stay while you move between folders), then{" "}
+          <UI>Copy here</UI>. A folder with many entries gets a filter box.
+        </P>
+        <P>
+          Either way it runs as a background task, so you can close the dialog
+          and the page. Follow its progress, cancel it or try it again under{" "}
+          <See guide="tasks">Tasks</See>.
+        </P>
+        <List>
+          <li>Missing folders on the other side are created.</li>
+          <li>
+            Something with the same name stops the transfer unless you tick{" "}
+            <UI>Replace existing files</UI>.
+          </li>
+          <li>
+            Tick <UI>Move</UI> to delete the originals once they've arrived.
+          </li>
+        </List>
+        <Example title="Keep a database dump off the server">
+          <P>On the server, in the terminal:</P>
+          <Code>{"pg_dump -Fc shop > /tmp/shop-$(date +%F).dump"}</Code>
+          <P>
+            Then in <UI>Files</UI>, open <C>/tmp</C>, choose <UI>Send to…</UI>{" "}
+            on the dump, pick your backup bucket, tick <UI>Move</UI>, and send.
+          </P>
+        </Example>
+        <Example title="Restore a backup onto a server">
+          <P>
+            In the server's <UI>Files</UI>, open <C>/tmp</C>, choose{" "}
+            <UI>Upload</UI> › <UI>From a server or storage…</UI>, pick the
+            backup storage, open its bucket, tick yesterday's dump and press{" "}
+            <UI>Copy here</UI>. Then restore it in the terminal.
+          </P>
+        </Example>
+      </>
+    ),
+  },
+  {
+    id: "credentials",
+    title: "Seeing a storage's credentials",
+    body: (
+      <>
+        <P>
+          To use a storage outside Morche (the AWS CLI, an FTP client, a backup
+          script), open its credentials on demand:
+        </P>
+        <Steps>
+          {[
+            <P key="1">
+              On the storage's page press <UI>Credentials</UI>, or choose{" "}
+              <UI>Show credentials…</UI> from a storage's menu on the list (on a
+              phone: its action sheet).
+            </P>,
+            <P key="2">
+              Addresses and usernames are shown as they are. The secret key,
+              password, private key and passphrase stay hidden until you press
+              the eye; the copy button works either way.
+            </P>,
+            <P key="3">
+              <UI>Edit credentials</UI> opens the storage form to change them.
+            </P>,
+          ]}
+        </Steps>
+        <P>
+          The edit form has the same eye: press it on a blank secret field to
+          see the saved value, or on a field you typed in to check your typing.
+          For a private key, use <UI>Show saved key</UI>. Showing a saved value
+          doesn't change it: leave the field blank and saving keeps it.
+        </P>
+        <Table
+          head={["Protocol", "What you see"]}
+          rows={[
+            [
+              <UI key="s3">S3</UI>,
+              "Endpoint, access key, secret key, bucket, region and URL style.",
+            ],
+            [
+              <UI key="ftp">FTP / FTPS</UI>,
+              "Host, port, username, password, encryption and the full address.",
+            ],
+            [
+              <UI key="sftp">SFTP</UI>,
+              "Host, port, username, password or private key (with passphrase and public key), the trusted host key and a ready sftp command.",
+            ],
+            [<UI key="dav">WebDAV</UI>, "URL, username and password."],
+          ]}
+        />
+        <Example title="List a bucket with the AWS CLI">
+          <P>
+            Copy the access key, secret key and endpoint from the window, then:
+          </P>
+          <Code>{`
+export AWS_ACCESS_KEY_ID=<access key>
+export AWS_SECRET_ACCESS_KEY=<secret key>
+aws s3 ls s3://backups --endpoint-url https://s3.example.com
+`}</Code>
+        </Example>
+        <Warn>
+          Anyone who can open Morche can read these. Don't share your screen
+          with a secret visible, and delete a downloaded key once it is in{" "}
+          <C>~/.ssh</C>.
+        </Warn>
+        <Tip>
+          The secrets are fetched only while the window is open and are
+          forgotten when you close it. If it says the credentials can't be
+          decrypted, the backend's <C>SECRETS_KEY</C> changed since they were
+          saved: enter them again with <UI>Edit credentials</UI>.
+        </Tip>
+      </>
+    ),
+  },
+  {
+    id: "share",
+    title: "Share links",
+    body: (
+      <>
+        <P>
+          On S3 storages, <UI>Share link…</UI> makes a download link that works
+          without logging in, for <UI>1 hour</UI>, <UI>1 day</UI> or{" "}
+          <UI>7 days</UI>. The link is signed by the storage: it can't be
+          revoked early except by disabling the access key.
+        </P>
+        <Tip>Pick the shortest expiry that does the job.</Tip>
+      </>
+    ),
+  },
+  {
+    id: "buckets",
+    title: "S3 buckets",
+    body: (
+      <>
+        <P>
+          On an S3 storage without a fixed bucket, the top level lists every
+          bucket. Buckets have a box icon and a <UI>Bucket</UI> tag, so they
+          never pass for folders. Everything inside a bucket works like folders
+          and files.
+        </P>
+        <Steps>
+          <div>
+            To make one, open the storage's top level and choose{" "}
+            <UI>New › Bucket</UI> (<UI>New bucket</UI> on a phone).
+          </div>
+          <div>
+            Enter a name: lowercase letters, digits, dots and hyphens, 3–63
+            characters. On AWS the name must be unique across every account.
+          </div>
+          <div>
+            Optionally set a <UI>Region</UI> (empty = the storage's), turn on{" "}
+            <UI>Versioning</UI>, or turn on <UI>Object lock</UI>. Object lock
+            can only be turned on now, when the bucket is made.
+          </div>
+        </Steps>
+        <P>
+          To change a bucket, right-click it, or press its <UI>⋯</UI> (a long
+          press on phones), then choose <UI>Bucket settings</UI>. A storage
+          pinned to one bucket has a <UI>Bucket settings</UI> button in its
+          header instead (in the <UI>⋯</UI> sheet on phones). The settings have
+          five tabs:
+        </P>
+        <Table
+          head={["Tab", "What it holds"]}
+          rows={[
+            [
+              <UI key="o">Overview</UI>,
+              "Region, creation date, size; versioning on or paused; tags; empty or delete the bucket.",
+            ],
+            [
+              <UI key="a">Access</UI>,
+              "Who can read it without a key: Private, Anyone with a link, Public, or your own policy (JSON).",
+            ],
+            [
+              <UI key="l">Lifecycle</UI>,
+              "Rules the provider runs every day: delete objects or old versions after N days, move them to a cheaper class, clean leftovers.",
+            ],
+            [
+              <UI key="c">CORS</UI>,
+              "Which websites may call the bucket from a browser, e.g. a web app uploading straight to it.",
+            ],
+            [
+              <UI key="s">Security</UI>,
+              "Default encryption (SSE-S3 or SSE-KMS) and the object lock retention.",
+            ],
+          ]}
+        />
+        <Table
+          head={["Who", "Can change"]}
+          rows={[
+            ["Viewer, Operator", "Nothing; they see the settings."],
+            [
+              "Engineer",
+              "Make and empty buckets, versioning, tags, lifecycle, CORS.",
+            ],
+            ["Owner", "Access (public or not), encryption, retention."],
+          ]}
+        />
+        <Warn>
+          <UI>Empty bucket…</UI> and <UI>Delete bucket</UI> remove every object,
+          old versions included, and can't be undone. You type the bucket's name
+          to confirm.
+        </Warn>
+        <P>
+          A setting the provider doesn't offer (MinIO has no CORS, and needs a
+          KMS for encryption) says so when you save, and nothing changes. When
+          the provider won't tell Morche a setting, the tab shows{" "}
+          <UI>Couldn't read this setting</UI> with its reason.
+        </P>
+      </>
+    ),
+  },
+  {
+    id: "bucket-access",
+    title: "Making a bucket public",
+    body: (
+      <>
+        <P>
+          <UI>Access</UI> decides what anonymous users (no key) may do.
+          Signed-in use through Morche, access keys and share links work
+          whatever you pick.
+        </P>
+        <Table
+          head={["Choice", "What anonymous users get"]}
+          rows={[
+            [<UI key="p">Private</UI>, "Nothing."],
+            [
+              <UI key="d">Anyone with a link</UI>,
+              "Download a file whose address they know. They can't list the bucket.",
+            ],
+            [
+              <UI key="u">Public</UI>,
+              "List every file and download it, e.g. a static site's assets.",
+            ],
+            [
+              <UI key="c">Custom policy</UI>,
+              "Exactly what your JSON bucket policy says.",
+            ],
+          ]}
+        />
+        <Example title="A public file's address">
+          <Code>{`https://s3.example.com/assets/img/logo.png   (path style, MinIO)
+https://assets.s3.amazonaws.com/img/logo.png  (AWS)`}</Code>
+        </Example>
+        <P>
+          Picking one of the first three changes only the statements about
+          anonymous users and keeps the rest of the policy. A red notice says
+          when a policy lets anyone write or delete.
+        </P>
+        <Warn>
+          On AWS, <UI>Block Public Access</UI> on the account or the bucket
+          overrides this: turn it off in the AWS console first, or saving Public
+          fails.
+        </Warn>
+      </>
+    ),
+  },
+  {
+    id: "bucket-lifecycle",
+    title: "Lifecycle rules and versioning",
+    body: (
+      <>
+        <P>
+          With <UI>Versioning</UI> on, an overwrite or delete keeps the old
+          version, so a mistake can be undone. The catch is that old versions
+          take space forever, so pair versioning with a lifecycle rule.
+          Versioning can be paused but never fully turned off, and not paused at
+          all under object lock.
+        </P>
+        <Steps>
+          <div>
+            Open <UI>Bucket settings › Lifecycle</UI>.
+          </div>
+          <div>
+            Press a <UI>Quick add</UI> chip (e.g.{" "}
+            <UI>Delete old versions after 30 days</UI>) or <UI>Add rule</UI>,
+            and set the days.
+          </div>
+          <div>
+            Optionally limit it to a prefix such as <C>logs/</C>. Empty means
+            the whole bucket.
+          </div>
+          <div>
+            Press <UI>Save</UI>. Every rule is saved at once, and <UI>Undo</UI>{" "}
+            drops your changes.
+          </div>
+        </Steps>
+        <Recommended
+          rows={[
+            {
+              setting: "Backups bucket",
+              value: "Versioning on + old versions after 30 days",
+              why: "A deleted or overwritten backup can still be brought back for a month.",
+            },
+            {
+              setting: "Logs",
+              value: (
+                <>
+                  Prefix <C>logs/</C>, delete after 90 days
+                </>
+              ),
+              why: "Keeps the bucket from growing without end.",
+            },
+            {
+              setting: "Every bucket",
+              value: "Unfinished uploads after 7 days",
+              why: "Failed multipart uploads take space but never show as files (MinIO clears them by itself).",
+            },
+          ]}
+        />
+        <Tip>
+          A rule made outside Morche with tag or size filters says{" "}
+          <UI>more set elsewhere</UI>. Those parts are kept when you save.
+        </Tip>
+      </>
+    ),
+  },
+  {
+    id: "bucket-security",
+    title: "Encryption and object lock",
+    body: (
+      <>
+        <P>
+          <UI>Default encryption</UI> applies to new objects. <UI>SSE-S3</UI>{" "}
+          uses keys the provider manages. <UI>SSE-KMS</UI> uses a key from the
+          provider's key service, with its own permissions and audit log; leave
+          the key empty for the default one.
+        </P>
+        <P>
+          <UI>Object lock</UI> keeps objects from being deleted or overwritten
+          for a set time, which makes backups safe from ransomware or a stolen
+          key. Turn it on when the bucket is made, then pick a default retention
+          under <UI>Security</UI>:
+        </P>
+        <Table
+          head={["Mode", "Meaning"]}
+          rows={[
+            [
+              <UI key="g">Governance</UI>,
+              "Kept for N days, but a user with a special bypass permission can still remove them.",
+            ],
+            [
+              <UI key="c">Compliance</UI>,
+              "Nobody, the root account included, can delete them or shorten the time until the days pass.",
+            ],
+          ]}
+        />
+        <Warn>
+          Start with Governance and a few days. Compliance objects stay, and are
+          billed, for the full time, even if you made a mistake.
+        </Warn>
+      </>
+    ),
+  },
+  {
+    id: "insights",
+    title: "Insights: charts and statistics",
+    body: (
+      <>
+        <P>
+          The <UI>Insights</UI> tab, which the Storage page opens on, shows how
+          your storages have been doing: whether they stayed reachable, how fast
+          they answered, how much they hold and what was copied to or from them.
+          Pick <UI>24 hours</UI>, <UI>7 days</UI> or <UI>30 days</UI> at the
+          top; the page refreshes by itself every minute.
+        </P>
+        <Table
+          head={["Part", "What it shows"]}
+          rows={[
+            [
+              "Tiles",
+              "How many are online now, uptime over the range, the space they hold and the data moved.",
+            ],
+            [
+              "Availability",
+              "One strip per storage: each block is a stretch of connection checks. Green = all passed, orange = some failed, red = all failed, grey = no checks (Morche wasn't running).",
+            ],
+            [
+              "Response time",
+              "How long a connection check took, for all storages or the one you pick. Failed checks aren't counted.",
+            ],
+            [
+              "Activity",
+              "File transfers, cron job syncs and database backups that used a storage: runs (succeeded and failed) or the data they moved.",
+            ],
+            [
+              "Space",
+              "What each storage holds and how much it grew over the range. Open one for its biggest folders and a chart of its size.",
+            ],
+            [
+              "Status changes",
+              "Each time a storage went down or came back, with the error it gave.",
+            ],
+          ]}
+        />
+        <P>
+          Hover a chart (or tap it on a phone) to read the exact numbers; on a
+          keyboard, focus it and use the arrow keys.
+        </P>
+      </>
+    ),
+  },
+  {
+    id: "measuring",
+    title: "How space is measured",
+    body: (
+      <>
+        <P>
+          Storages don't report their size, so Morche walks every folder and
+          adds up the files. It does this on its own about once a day for each
+          online storage, as a background task. To measure one now, press{" "}
+          <UI>Measure now</UI> (the scan icon in its row, or in its space
+          panel), or <UI>Measure all</UI> at the top. You need Operator access
+          on the storage.
+        </P>
+        <Steps>
+          {[
+            <>
+              Open <UI>Storage</UI> › <UI>Insights</UI>.
+            </>,
+            <>
+              In <UI>Space</UI>, open the storage you want to look at.
+            </>,
+            <>
+              Press <UI>Measure now</UI>. The walk runs in{" "}
+              <See guide="tasks">Tasks</See>; the numbers update when it ends.
+            </>,
+            <>
+              Click a folder in <UI>Biggest folders</UI> to browse it.
+            </>,
+          ]}
+        </Steps>
+        <Example title="Finding what filled a backup bucket">
+          <P>
+            The <UI>Stored</UI> tile shows +40 GB in 7 days. In <UI>Space</UI>{" "}
+            the backup bucket grew the most; its panel shows <C>postgres/</C>{" "}
+            holds 90% of it. Lower the number of copies the backup job keeps, or
+            add a lifecycle rule on the bucket.
+          </P>
+        </Example>
+        <Tip>
+          A walk that runs too long stops early and is marked <UI>Partial</UI>:
+          the storage holds at least that much. SFTP storages also show the free
+          space on the disk.
+        </Tip>
+        <P>
+          Connection checks are kept for 31 days and space measurements for
+          about a year. Admins can change how long checks are kept, and how
+          often space is measured, with these backend settings:
+        </P>
+        <Recommended
+          rows={[
+            {
+              setting: "STORAGE_SCAN_INTERVAL",
+              value: "24h",
+              why: "How often each storage is measured. Walking a big storage costs requests (and on S3, money): don't go below a few hours.",
+            },
+            {
+              setting: "STORAGE_HISTORY",
+              value: "744h (31 days)",
+              why: "How long connection checks are kept. The 30-day view needs at least 31 days.",
+            },
+            {
+              setting: "STORAGE_CHECK_INTERVAL",
+              value: "30s",
+              why: "How often each storage is checked; this is what fills the availability strips.",
+            },
+          ]}
+        />
+      </>
+    ),
+  },
+  {
+    id: "settings",
+    title: "Recommended settings",
+    body: (
+      <Recommended
+        rows={[
+          {
+            setting: "Credentials",
+            value: "A key or user just for Morche",
+            why: "Limit it to what Morche needs; revoke it without touching anything else.",
+          },
+          {
+            setting: "Read-only",
+            value: "On for archives and backups",
+            why: "Morche refuses every write, so a mis-click can't delete a backup.",
+          },
+          {
+            setting: "FTP encryption",
+            value: "Explicit TLS",
+            why: "Plain FTP sends the password and files in the clear.",
+          },
+          {
+            setting: "Start folder",
+            value: "The folder you work in",
+            why: "Keeps the rest of the account out of reach.",
+          },
+        ]}
+      />
+    ),
+  },
+  {
+    id: "migrate",
+    title: "Moving everything to another storage",
+    body: (
+      <>
+        <P>
+          A <UI>Migration</UI> copies a whole storage, or one folder of it, to
+          another storage once: from an old FTP account to S3, from AWS to your
+          own MinIO, from one bucket to another. Morche's own machine reads from
+          one side and writes to the other, so it works between any two kinds of
+          storage and nothing passes through your computer.
+        </P>
+        <Steps>
+          {[
+            <>
+              Open <UI>Storage</UI> › <UI>Migrations</UI> and press{" "}
+              <UI>New migration</UI>, or pick{" "}
+              <UI>Migrate to another storage…</UI> in a storage's ⋯ menu.
+            </>,
+            <>
+              Pick the <UI>Source</UI> and the <UI>Destination</UI>, each with a
+              folder (<C>/</C> = all of it; on S3 the first folder is the
+              bucket).
+            </>,
+            <>
+              Under <UI>Safety</UI>, keep <UI>Check every file</UI> on. To move
+              instead of copy, turn on <UI>Empty the source afterwards</UI>.
+            </>,
+            <>
+              Save, then press <UI>Test run</UI>: it lists what it would copy
+              without copying anything. When it looks right, press{" "}
+              <UI>Start</UI>.
+            </>,
+          ]}
+        </Steps>
+        <P>
+          The page shows the run going: files and bytes so far, speed and the
+          file it's on. You can leave; the run carries on in the background and
+          shows in <See guide="tasks" />. If it stops halfway (Morche restarted,
+          the network dropped), press <UI>Run again</UI>: files already there
+          with the same size are skipped.
+        </P>
+        <Warn>
+          <UI>Empty the source afterwards</UI> deletes from the source only the
+          files that were copied and then found on the destination with the same
+          size. If anything is missing or different, nothing is deleted and the
+          run says why. It needs Engineer access to the source.
+        </Warn>
+        <Example title="Leaving an FTP host for S3">
+          Source <C>Old hosting</C> folder <C>/public_html/uploads</C>,
+          destination <C>R2</C> folder <C>/site-media/uploads</C>, check every
+          file on, empty the source off. Once your site reads from R2, run it
+          once more to pick up late uploads, then remove the FTP storage.
+        </Example>
+      </>
+    ),
+  },
+  {
+    id: "sync",
+    title: "Keeping two storages in sync",
+    body: (
+      <>
+        <P>
+          A <UI>Sync</UI> keeps a folder on one storage up to date with a folder
+          on another, again and again: a second copy of your backups on another
+          provider, a public bucket fed from a private one, a NAS kept in step
+          with S3. Create one in <UI>Storage</UI> › <UI>Syncs</UI> ›{" "}
+          <UI>New sync</UI>, or from a storage's ⋯ menu ›{" "}
+          <UI>Sync to another storage…</UI>.
+        </P>
+        <P>
+          The source can also be a folder on one of your servers: pick a server
+          in <UI>Source</UI>. Morche reads it over SSH and copies it to the
+          storage, which suits files an app writes on the server (uploads,
+          exports, reports). A server source can follow changes as they happen,
+          see{" "}
+          <See guide="storage" section="realtime">
+            Copying changes as they happen
+          </See>
+          .
+        </P>
+        <Table
+          head={["Mode", "What happens on the destination"]}
+          rows={[
+            [
+              <UI key="u">Add and update</UI>,
+              "New and changed files are copied; nothing is ever deleted there. Safest, and the default.",
+            ],
+            [
+              <UI key="m">Mirror</UI>,
+              "It ends up exactly like the source: files gone from the source are deleted there too. Can't target a whole storage (/).",
+            ],
+          ]}
+        />
+        <Table
+          head={["Files already at the destination", "Means"]}
+          rows={[
+            [
+              <UI key="c">Changed files</UI>,
+              "Copy when the size or date differs (usual).",
+            ],
+            [
+              <UI key="o">Only missing files</UI>,
+              "Never overwrite anything already there.",
+            ],
+            [
+              <UI key="e">Everything</UI>,
+              "Copy every file every time. Slow; only to repair a copy.",
+            ],
+          ]}
+        />
+        <P>
+          <UI>Leave out</UI> takes one pattern per line, like <C>*.tmp</C>,{" "}
+          <C>.cache/</C> or <C>logs/*.gz</C>.
+        </P>
+        <P>
+          A sync runs with the access of whoever saved it last: Operator on the
+          source and Engineer on the destination. If that person loses access,
+          the sync stops and its page says why, with a <UI>Fix</UI> button.
+        </P>
+      </>
+    ),
+  },
+  {
+    id: "sync-timing",
+    title: "When a sync runs",
+    body: (
+      <>
+        <Table
+          head={["When", "Use it for"]}
+          rows={[
+            [
+              <UI key="h">By hand</UI>,
+              "One-off copies you start yourself with Run now.",
+            ],
+            [
+              <UI key="s">On a schedule</UI>,
+              "Set times in a time zone, like every night at 02:00. Same builder as cron jobs.",
+            ],
+            [
+              <UI key="i">Every few minutes</UI>,
+              "Background copying: it starts again a set time (1 minute or more) after the last run ended, so runs never pile up.",
+            ],
+            [
+              <UI key="w">As soon as it changes</UI>,
+              "Server sources only: each change is copied a few seconds after it happens. See Copying changes as they happen.",
+            ],
+          ]}
+        />
+        <P>Two delays make a sync safer:</P>
+        <List>
+          <li>
+            <UI>Wait for new files to settle</UI>: a file changed less than this
+            many minutes ago is left for the next run, so a file still being
+            uploaded isn't copied half-written. The run counts them as{" "}
+            <UI>still settling</UI>.
+          </li>
+          <li>
+            <UI>Wait before deleting</UI> (mirror only): a file gone from the
+            source is kept on the destination for this many hours first. The
+            sync's page lists them under <UI>Deletions waiting</UI> with when
+            each goes; if the file comes back to the source in time, it's kept.
+            This gives you a window to undo an accidental delete.
+          </li>
+        </List>
+        <Recommended
+          rows={[
+            {
+              setting: "Backups to a second provider",
+              value: "Add and update, every night",
+              why: "The copy can't be wiped by a mistake on the source.",
+            },
+            {
+              setting: "Files people upload all day",
+              value: "Every 15 minutes, settle 5 minutes",
+              why: "Near-live, and never copies a file mid-upload.",
+            },
+            {
+              setting: "A mirror",
+              value: "Wait before deleting 24 hours",
+              why: "A day to notice and undo a delete on the source.",
+            },
+          ]}
+        />
+        <Tip>
+          A sync that has a problem, or whose last run failed, shows a red count
+          on <UI>Storage</UI> in the menu and on Home. A paused one doesn't.
+        </Tip>
+      </>
+    ),
+  },
+  {
+    id: "realtime",
+    title: "Copying changes as they happen",
+    body: (
+      <>
+        <P>
+          With a server folder as the source, <UI>When</UI> ›{" "}
+          <UI>As soon as it changes</UI> keeps an SSH connection open and
+          follows the folder with <C>inotifywait</C>. A new or changed file is
+          copied to the storage a few seconds after the last write to it; in{" "}
+          <UI>Mirror</UI> mode a deleted file is deleted there too. Nothing runs
+          on the server but <C>inotifywait</C>, and nothing is installed except
+          the <C>inotify-tools</C> package.
+        </P>
+        <Steps>
+          <li>
+            <UI>Storage</UI> › <UI>Syncs</UI> › <UI>New sync</UI>, pick a server
+            and its folder as the <UI>Source</UI>, and a storage as the{" "}
+            <UI>Destination</UI>.
+          </li>
+          <li>
+            Under <UI>When</UI> pick <UI>As soon as it changes</UI>.
+          </li>
+          <li>
+            Save. Morche copies everything once to catch up, then starts
+            watching. The sync's page shows <UI>Following changes</UI>: what's
+            waiting, what was copied, and the last changes one by one.
+          </li>
+        </Steps>
+        <Table
+          head={["Setting", "Means"]}
+          rows={[
+            [
+              <UI key="q">Copy after it's quiet for</UI>,
+              "Seconds a file must go unchanged before it's copied (1 to 600, 5 by default), so a file still being written isn't copied half done.",
+            ],
+            [
+              <UI key="c">Compare everything every</UI>,
+              "A full run that compares both sides, for anything a watch can miss. Off = only after a reconnect; otherwise 15 minutes or more.",
+            ],
+          ]}
+        />
+        <P>
+          If the connection drops, Morche reconnects by itself and runs a full
+          comparison first, so changes made while it was away are copied too. A
+          change that fails to copy is listed with its error and picked up by
+          the next comparison.
+        </P>
+        <Example title="App uploads kept in MinIO">
+          An app writes user uploads to <C>/srv/app/uploads</C>. A sync from
+          that folder to a MinIO bucket, <UI>Add and update</UI>, as soon as it
+          changes, quiet for 5 seconds and a comparison every 6 hours: each
+          upload is in MinIO within seconds, and a daily mistake on the server
+          never deletes the copy.
+        </Example>
+        <Recommended
+          rows={[
+            {
+              setting: "Copy after it's quiet for",
+              value: "5 seconds",
+              why: "Long enough for most writes to finish, still near-live.",
+            },
+            {
+              setting: "Large files written slowly (videos, dumps)",
+              value: "30 to 60 seconds",
+              why: "A slow writer pauses between chunks.",
+            },
+            {
+              setting: "Compare everything every",
+              value: "6 hours or 1 day",
+              why: "A safety net that costs little.",
+            },
+          ]}
+        />
+        <P>If it isn't watching:</P>
+        <List>
+          <li>
+            <UI>Needs inotify-tools</UI>: the package isn't on the server. Press{" "}
+            <UI>Install inotify-tools</UI> on the sync's page (Engineer on the
+            server); watching starts as soon as it's in.
+          </li>
+          <li>
+            <UI>Too many folders</UI>: Linux lets one user watch a limited
+            number of folders (<C>fs.inotify.max_user_watches</C>, often 8192 on
+            older systems). <UI>Raise the limit</UI> sets it high enough for
+            this folder (at least 524288) and keeps it after a reboot; it needs
+            root or passwordless sudo. Or sync a smaller folder.
+          </li>
+          <li>
+            <UI>Reconnecting</UI>: the server can't be reached right now. It
+            tries again by itself; <UI>Restart</UI> tries at once.
+          </li>
+          <li>
+            A file shows up late: it was still being written. Lower{" "}
+            <UI>Copy after it's quiet for</UI> only if files are written in one
+            go.
+          </li>
+        </List>
+        <Warn>
+          Watching runs as the server's login user: files it can't read are
+          listed as failed. Use a login that can read the whole folder.
+        </Warn>
+      </>
+    ),
+  },
+  {
+    id: "replication",
+    title: "MinIO replication",
+    body: (
+      <>
+        <P>
+          When both storages are MinIO, <UI>Who copies</UI> offers{" "}
+          <UI>MinIO replication</UI>: the source MinIO copies each change to the
+          other MinIO itself, usually within seconds. Nothing goes through
+          Morche, and it keeps working while Morche is down. Morche sets up the
+          rule (a remote target and a bucket replication rule on the source
+          bucket, with versioning turned on for both buckets) and shows MinIO's
+          own numbers.
+        </P>
+        <Table
+          head={["Setting", "Means"]}
+          rows={[
+            [
+              <UI key="e">Copy what's already there</UI>,
+              "Also copy objects that were in the bucket before the rule.",
+            ],
+            [
+              <UI key="d">Copy deletions</UI>,
+              "Deleting on the source deletes on the destination too.",
+            ],
+            [
+              <UI key="w">Wait for the copy</UI>,
+              "A write finishes only once the copy is made (slower writes, no lag).",
+            ],
+            [
+              <UI key="b">Speed limit</UI>,
+              "Mbit/s MinIO may use for copying; empty = no limit.",
+            ],
+            [
+              <UI key="a">Destination address for MinIO</UI>,
+              "Only when the source MinIO reaches the other one at a different address than Morche does (e.g. inside Docker).",
+            ],
+          ]}
+        />
+        <P>
+          The page shows what's <UI>Waiting</UI>, <UI>Copied</UI> and{" "}
+          <UI>Failed</UI>, the speed, and whether the destination is reachable.{" "}
+          <UI>Copy everything again</UI> asks MinIO to resync the whole bucket
+          (after the destination was emptied or rebuilt). Turning the sync off
+          pauses the rule; deleting the sync removes it.
+        </P>
+        <Warn>
+          Replication needs Owner access on both storages, keys allowed to
+          change bucket settings, and the same folder inside both buckets (
+          <C>/photos/2026</C> → <C>/backup/photos/2026</C> isn't possible; the
+          editor offers to fix it). Between other kinds of storage, use{" "}
+          <UI>Copied by Morche</UI>.
+        </Warn>
+      </>
+    ),
+  },
+  {
+    id: "troubleshooting",
+    title: "Troubleshooting",
+    body: (
+      <List>
+        <li>
+          <UI>Auth failed</UI>: check the username and password or the access
+          and secret keys, then <UI>Edit</UI> and save again. For Nextcloud, use
+          an app password.
+        </li>
+        <li>
+          <UI>Unreachable</UI> or a timeout: the address or port is wrong, or a
+          firewall blocks the backend's server (not your computer) from reaching
+          the storage.
+        </li>
+        <li>
+          S3 says the bucket doesn't exist, or requests fail with odd addresses:
+          turn on <UI>Path-style URLs</UI> for self-hosted servers, and check
+          the <UI>Region</UI>.
+        </li>
+        <li>
+          FTP lists nothing or hangs: the server may need TLS, or its passive
+          ports are blocked by a firewall.
+        </li>
+        <li>
+          <UI>Host key changed</UI> on SFTP: expected after the machine was
+          reinstalled; otherwise find out why before you trust the new key.
+        </li>
+        <li>
+          In <UI>Insights</UI>, a storage says <UI>Not measured yet</UI>: it's
+          measured once it's online and its turn comes; press{" "}
+          <UI>Measure now</UI> to skip the wait.
+        </li>
+        <li>
+          Grey blocks in an availability strip: Morche wasn't running then, or
+          the storage was added later.
+        </li>
+        <li>
+          Insights' <UI>Activity</UI> is empty: only transfers, cron job syncs
+          and database backups count. Browsing, uploads and downloads in the
+          file manager don't.
+        </li>
+        <li>
+          A sync says <UI>Partly done</UI>: some files failed. Open the run to
+          see each one and why, fix it, and run again; copied files are skipped.
+        </li>
+        <li>
+          Replication says <UI>Destination unreachable</UI>: the source MinIO
+          can't reach the other one. Set <UI>Destination address for MinIO</UI>{" "}
+          to an address the source machine can reach.
+        </li>
+        <li>
+          Replication says the rule isn't on the bucket any more: someone
+          removed it in MinIO. Open the sync's <UI>Edit</UI> and save to put it
+          back.
+        </li>
+      </List>
+    ),
+  },
+]

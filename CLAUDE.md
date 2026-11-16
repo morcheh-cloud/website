@@ -1,8 +1,8 @@
 @AGENTS.md
 
-# Morcheh — Website
+# Morche — Website
 
-Marketing site that introduces Morcheh (the product lives in `../frontend` + `../backend`). One long page per language, no backend.
+Marketing site that introduces Morche (the product lives in `../frontend` + `../backend`). Several pages per language plus the docs, all static (SSG), no backend.
 
 ## Maintaining this file (standing instruction from the user)
 
@@ -22,10 +22,11 @@ pnpm lint:fix
 
 ## Structure
 
-- i18n: fa (default, RTL) + en. `src/proxy.ts` redirects locale-less paths: cookie `MORCHEH_LOCALE` › Accept-Language › fa. Root layout is `app/[lang]/layout.tsx` (`dynamicParams = false`), so unmatched URLs need `experimental.globalNotFound` + `app/global-not-found.tsx`; both 404s render `components/site/lost.tsx`.
+- i18n: fa (default, RTL) + en. `src/proxy.ts` redirects locale-less paths: cookie `MORCHE_LOCALE` › Accept-Language › fa. Root layout is `app/[lang]/layout.tsx` (`dynamicParams = false`), so unmatched URLs need `experimental.globalNotFound` + `app/global-not-found.tsx`; both 404s render `components/site/lost.tsx`.
 - Copy lives only in `src/i18n/en.ts` (defines the `Dictionary` type) and `fa.ts`; components take `t`. Add a string to both.
-- `src/site.ts` = untranslated facts. **Placeholders to replace before launch:** `email` (`hello@morcheh.ir`), `NEXT_PUBLIC_SITE_URL`.
-- Page = `app/[lang]/page.tsx`: Header → Hero (`Tour` wraps it) → Works → Statement → Features → Security → Start → Faq → Cta → Footer. Sections in `src/components/site/`; fonts in `app/fonts.ts`; section links in `nav.ts` (`navLinks`, shared by header + footer; keep it out of the `"use client"` header so the server footer can call it).
+- `src/site.ts` = untranslated facts. **Placeholders to replace before launch:** `email` (`hello@morche.ir`), `NEXT_PUBLIC_SITE_URL`.
+- Pages (`app/[lang]/…`): home (`page.tsx`: Hero (`Tour` wraps it) → Works → Statement → Features → Security → Start → DocsTeaser → Faq → Cta), `product` (per-area text + its vignette, guide chips, more slab), `security` (`<Security heading={false}>` + levels + topics), `install` (needs, steps with `CopyButton`, after-install, `.env` table; mirrors `../deploy/install.sh` + compose), `docs` + `docs/[slug]`. Every page = `SitePage` (header/main/footer) + `PageHero` (lit frame, h1, lead) and `generateMetadata` via `pageMeta(lang, path, title, description)` (`src/lib/meta.ts`). `MoreLink` = text link with arrow. Sections in `src/components/site/`; fonts in `app/fonts.ts`; page links + `headerCopy` (the copy subset sent to the client header) in `nav.ts`: keep them out of the `"use client"` header, the server can't call client-file functions.
+- Docs = the frontend's guides (`../frontend/src/app/help/content`), copied by `pnpm sync:docs` (`scripts/sync-docs.mjs`; rerun after the guides change) into `src/docs/content` + `src/docs/guides.ts` (both generated: don't edit, Biome skips them); `src/docs/prose.tsx` restyles the prose blocks. Guides are **English in both languages**: rendered inside an LTR island `dir="ltr" lang="en" className="docs-en"` (`globals.css` resets fonts/weights), with a Persian notice on /fa. Search = static `/docs-index.json` (`search-index.ts`) fetched on first open, ranked by `search-engine.ts`, UI `docs/ui/search.tsx` (⌘K / `/`); `toc.tsx` scrollspy + `HashFlash`; links via `docHref(lang, slug, section)`.
 - `tour.tsx` = the hero's panel window: tabs (servers, databases, storage, dns, automation, team) auto-advance every 7 s via a CSS `walk` progress line with an ant at its tip (`onAnimationEnd` → next); held on hover/focus, off-screen, hidden tab, pause button, and fully off under reduced motion. `vignettes.tsx` = the fake panel slices it shows (`@container` layouts). They stay **English + LTR in both languages** (`dir="ltr" lang="en" aria-hidden` + `.ui-font`); keep them faithful to the real panel.
 - `statement.tsx` lights words in reading order as you scroll (one `--p` variable, CSS does the rest); backticks in the copy = mono tool names. `works.tsx` = logos from `simple-icons` (lucide fallback where none exists).
 

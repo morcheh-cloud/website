@@ -2,6 +2,7 @@
 
 import { Menu } from "lucide-react"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
 
 import {
@@ -12,19 +13,18 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 import type { Locale } from "@/i18n/config"
-import type { Dictionary } from "@/i18n/en"
 import { cn } from "@/lib/utils"
 import { demoHref } from "@/site"
 
 import { LangSwitch } from "./lang-switch"
 import { Logo } from "./logo"
-import { navLinks } from "./nav"
+import { type HeaderCopy, navLinks } from "./nav"
 
-// A floating pill. It sits inside the hero's frame at the top and keeps
-// its place as the page scrolls, gaining a backdrop once it leaves the
-// frame's light.
-export function Header({ lang, t }: { lang: Locale; t: Dictionary }) {
+// A floating pill. It sits inside the top frame and keeps its place as the
+// page scrolls, gaining a backdrop once it leaves the frame's light.
+export function Header({ lang, t }: { lang: Locale; t: HeaderCopy }) {
   const [scrolled, setScrolled] = useState(false)
+  const pathname = usePathname() ?? ""
 
   useEffect(() => {
     const update = () => setScrolled(window.scrollY > 40)
@@ -33,8 +33,11 @@ export function Header({ lang, t }: { lang: Locale; t: Dictionary }) {
     return () => window.removeEventListener("scroll", update)
   }, [])
 
-  const links = navLinks(t)
+  const links = navLinks(lang, t)
   const other: Locale = lang === "fa" ? "en" : "fa"
+  const isCurrent = (href: string) =>
+    !href.includes("#") &&
+    (pathname === href || pathname.startsWith(`${href}/`))
 
   return (
     <header className="pointer-events-none fixed inset-x-0 top-0 z-50 px-4 pt-[max(1rem,env(safe-area-inset-top))] sm:px-8 sm:pt-7">
@@ -52,16 +55,23 @@ export function Header({ lang, t }: { lang: Locale; t: Dictionary }) {
 
         <nav aria-label={t.nav.label} className="mx-auto hidden lg:block">
           <ul className="flex items-center">
-            {links.map((link) => (
-              <li key={link.href}>
-                <a
-                  href={link.href}
-                  className="rounded-full px-3.5 py-2 text-[0.9375rem] text-lumen/70 transition-colors hover:text-lumen"
-                >
-                  {link.label}
-                </a>
-              </li>
-            ))}
+            {links.map((link) => {
+              const current = isCurrent(link.href)
+              return (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    aria-current={current ? "page" : undefined}
+                    className={cn(
+                      "rounded-full px-3.5 py-2 text-[0.9375rem] transition-colors hover:text-lumen",
+                      current ? "bg-white/[0.08] text-lumen" : "text-lumen/70",
+                    )}
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              )
+            })}
           </ul>
         </nav>
 
@@ -73,7 +83,7 @@ export function Header({ lang, t }: { lang: Locale; t: Dictionary }) {
             className="border-transparent"
           />
           <a
-            href={demoHref(t.cta.subject)}
+            href={demoHref(t.subject)}
             className="hidden h-10 items-center rounded-full bg-lumen px-5 font-medium text-[0.9375rem] text-void transition-colors hover:bg-white sm:inline-flex"
           >
             {t.nav.demo}
@@ -98,17 +108,21 @@ export function Header({ lang, t }: { lang: Locale; t: Dictionary }) {
                     key={link.href}
                     nativeButton={false}
                     render={
-                      <a
+                      <Link
                         href={link.href}
-                        className="flex min-h-12 items-center rounded-xl px-4 text-lg text-lumen hover:bg-raised"
+                        aria-current={isCurrent(link.href) ? "page" : undefined}
+                        className={cn(
+                          "flex min-h-12 items-center rounded-xl px-4 text-lg text-lumen hover:bg-raised",
+                          isCurrent(link.href) && "bg-raised",
+                        )}
                       >
                         {link.label}
-                      </a>
+                      </Link>
                     }
                   />
                 ))}
                 <a
-                  href={demoHref(t.cta.subject)}
+                  href={demoHref(t.subject)}
                   className="mt-6 flex h-12 items-center justify-center rounded-full bg-lumen font-medium text-void"
                 >
                   {t.nav.demo}

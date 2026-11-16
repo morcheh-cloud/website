@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils"
 
-// Morcheh means "ant": the mark is its three body segments, as in the panel.
+// Morche means "ant": the mark is its three body segments, as in the panel.
 export function LogoMark({ className }: { className?: string }) {
   return (
     <svg

@@ -1,12 +1,12 @@
 import { notFound } from "next/navigation"
 
 import { Cta } from "@/components/site/cta"
+import { DocsTeaser } from "@/components/site/docs-teaser"
 import { Faq } from "@/components/site/faq"
 import { Features } from "@/components/site/features"
-import { Footer } from "@/components/site/footer"
-import { Header } from "@/components/site/header"
 import { Hero } from "@/components/site/hero"
 import { Security } from "@/components/site/security"
+import { SitePage } from "@/components/site/site-page"
 import { Start } from "@/components/site/start"
 import { Statement } from "@/components/site/statement"
 import { Works } from "@/components/site/works"
@@ -19,19 +19,19 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
   const t = getDictionary(lang)
 
   return (
-    <>
-      <Header lang={lang} t={t} />
-      <main>
-        <Hero t={t} />
-        <Works t={t} />
-        <Statement text={t.statement} />
-        <Features t={t} />
-        <Security t={t} />
-        <Start lang={lang} t={t} />
-        <Faq t={t} />
-        <Cta t={t} />
-      </main>
-      <Footer lang={lang} t={t} />
-    </>
+    <SitePage lang={lang} t={t}>
+      <Hero t={t} />
+      <Works t={t} />
+      <Statement text={t.statement} />
+      <Features lang={lang} t={t} />
+      <Security
+        t={t}
+        more={{ href: `/${lang}/security`, label: t.home.securityMore }}
+      />
+      <Start lang={lang} t={t} />
+      <DocsTeaser lang={lang} t={t} />
+      <Faq t={t} />
+      <Cta t={t} />
+    </SitePage>
   )
 }
