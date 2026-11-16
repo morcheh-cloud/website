@@ -27,6 +27,8 @@ ARG NEXT_PUBLIC_SITE_URL=https://morche.ir
 ENV NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL} NEXT_TELEMETRY_DISABLED=1
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+# public/ is empty and so not in git; the runtime stage copies it.
+RUN mkdir -p public
 RUN pnpm build
 
 # ---- runtime ------------------------------------------------------------------
