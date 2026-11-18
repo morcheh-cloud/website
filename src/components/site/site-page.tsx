@@ -15,10 +15,10 @@ export function SitePage({
   children: ReactNode
 }) {
   return (
-    <>
+    <div>
       <Header t={headerCopy(t)} />
       <main>{children}</main>
       <Footer t={t} />
-    </>
+    </div>
   )
 }

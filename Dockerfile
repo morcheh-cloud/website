@@ -2,7 +2,7 @@
 #
 # Morche website (Next.js, standalone output). Every page is prerendered at
 # build time, so the public address is baked in then:
-#   docker build --build-arg NEXT_PUBLIC_SITE_URL=https://morche.ir -t morche-website .
+#   docker build --build-arg NEXT_PUBLIC_SITE_URL=https://morche.cloud -t morche-website .
 #   docker run -p 3300:3300 morche-website
 
 ARG NODE_VERSION=26.12.1
@@ -23,7 +23,7 @@ FROM node:${NODE_VERSION}-slim AS build
 WORKDIR /app
 ARG PNPM_VERSION
 RUN npm install -g pnpm@${PNPM_VERSION}
-ARG NEXT_PUBLIC_SITE_URL=https://morche.ir
+ARG NEXT_PUBLIC_SITE_URL=https://morche.cloud
 ENV NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL} NEXT_TELEMETRY_DISABLED=1
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .

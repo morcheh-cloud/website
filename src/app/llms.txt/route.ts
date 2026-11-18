@@ -15,7 +15,7 @@ export function GET() {
     "",
     `> ${copy.meta.description}`,
     "",
-    `- [Install](${abs("/install")}): one script on a Linux server with Docker`,
+    `- [Install](${abs("/install")}): local quick start, automatic server setup and manual Docker Compose`,
     `- [Product](${abs("/product")})`,
     `- [Security](${abs("/security")})`,
     `- [Source code](${site.github.org})`,

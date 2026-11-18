@@ -1,35 +1,14 @@
 import type { Dictionary } from "@/copy"
+import { site } from "@/site"
 
 import { CopyButton } from "./copy-button"
 import { MoreLink } from "./more-link"
 
-const commands = [
-  "git clone https://github.com/morcheh-cloud/morche.git",
-  "cd morche",
-  "./install.sh",
-]
-
-// The tail of what install.sh prints on a fresh machine (deploy repo).
-const output = [
-  { text: "Address people will use to reach this machine", tone: "text-dust" },
-  { text: "(IP or domain) [10.0.0.4]: panel.example.com", tone: "text-dust" },
-  {
-    text: "Wrote .env (keep a copy of SECRETS_KEY somewhere safe).",
-    tone: "text-dust",
-  },
-  {
-    text: "Morche is starting. Open http://panel.example.com:3200",
-    tone: "text-leaf",
-  },
-  {
-    text: "The first-run form asks for the setup token: 4be1…",
-    tone: "text-lumen",
-  },
-]
-
 // A real sequence, so the steps are numbered; the terminal beside them is
 // the first step, done.
 export function Start({ t }: { t: Dictionary }) {
+  const output = t.start.output
+
   return (
     <section
       id="start"
@@ -66,26 +45,27 @@ export function Start({ t }: { t: Dictionary }) {
             <figcaption className="flex items-center justify-between gap-3 border-line border-b py-2 ps-5 pe-2">
               <span className="text-dust text-xs">{t.start.codeLabel}</span>
               <CopyButton
-                text={commands.join("\n")}
+                text={site.install.server}
                 copy={t.start.copy}
                 copied={t.start.copied}
               />
             </figcaption>
-            <pre className="overflow-x-auto px-5 py-5 font-mono text-[0.8125rem] text-lumen leading-7">
-              {commands.map((line) => (
-                <code key={line} className="block">
-                  <span className="select-none text-honey">$ </span>
-                  {line}
-                </code>
-              ))}
-              {output.map((line) => (
-                <code
-                  key={line.text}
-                  className={`block select-none whitespace-pre ${line.tone}`}
-                >
-                  {line.text}
-                </code>
-              ))}
+            <pre className="whitespace-pre-wrap wrap-anywhere px-5 py-5 font-mono text-[0.8125rem] text-lumen leading-7">
+              <code className="block">
+                <span className="select-none text-honey">$ </span>
+                {site.install.server}
+              </code>
+              <code className="block select-none text-dust">
+                {output.prompt}
+              </code>
+              <code className="mt-2 block select-none text-leaf">
+                {output.ready}
+              </code>
+              <code className="block select-none text-dust">
+                {output.panel}
+              </code>
+              <code className="block select-none text-dust">{output.api}</code>
+              <code className="block select-none">{output.token}</code>
               <code className="block select-none text-dust">
                 <span className="text-honey">$ </span>
                 <span className="inline-block h-4 w-2 translate-y-0.5 bg-lumen/80 motion-safe:animate-pulse" />

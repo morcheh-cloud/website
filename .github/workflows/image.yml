@@ -70,4 +70,4 @@ jobs:
           cache-to: type=gha,mode=max
           # Set the repo variable SITE_URL to change the address baked into pages.
           build-args: |
-            NEXT_PUBLIC_SITE_URL=${{ vars.SITE_URL || 'https://morche.ir' }}
+            NEXT_PUBLIC_SITE_URL=${{ vars.SITE_URL || 'https://morche.cloud' }}

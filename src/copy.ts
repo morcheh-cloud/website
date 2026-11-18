@@ -210,7 +210,15 @@ export const copy = {
     ],
     copy: "Copy",
     copied: "Copied",
-    codeLabel: "Install commands",
+    codeLabel: "Server install",
+    output: {
+      prompt:
+        "Address people will use to reach this machine (IP or domain): panel.example.com",
+      ready: "✓ Morche is ready",
+      panel: "Panel        http://panel.example.com:3200",
+      api: "API          http://panel.example.com:8080",
+      token: "Setup token  4be1…",
+    },
   },
   faq: {
     title: "Questions teams ask us",
@@ -241,7 +249,7 @@ export const copy = {
       },
       {
         q: "How do we get started?",
-        a: "Clone the morche repository on any Linux server with Docker and run ./install.sh. It takes about ten minutes, and the install guide covers HTTPS, updates and backups.",
+        a: "Run the installer on a Linux server with Docker Compose, or use Quick start to try Morche locally. The install guide also walks through manual setup, HTTPS, updates and backups.",
       },
     ],
   },
@@ -505,82 +513,148 @@ export const copy = {
   },
   install: {
     description:
-      "Install Morche on your own Linux server with Docker: requirements, the installer, the first admin, HTTPS, updates and backups.",
-    title: "Running on your server in ten minutes.",
-    lead: "One script on any Linux server with Docker, from public images built from the open-source code. You keep everything: the data, the keys and the updates.",
+      "Self-host Morche with Docker Compose. Try it locally, run the automatic server installer, or configure the stack by hand.",
+    title: "Install Morche",
+    lead: "Try Morche on your own machine or deploy it on a server. Docker Compose runs the panel, API, PostgreSQL and Redis.",
     needsTitle: "What you need",
     needs: [
-      "A Linux server with Docker 24 or newer and the compose plugin",
-      "2 GB of memory and 10 GB of disk",
-      "Ports 3200 (panel) and 8080 (API) open, or a reverse proxy in front",
-      "SSH from it to the servers you'll add",
+      "Linux (amd64 or arm64) with Docker Engine 24+",
+      "Docker Compose plugin (docker compose)",
+      "2 GB RAM and 10 GB of disk space",
+      "Free ports 3200 (panel) and 8080 (API) by default",
     ],
-    stepsTitle: "Install",
-    steps: [
-      {
-        title: "Download Morche",
-        body: "Clone the release repository on the server.",
-        code: "git clone https://github.com/morcheh-cloud/morche.git\ncd morche",
+    methodsTitle: "Choose an install method",
+    methods: {
+      quick: {
+        label: "Quick start",
+        title: "Try Morche locally",
+        body: "Run this on your machine. For a fresh setup, the installer generates secrets, starts the stack and binds both ports to 127.0.0.1. The default panel address is http://localhost:3200.",
+        note: "Quick start uses ~/morche by default. If it already contains a .env file, use --dir with a fresh directory and choose free ports.",
       },
-      {
-        title: "Run the installer",
-        body: "It asks for the address people will reach the panel at, writes .env with fresh secrets, starts every service and prints a setup token.",
-        code: "./install.sh",
+      automatic: {
+        label: "Automatic",
+        title: "Install on a server",
+        body: "Run this on the Linux server that will host Morche. Enter the IP address or domain that browsers will use to reach it. The installer writes ~/morche/.env, pulls the images and prints the panel URL and setup token.",
+        optionsTitle: "Installer options",
+        options: [
+          ["--quick-start", "Create a local-only setup."],
+          [
+            "--dir PATH",
+            "Choose a directory for the Compose file and .env. MORCHE_DIR sets the same location.",
+          ],
+          ["-h, --help", "Show the installer help."],
+        ],
+        optionsNote:
+          "Set PANEL_PORT, BACKEND_PORT or MORCHE_VERSION before running the installer to change the defaults for a new setup. Existing .env settings take precedence.",
+        hostExample: "Set MORCHE_HOST to skip the address prompt.",
       },
-      {
-        title: "Create the first admin",
-        body: "Open the panel at that address on port 3200. The first visit asks for the setup token, then your admin account.",
-        code: "",
+      clone: {
+        label: "From Git",
+        title: "Run the installer from a checkout",
+        body: "Clone the deployment repository and run the script. It uses the Compose file in the checkout. Add --quick-start to ./install.sh for a local-only setup.",
       },
-      {
-        title: "Add your servers",
-        body: "Add each one with an SSH key or a password. Morche checks the connection and starts watching right away.",
-        code: "",
+      manual: {
+        label: "Manual",
+        title: "Set up Docker Compose by hand",
+        body: "Use the shipped Compose file and set your own addresses, ports and secrets.",
+        download: "Clone the deployment repository.",
+        configure:
+          "Create .env from the template. Set PANEL_URL and API_URL to the addresses browsers will use. Use a distinct COMPOSE_PROJECT_NAME and free ports if you already run another Morche instance.",
+        envCode: "test -f .env || (umask 077; cp .env.example .env)\nvi .env",
+        secrets:
+          "Run openssl rand -hex 24 separately for POSTGRES_PASSWORD, REDIS_PASSWORD and SETUP_TOKEN. Generate SECRETS_KEY with openssl rand -base64 32.",
+        start: "Start the stack after saving .env.",
       },
-    ],
+    },
+    setupTitle: "Create the first admin",
+    setup:
+      "Open the panel URL printed by the installer or set in PANEL_URL. Create the first admin account and enter the setup token from the terminal or your .env file. You can then connect your servers over SSH.",
     afterTitle: "After installing",
+    directory:
+      "Run Compose commands from the directory containing your compose.yml and .env.",
+    secrets: {
+      title: "Keep a copy of SECRETS_KEY",
+      body: "Every stored password and SSH key depends on this encryption key. Keep a copy of .env off the server, alongside your database backup.",
+    },
+    httpsExample: "View .env example",
     after: [
-      {
-        id: "secrets",
-        title: "Keep a copy of SECRETS_KEY",
-        body: "It encrypts every stored password and key. Without it they can't be read, so keep a copy of .env somewhere other than this server.",
-        code: "",
-      },
       {
         id: "https",
         title: "Put it behind HTTPS",
-        body: "Use any reverse proxy, with one name for the panel and one for the API, then set PANEL_URL and API_URL in .env to those addresses.",
-        code: "",
+        body: "Use separate domains for the panel and API. Proxy them to localhost ports 3200 and 8080.",
+        code: "PANEL_URL=https://panel.example.com\nAPI_URL=https://api.example.com\nPANEL_BIND=127.0.0.1\nBACKEND_BIND=127.0.0.1\nCOOKIE_INSECURE=false\nTRUST_PROXY=true",
+        note: "Apply these .env changes with docker compose up -d. Pass WebSocket upgrades, disable buffering for live responses and enable TRUST_PROXY only when the proxy sets X-Forwarded-For.",
       },
       {
         id: "update",
         title: "Update",
-        body: "Pin MORCHE_VERSION in .env if you like, then pull and restart.",
+        body: "Pin MORCHE_VERSION to a release to choose when to upgrade. Database migrations run when the backend starts.",
         code: "docker compose pull\ndocker compose up -d",
       },
       {
         id: "backup",
         title: "Back up",
-        body: "Two things matter: the database and .env.",
+        body: "Save a database dump and a copy of .env. Replace /somewhere/safe/ with your backup destination.",
         code: "docker compose exec -T postgres pg_dump -U morche morche | gzip > morche-$(date +%F).sql.gz\ncp .env /somewhere/safe/",
       },
     ],
     settingsTitle: "Settings in .env",
+    applySettings:
+      "After editing .env, apply your changes from the Compose directory.",
+    composeLink: "View compose.yml",
+    environmentLink: "See all environment variables",
     settingsHead: ["Setting", "What it does"],
     settings: [
-      ["MORCHE_VERSION", "Which release to run (default: the latest)."],
-      ["PANEL_URL", "The panel's address, as people open it."],
-      ["API_URL", "The API's address, as the browser reaches it."],
-      ["SECRETS_KEY", "Encrypts stored credentials. Keep a copy."],
-      ["COOKIE_INSECURE", "Allow sign-in over plain http (testing only)."],
-      ["TRUST_PROXY", "Read the visitor's address from your reverse proxy."],
+      ["MORCHE_VERSION", "Image tag. latest follows the main branch."],
+      [
+        "PANEL_URL",
+        "The exact panel origin in the browser, including scheme and port.",
+      ],
+      ["API_URL", "The API address reachable from the browser."],
+      ["PANEL_PORT, BACKEND_PORT", "Host ports for the panel and API."],
+      [
+        "PANEL_BIND, BACKEND_BIND",
+        "Use 127.0.0.1 for local or proxied access and 0.0.0.0 for direct access from other machines.",
+      ],
+      [
+        "POSTGRES_PASSWORD, REDIS_PASSWORD",
+        "Separate passwords for the bundled data stores.",
+      ],
+      ["SECRETS_KEY", "Encrypts stored credentials. Back up this key."],
+      ["SETUP_TOKEN", "Required by the first-admin form when configured."],
+      ["COOKIE_INSECURE", "Set true for plain HTTP and false for HTTPS."],
+      [
+        "TRUST_PROXY",
+        "Set true behind a reverse proxy that sets X-Forwarded-For.",
+      ],
       ["TZ", "Time zone for schedules and reports."],
+    ],
+    troubleshootingTitle: "Troubleshooting",
+    troubleshooting: [
+      {
+        title: "Sign-in won’t stick",
+        body: "Match COOKIE_INSECURE to the scheme you use in the browser. Set it to true for HTTP or false for HTTPS.",
+      },
+      {
+        title: "The panel can’t reach the API",
+        body: "Check that API_URL is reachable from your browser and that PANEL_URL matches the address bar, including the scheme and port.",
+      },
+      {
+        title: "Check the logs",
+        body: "Run this from the Compose directory to follow the backend and panel logs.",
+        code: "docker compose logs -f backend frontend",
+      },
+      {
+        title: "Locked out of every admin account",
+        body: "Run the admin reset from the Compose directory.",
+        code: "docker compose exec backend server reset-admin",
+      },
     ],
     copy: "Copy",
     copied: "Copied",
     help: "Stuck? Open",
     helpOr: "or write to",
-    readme: "Full guide in the repository",
+    readme: "Full installation guide on GitHub",
     issue: "an issue on GitHub",
   },
   docs: {

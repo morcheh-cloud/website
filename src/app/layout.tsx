@@ -49,7 +49,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" dir="ltr" className={fontVariables}>
+    <html
+      lang="en"
+      dir="ltr"
+      className={fontVariables}
+      data-scroll-behavior="smooth"
+    >
       <body className="min-h-dvh">{children}</body>
     </html>
   )
