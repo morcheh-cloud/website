@@ -39,6 +39,12 @@ export function Cta({ t }: { t: Dictionary }) {
               {t.cta.button}
             </Link>
             <a
+              href={site.demo}
+              className="inline-flex h-13 items-center rounded-full border border-white/15 bg-white/[0.04] px-7 font-medium text-[1.0625rem] text-lumen transition-colors hover:border-white/30 hover:bg-white/[0.08]"
+            >
+              {t.cta.demo}
+            </a>
+            <a
               href={site.github.morche}
               className="inline-flex h-13 items-center gap-2.5 rounded-full border border-white/15 bg-white/[0.04] px-7 font-medium text-[1.0625rem] text-lumen transition-colors hover:border-white/30 hover:bg-white/[0.08]"
             >

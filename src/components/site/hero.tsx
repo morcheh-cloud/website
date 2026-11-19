@@ -35,6 +35,12 @@ export function Hero({ t }: { t: Dictionary }) {
               {t.hero.primary}
             </Link>
             <a
+              href={site.demo}
+              className="inline-flex h-12 items-center rounded-full border border-white/15 bg-white/[0.04] px-7 font-medium text-lumen transition-colors hover:border-white/30 hover:bg-white/[0.08]"
+            >
+              {t.hero.demo}
+            </a>
+            <a
               href={site.github.morche}
               className="inline-flex h-12 items-center gap-2.5 font-medium text-lumen/80 underline decoration-white/25 underline-offset-[6px] transition-colors hover:text-lumen hover:decoration-white/60"
             >

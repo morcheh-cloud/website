@@ -24,7 +24,8 @@ WORKDIR /app
 ARG PNPM_VERSION
 RUN npm install -g pnpm@${PNPM_VERSION}
 ARG NEXT_PUBLIC_SITE_URL=https://morche.cloud
-ENV NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL} NEXT_TELEMETRY_DISABLED=1
+ARG NEXT_PUBLIC_DEMO_URL=https://demo.morche.cloud
+ENV NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL} NEXT_PUBLIC_DEMO_URL=${NEXT_PUBLIC_DEMO_URL} NEXT_TELEMETRY_DISABLED=1
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 # public/ is empty and so not in git; the runtime stage copies it.

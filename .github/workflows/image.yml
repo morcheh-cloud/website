@@ -71,3 +71,4 @@ jobs:
           # Set the repo variable SITE_URL to change the address baked into pages.
           build-args: |
             NEXT_PUBLIC_SITE_URL=${{ vars.SITE_URL || 'https://morche.cloud' }}
+            NEXT_PUBLIC_DEMO_URL=${{ vars.DEMO_URL || 'https://demo.morche.cloud' }}

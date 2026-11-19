@@ -11,6 +11,8 @@ export const site = {
   email: "hello@morche.ir",
   // Absolute origin, used for canonical links and social previews.
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://morche.cloud",
+  // The public demo (../morche/demo); ?demo=1 signs the visitor in at once.
+  demo: `${process.env.NEXT_PUBLIC_DEMO_URL ?? "https://demo.morche.cloud"}/login?demo=1`,
   // Morche is open source: the organization and its repositories.
   github: {
     org,

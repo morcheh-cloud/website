@@ -4,6 +4,7 @@ import { access } from "./access"
 import { alerts } from "./alerts"
 import { ansible } from "./ansible"
 import { applications } from "./applications"
+import { assets } from "./assets"
 import { cloud } from "./cloud"
 import { commandLog } from "./command-log"
 import { containers } from "./containers"
@@ -45,6 +46,7 @@ export const content: Record<string, GuideSection[]> = {
   "server-overview": serverOverview,
   "server-metrics": serverMetrics,
   "server-notes": serverNotes,
+  assets,
   "command-log": commandLog,
   "terminal-recordings": terminalRecordings,
   monitoring,

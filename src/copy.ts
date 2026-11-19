@@ -23,6 +23,7 @@ export const copy = {
     lead: "Morche installs on your organization's servers and runs everything your team manages from one panel: servers, databases, storage, DNS, backups and access.",
     badge: "Open source · self-hosted with Docker",
     primary: "Install Morche",
+    demo: "Try the live demo",
     secondary: "View on GitHub",
   },
   tour: {
@@ -257,6 +258,7 @@ export const copy = {
     title: "Bring your servers home.",
     body: "Free and open source. One script on any Linux server with Docker, and it's yours.",
     button: "Install Morche",
+    demo: "Try the live demo",
     github: "Star it on GitHub",
     or: "Questions? Write to",
   },

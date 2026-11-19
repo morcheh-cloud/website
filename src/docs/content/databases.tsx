@@ -996,6 +996,203 @@ db.createUser({
     ),
   },
   {
+    id: "restore-file",
+    title: "Restoring from a file",
+    body: (
+      <>
+        <P>
+          A dump Morche didn't take (one made by hand, by another tool, or
+          copied over from another machine) can be loaded too, straight from the
+          server or storage it sits on. Only an Owner can start it, and it
+          follows the same rules as restoring a backup.
+        </P>
+        <Steps>
+          <P>
+            On the database's <UI>Backups</UI> tab press{" "}
+            <UI>Restore from a file</UI> (on a phone: under <UI>Restores</UI>).
+          </P>
+          <P>
+            Choose where the file is: any storage, or any server, you can read
+            files on. Browse to it; files that look like dumps (<C>.sql</C>,{" "}
+            <C>.dump</C>, <C>.gz</C>, <C>.bak</C>, <C>.archive</C>…) are listed
+            first. A path you know can be typed in the box under the list.
+          </P>
+          <P>
+            Morche reads the file and says what it is, how big, and which
+            databases it holds. A file that can't go into this database says
+            why, and <UI>Continue</UI> stays off.
+          </P>
+          <P>
+            For a MongoDB archive with several databases, pick{" "}
+            <UI>Which database to take</UI>.
+          </P>
+          <P>
+            Then fill the form as for a backup: <UI>Restore into</UI>,{" "}
+            <UI>Replace it</UI> or <UI>As a new database</UI>,{" "}
+            <UI>Back it up first</UI>, <UI>Run it from</UI>, login, and type the
+            name to confirm.
+          </P>
+        </Steps>
+        <Table
+          head={["File", "Restored by Morche"]}
+          rows={[
+            [
+              "PostgreSQL: pg_dump -Fc archive or plain SQL dump",
+              "Yes, into any name",
+            ],
+            [
+              "MySQL / MariaDB: mysqldump of one database",
+              "Yes, into any name",
+            ],
+            [
+              "mysqldump with --databases (says USE <name>)",
+              "Only into the database it names",
+            ],
+            [
+              "MongoDB: mongodump --archive (gzipped or not)",
+              "Yes, one database at a time, into any name",
+            ],
+            ["SQL Server .bak", "Yes, on its own server only"],
+            [
+              "pg_dumpall, pg_dump --create, several MySQL databases, Redis RDB",
+              "No: restore it by hand",
+            ],
+          ]}
+        />
+        <Recommended
+          rows={[
+            {
+              setting: "A file from somewhere else",
+              value: "As a new database first",
+              why: "Shows what's in it before it replaces anything",
+            },
+            {
+              setting: "Back it up first",
+              value: "On, next to the file or on a storage",
+              why: "The only way back from a replace",
+            },
+          ]}
+        />
+        <P>
+          The backup before goes next to the file when the file is on a storage
+          you can write to. When it's on a server, or a storage you only read,
+          choose a storage under <UI>Keep it on</UI> (with a bucket, give the
+          folder, starting with the bucket).
+        </P>
+        <Tip>
+          A <C>.gz</C> file is unpacked on the fly; nothing is written next to
+          it. The whole file is read and checked once before the database is
+          touched, so a dump that was cut short stops the restore with the
+          database as it was.
+        </Tip>
+        <P>If it fails:</P>
+        <List>
+          <li>
+            <UI>This is a … backup, but the database is …</UI>: the file is for
+            another engine. Pick the right database.
+          </li>
+          <li>
+            <UI>The dump doesn't reach its last line</UI>: the copy is
+            incomplete. Copy it again.
+          </li>
+          <li>
+            <UI>creates and connects to its own database</UI>: dump it again
+            without <C>--create</C>, or load it by hand.
+          </li>
+          <li>
+            Access: Operator on the file's server or storage, Engineer on the
+            storage the backup before goes to.
+          </li>
+        </List>
+        <See guide="databases" section="restore">
+          Restoring a backup
+        </See>
+      </>
+    ),
+  },
+  {
+    id: "sync",
+    title: "Syncing into another database",
+    body: (
+      <>
+        <P>
+          A sync copies one database into another of the same engine, by hand,
+          every few minutes or on a schedule. Find them on the database's{" "}
+          <UI>Syncs</UI> tab. Press <UI>Compare</UI> first: it shows what a run
+          would add, change and delete, table by table with sample rows, and
+          writes nothing. <UI>Apply these changes</UI> then runs it for real.
+        </P>
+        <Table
+          head={["Kind", "What it does"]}
+          rows={[
+            [
+              "Chosen tables",
+              "Compares the tables you pick row by row: add new rows, update ones that differ, optionally delete extras. You choose who wins a difference and what happens when the target refuses a row.",
+            ],
+            [
+              "Mirror",
+              "Makes every table on the target match the source, row by row, with no downtime. Rows the source doesn't have are deleted.",
+            ],
+            [
+              "Only new rows",
+              "Copies rows added since the last run, using a column that grows (an id or updated_at). Fast; a full check every few hours catches deletions.",
+            ],
+            [
+              "Replace",
+              "Drops the target and loads a fresh dump each run. The target is briefly empty. Works for MongoDB too.",
+            ],
+          ]}
+        />
+        <Steps>
+          <li>
+            On the source database open <UI>Syncs</UI> tab › <UI>New sync</UI>.
+          </li>
+          <li>Pick the kind, then the target database and its name.</li>
+          <li>
+            Pick the tables (and the column that grows, for only new rows).
+          </li>
+          <li>
+            Pick when it runs and press <UI>Save and compare</UI>.
+          </li>
+        </Steps>
+        <Recommended
+          rows={[
+            {
+              setting: "Staging copy",
+              value: "Replace, every night",
+              why: "A clean, exact copy; a short gap is fine there.",
+            },
+            {
+              setting: "Reporting copy",
+              value: "Mirror, every 5–15 minutes",
+              why: "Stays close to live with no downtime.",
+            },
+            {
+              setting: "Big append-only tables",
+              value: "Only new rows, every few minutes",
+              why: "Reads only what was added since the last run.",
+            },
+          ]}
+        />
+        <Warn>
+          Mirror, Replace and Chosen tables with deleting on can remove data on
+          the target: saving asks you to type the target's name. Row kinds work
+          on PostgreSQL and MySQL/MariaDB; Replace also on MongoDB.
+        </Warn>
+        <Tip>
+          Replace runs the dump and load tools on Morche's own machine or a
+          server you pick (<UI>Where it runs</UI>); a database reached through a
+          server always uses that server. A table without a primary or unique
+          key can't be matched row by row: skip it or reload it whole.
+        </Tip>
+        <P>
+          Access: Operator on the source, Owner on the target. A sync runs with
+          the access of whoever saved it last.
+        </P>
+      </>
+    ),
+  },
+  {
     id: "insights",
     title: "Insights: charts and statistics",
     body: (
