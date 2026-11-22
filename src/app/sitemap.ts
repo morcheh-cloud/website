@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next"
 
+import { releases } from "@/changelog"
 import { allArticles, tags, topics } from "@/content/db"
 import { MIN_INDEXED, tagHref, topicHref, tutorialsHref } from "@/content/href"
 import { guides } from "@/docs/guides"
@@ -29,6 +30,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     entry("/", 1),
     entry("/product", 0.9),
     entry("/install", 0.9),
+    entry("/demo", 0.8),
+    entry("/changelog", 0.7, releases[0]?.date),
     entry("/security", 0.8),
     entry("/docs", 0.8),
     ...guides.map((g) => entry(docHref(g.slug), 0.7)),

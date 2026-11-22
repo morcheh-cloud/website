@@ -272,6 +272,8 @@ export const copy = {
     install: "Install",
     docs: "Docs",
     tutorials: "Tutorials",
+    demo: "Live demo",
+    changelog: "Changelog",
     faq: "Questions",
   },
   footerCols: {
@@ -284,6 +286,90 @@ export const copy = {
     gettingStarted: "Getting started",
     issues: "Report an issue",
     repos: { morche: "Docker setup", backend: "Backend", frontend: "Panel" },
+  },
+  demoPage: {
+    description:
+      "Try Morche in your browser, no account and no install: a live panel with throwaway servers, databases, storage and containers that you can manage freely. It resets on a schedule.",
+    title: "Try Morche before you install it.",
+    lead: "A live panel with real servers to manage. No account, no install, nothing to clean up afterwards.",
+    enter: "Enter the live demo",
+    install: "Install Morche",
+    note: "Opens the demo panel in a new tab and signs you in at once.",
+    lab: {
+      title: "What is inside",
+      body: "The demo runs the real panel against a small lab of throwaway machines, rebuilt from scratch at every reset.",
+      items: [
+        {
+          title: "Servers",
+          body: "Two Debian servers with SSH, systemd, nginx, a small service, fail2ban and a firewall. Open a terminal, browse files, read the metrics.",
+          guide: "servers",
+        },
+        {
+          title: "Containers",
+          body: "A server with Docker and a Compose project. See logs and live stats, update a service, look at the map.",
+          guide: "containers",
+        },
+        {
+          title: "Databases",
+          body: "PostgreSQL, MariaDB and Redis to monitor, browse, query and back up.",
+          guide: "databases",
+        },
+        {
+          title: "Storage",
+          body: "An S3 storage for the file manager, bucket settings, syncs and backups.",
+          guide: "storage",
+        },
+      ],
+    },
+    try: {
+      title: "Things worth trying",
+      items: [
+        "Open a terminal on a server and run top, then find the process in the Processes tab.",
+        "Browse the Postgres database in the data explorer and run a query.",
+        "Open Home and follow a problem to the server it is about.",
+        "Build an automation and run its dry run, without saving anything.",
+        "Try a firewall change: Morche counts down and undoes it if you lose access.",
+      ],
+    },
+    rules: {
+      title: "How the demo works",
+      items: [
+        {
+          title: "It resets",
+          body: "Everything returns to the seeded state on a fixed clock. A bar under the header counts down to the next reset, and the charts keep their history.",
+        },
+        {
+          title: "It is shared",
+          body: "Everyone enters as the same Engineer account, so please leave things tidy for the next visitor. Your own terminals stay yours.",
+        },
+        {
+          title: "It is sandboxed",
+          body: "The lab has no route to the internet or to Morche's own data. Whatever you point Morche at can only reach the lab.",
+        },
+        {
+          title: "It has limits",
+          body: "Passwords, sessions, granting access, Ansible and owner-only actions are closed, exactly as for an Engineer on a real panel.",
+        },
+      ],
+    },
+    ready: {
+      title: "Liked it? Run your own.",
+      body: "Morche is free and open source. One script on any Linux server with Docker, and the same panel is yours.",
+    },
+  },
+  changelogPage: {
+    description:
+      "What is new in Morche: every feature, improvement and fix, release by release, written from the project's git history.",
+    title: "What's new in Morche",
+    lead: "Every feature, improvement and fix, newest first. Written from the git history of the panel, the server and the Docker setup.",
+    feed: "Subscribe with RSS",
+    github: "Full history on GitHub",
+    read: "Read the guide",
+    jump: "Releases",
+    latest: "Latest updates",
+    latestLead: "Morche moves fast. Here is what shipped most recently.",
+    all: "See the whole changelog",
+    empty: "Nothing here yet.",
   },
   home: {
     featuresMore: "See everything Morche does",

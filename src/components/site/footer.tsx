@@ -32,6 +32,8 @@ export function Footer({ t }: { t: Dictionary }) {
           label: t.footerCols.gettingStarted,
         },
         { href: `/install`, label: t.pages.install },
+        { href: `/demo`, label: t.pages.demo },
+        { href: `/changelog`, label: t.pages.changelog },
       ],
     },
     {

@@ -7,7 +7,9 @@ export function navLinks(t: Pick<Dictionary, "pages">) {
     { href: "/security", label: t.pages.security },
     { href: "/docs", label: t.pages.docs },
     { href: "/tutorials", label: t.pages.tutorials },
+    { href: "/demo", label: t.pages.demo },
     { href: "/install", label: t.pages.install },
+    { href: "/changelog", label: t.pages.changelog },
     { href: "/#faq", label: t.pages.faq },
   ]
 }
